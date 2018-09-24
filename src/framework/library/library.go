@@ -12,6 +12,7 @@ import (
 	"apps/calculator/calculatorinvoker"
 	"apps/fibonacci/fibonacciclientproxy"
 	"apps/fibonacci/fibonacciinvoker"
+	"framework/components/queueing"
 )
 
 type Record struct {
@@ -33,8 +34,8 @@ var TypeLibrary = map[string]interface{}{
 	"naminginvoker.NamingInvoker"                : naminginvoker.NamingInvoker{},
 	"namingclientproxy.NamingClientProxy"        : namingclientproxy.NamingClientProxy{},
 	"srh.SRH"                                    : srh.SRH{},
-	"crh.CRH"                                    : crh.CRH{}
-    "queueserver.QueueServer"                    : queue}
+	"crh.CRH"                                    : crh.CRH{},
+    "queueing.QueueingService"                    : queueing.QueueingService{}}
 
 var BehaviourLibrary = map[string]string{
 	"sender.Sender":                               "B = I_PreInvR -> InvR.e1 -> B",

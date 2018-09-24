@@ -13,9 +13,10 @@ const DIR_GO      = "/usr/local/go/bin"
 
 // Ports
 
-const NAMING_PORT     = 4040
-const CALCULATOR_PORT = 2020
-const FIBONACCI_PORT  = 2121
+const NAMING_PORT      = 4040
+const CALCULATOR_PORT  = 2020
+const FIBONACCI_PORT   = 2121
+const QUEUESERVER_PORT = 2122
 
 var SetOfPorts = map[string]int{
 	"NAMING_PORT"     : NAMING_PORT,
@@ -35,7 +36,7 @@ const GRAPH_SIZE          = 30
 
 var IS_ADAPTIVE = true
 var INJECTION_ENABLED = false
-var MONITOR_TIME  time.Duration   // seconds
+var MONITOR_TIME time.Duration   // seconds
 var INJECTION_TIME time.Duration  // seconds
 var REQUEST_TIME time.Duration    // milliseconds
 var STRATEGY int      = 0   // 1 - no chanvar ge 2 - change once 3 - change same plugin 4 - alternate plugins

@@ -4,7 +4,7 @@ import (
 	"framework/message"
 	"framework/components/clientproxy/proxy"
 	"reflect"
-	"transport/middleware/ior"
+	"transport/myRPC/ior"
 )
 
 type NamingClientProxy struct {

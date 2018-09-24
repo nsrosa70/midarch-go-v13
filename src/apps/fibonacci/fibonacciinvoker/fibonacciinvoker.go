@@ -3,6 +3,7 @@ package fibonacciinvoker
 import (
 	"framework/message"
 	"apps/fibonacci/impl"
+	"fmt"
 )
 
 type FibonacciInvoker struct{}
@@ -25,5 +26,7 @@ func (FibonacciInvoker) I_PosInvP(msg *message.Message) {
 		body := message.ReplyBody{Reply: r}
 		miop := message.MIOP{ReplyHeader: header, ReplyBody: body}
 		*msg = message.Message{miop}
+	default:
+		fmt.Println("FIBONACCIINVOKER:: Operation "+op+" not supported")
 	}
 }

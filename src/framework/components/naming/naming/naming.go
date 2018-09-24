@@ -2,7 +2,7 @@ package naming
 
 import (
 	"framework/message"
-	"transport/middleware/ior"
+	"transport/myRPC/ior"
 	"fmt"
 	"framework/components/naming/namingclientproxy"
 )

@@ -5,11 +5,11 @@ import (
 	"framework/configuration/configuration"
 	"framework/configuration/commands"
 	"executionenvironment/adaptationmanager"
-	"shared/shared"
 	"shared/parameters"
 	"framework/message"
 	"strings"
 	"strconv"
+	"executionenvironment/versioninginjector"
 )
 
 type ExecutionEnvironment struct{}
@@ -43,7 +43,7 @@ func (ExecutionEnvironment) Exec(conf configuration.Configuration, is_adaptive b
 	if is_adaptive {
 		adaptationManager := adaptationmanager.AdaptationManager{}
 		go adaptationManager.Exec(conf, *channs, *elemMaps, channsUnits)
-		go shared.InjectAdaptiveEvolution(parameters.PLUGIN_BASE_NAME)
+		go versioninginjector.InjectAdaptiveEvolution(parameters.PLUGIN_BASE_NAME)
 	}
 }
 

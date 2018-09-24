@@ -9,7 +9,7 @@ func main(){
 
 	// proxy to queue server
 
-	// consumer
+	// subscriber
 	fmt.Println("Consumer running")
 }
 

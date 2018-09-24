@@ -18,7 +18,7 @@ func main(){
 
 	// start configuration
 	EE := executionenvironment.ExecutionEnvironment{}
-	EE.Exec(conf.GenerateConf(parameters.DIR_CONF + "/MiddlewareQueueServer.conf"),parameters.IS_ADAPTIVE)
+	EE.Exec(conf.GenerateConf(parameters.DIR_CONF+"/" + "MiddlewareQueueServer.conf"),parameters.IS_ADAPTIVE)
 
 	fmt.Println("Queue server started at "+netshared.ResolveHostIp()+" Port= "+strconv.Itoa(parameters.QUEUESERVER_PORT))
 	fmt.Scanln()

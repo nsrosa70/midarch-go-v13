@@ -1,0 +1,15 @@
+echo "Compiling and executing Naming"
+cd /Users/nsr/Dropbox/go/software-architecture-v8/src/transport/middleware/services/naming
+go build namingserver.go 
+
+
+echo "Compiling Server"
+cd /Users/nsr/Dropbox/go/software-architecture-v8/src/apps/fibonacci/main
+go build fibonacciserver.go
+
+echo "Compiling Client"
+cd /Users/nsr/Dropbox/go/software-architecture-v8/src/apps/fibonacci/main
+go build fibonacciclient.go
+
+cd /Users/nsr/Dropbox/go/software-architecture-v8/src/transport/middleware/services/naming
+

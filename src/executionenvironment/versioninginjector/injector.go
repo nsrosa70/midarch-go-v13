@@ -82,7 +82,7 @@ func InjectAdaptiveEvolution(elementName string) {
 func confToGoType(tConf string) string {
 	foundType := false
 	tGo := ""
-	for t := range library.BehaviourLibrary {
+	for t := range library.Repository {
 		if strings.Contains(t, tConf) {
 			tGo = t
 			foundType = true

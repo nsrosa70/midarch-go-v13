@@ -135,7 +135,7 @@ func GenerateConf(fileName string) configuration.Configuration {
 			srhElem := crh.CRH{comps[c].Param}
 			compsTemp[c] = element.Element{Id: c, TypeElem: srhElem}
 		} else {
-			compsTemp[c] = element.Element{Id: c, TypeElem: library.TypeLibrary[confToGoType(comps[c].ElemType)]}
+			compsTemp[c] = element.Element{Id: c, TypeElem: library.Repository[confToGoType(comps[c].ElemType)].Go}
 		}
 		conf.AddComp(compsTemp[c])
 	}
@@ -143,7 +143,7 @@ func GenerateConf(fileName string) configuration.Configuration {
 	// add connectors to configuration
 	connsTemp := make(map[string]element.Element)
 	for t := range conns {
-		connsTemp[t] = element.Element{Id: t, TypeElem: library.TypeLibrary[confToGoType(conns[t])]}
+		connsTemp[t] = element.Element{Id: t, TypeElem: library.Repository[confToGoType(conns[t])].Go}
 		conf.AddConn(connsTemp[t])
 	}
 
@@ -163,7 +163,7 @@ func confToGoType(tConf string) string {
 	foundType := false
 	tGo := ""
 
-	for t := range library.BehaviourLibrary {
+	for t := range library.Repository {
 		if strings.Contains(t, tConf) {
 			tGo = t
 			foundType = true
@@ -171,7 +171,7 @@ func confToGoType(tConf string) string {
 	}
 
 	if !foundType {
-		fmt.Println("Type '" + tConf + "' NOT FOUND in Library")
+		fmt.Println("GenerateConf:: Type '" + tConf + "' NOT FOUND in Behaviour Library")
 		os.Exit(0)
 	}
 	return tGo

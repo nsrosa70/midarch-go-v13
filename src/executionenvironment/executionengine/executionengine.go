@@ -9,6 +9,7 @@ import (
 	"framework/element"
 	"executionenvironment/executionunit"
 	"shared/errors"
+	"verificationtools/fdr"
 )
 
 type ExecutionEngine struct{}
@@ -17,7 +18,7 @@ func (e ExecutionEngine) Exec(conf configuration.Configuration, channs map[strin
 
 	// configure behaviour & behaviour expression
 	for i := range conf.Components {
-		b := library.BehaviourLibrary[reflect.TypeOf(conf.Components[i].TypeElem).String()]
+		b := library.Repository[reflect.TypeOf(conf.Components[i].TypeElem).String()].CSP
 		if b == "" {
 			myError := errors.MyError{Source:"Execution Engine",Message:"Component '"+conf.Components[i].Id+"' does not exist in the Library"}
 			myError.ERROR()
@@ -26,7 +27,7 @@ func (e ExecutionEngine) Exec(conf configuration.Configuration, channs map[strin
 		conf.Components[i] = tempElem
 	}
 	for i := range conf.Connectors {
-		b := library.BehaviourLibrary[reflect.TypeOf(conf.Connectors[i].TypeElem).String()]
+		b := library.Repository[reflect.TypeOf(conf.Connectors[i].TypeElem).String()].CSP
 		if b == "" {
 			myError := errors.MyError{Source:"Execution Engine",Message:"Connector '"+conf.Connectors[i].Id+"'does not exist in the Library"}
 			myError.ERROR()
@@ -36,12 +37,12 @@ func (e ExecutionEngine) Exec(conf configuration.Configuration, channs map[strin
 	}
 
 	// check behaviour using FDR
-	//fdr := new(fdr.FDR)   // TODO
-	//ok := fdr.CheckBehaviour(conf,elemMaps)
-	//if !ok{
-	//	myError := errors.MyError{Source:"Execution Engine",Message:"Configuration has a problem detected by FDR4"}
-	//	myError.ERROR()
-	//}
+	fdr := new(fdr.FDR)   // TODO
+	ok := fdr.CheckBehaviour(conf,elemMaps)
+	if !ok{
+		myError := errors.MyError{Source:"Execution Engine",Message:"Configuration has a problem detected by FDR4"}
+		myError.ERROR()
+	}
 
 	// start components
 	for i := range conf.Components {

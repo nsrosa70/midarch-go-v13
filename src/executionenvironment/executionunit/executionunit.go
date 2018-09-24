@@ -22,7 +22,7 @@ var numReplaces = 0
 
 func (ExecutionUnit) Exec(elem element.Element, channs map[string]chan message.Message, elemMaps map[string]string, chanUnit chan commands.LowLevelCommand) {
 	elem.Behaviour = elem.BehaviourExec
-	elem.BehaviourExp = library.BehaviourLibrary[reflect.TypeOf(elem.TypeElem).String()]
+	elem.BehaviourExp = library.Repository[reflect.TypeOf(elem.TypeElem).String()].CSP
 
 	// check behaviour
 	id := elem.Id

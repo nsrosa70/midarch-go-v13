@@ -27,7 +27,7 @@ func (ExecutionEnvironment) Exec(conf configuration.Configuration, is_adaptive b
 		channsUnits[id] = make(chan commands.LowLevelCommand)
 	}
 
-	// initialize basic elements used thoughout execution
+	// initialize basic elements used throughout execution
 	channs := new(map[string]chan message.Message)
 	elemMaps := new(map[string]string)
 

@@ -32,6 +32,7 @@ func (n NamingClientProxy) Register(args ... interface{}) bool {
 
 	chIn <- reqMsg
 	repMsg := <-chOut
+
 	payload := repMsg.Payload.(map[string]interface{})
 	reply := payload["Reply"].(bool)
 	return reply

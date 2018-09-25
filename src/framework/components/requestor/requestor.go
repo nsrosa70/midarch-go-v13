@@ -21,7 +21,10 @@ func (Requestor) I_PosInvP(msg *message.Message) {
 
 func (Requestor) I_PosTerR(msg *message.Message) {
 	payload := msg.Payload.(map[string]interface{})
-	reply := payload["ReplyBody"]
+
+	miopBody := payload["Body"]
+	miopReplyBody := miopBody.(map[string]interface{})
+	reply := miopReplyBody["ReplyBody"]
 	msgTemp := message.Message{reply}
 	*msg = msgTemp
 }

@@ -11,11 +11,6 @@ type QueueingClientProxy struct {
 	Port int
 }
 
-//var reqMsg message.Message
-//var repMsg message.Message
-//var opRequested = false
-//var opFinished = false
-
 var chIn = make(chan message.Message)
 var chOut = make(chan message.Message)
 
@@ -35,7 +30,8 @@ func (n QueueingClientProxy) Publish(args ... interface{}) bool {
 
 	chIn <- reqMsg
 
-	fmt.Println("QueueingClientProxy:: HERE")
+	fmt.Println("QueueingClientProxy:: HERE "+n.Host)
+
 	repMsg := <-chOut
 	payload := repMsg.Payload.(map[string]interface{})
 	reply := payload["Reply"].(bool)

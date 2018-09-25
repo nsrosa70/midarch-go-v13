@@ -145,8 +145,10 @@ func ProcessOSArguments(args []string){
 			parameters.IS_ADAPTIVE,_ = strconv.ParseBool(variable[1])
 		case "NAMING_HOST":
 			parameters.NAMING_HOST = variable[1]
+		case "QUEUEING_HOST":
+			parameters.QUEUEING_HOST = variable[1]
 		default:
-			fmt.Println("Argument '"+variable[0]+"' does not exist")
+			fmt.Println("Shared:: Parameter '"+variable[0]+"' does not exist")
 			os.Exit(0)
 		}
 	}

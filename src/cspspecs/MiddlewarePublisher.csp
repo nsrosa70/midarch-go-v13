@@ -1,0 +1,13 @@
+datatype PROCNAMES = requestor | t2 | t1 | crh | queueingProxy 
+channel I_PosInvP,I_PreTerP,I_PreInvR,I_PosTerR
+channel TerP,InvR,TerR,InvP : PROCNAMES
+QUEUEINGPROXY = I_PreInvR -> InvR.queueingProxy -> TerR.queueingProxy -> I_PosTerR -> QUEUEINGPROXY
+REQUESTOR = InvP.requestor -> I_PosInvP -> InvR.requestor -> TerR.requestor -> I_PosTerR -> TerP.requestor -> REQUESTOR
+CRH = InvP.crh -> I_PosInvP -> I_PreTerP -> TerP.crh -> CRH
+T1 = InvP.queueingProxy -> InvR.requestor -> TerR.requestor -> TerP.queueingProxy -> T1
+T2 = InvP.requestor -> InvR.crh -> TerR.crh -> TerP.requestor -> T2
+
+P1 = (QUEUEINGPROXY|||REQUESTOR|||CRH)
+[|{|InvR,TerR,InvP,TerP|}|]
+(T1[[InvP <- InvR,InvR <- InvP,TerR <- TerP,TerP <- TerR]]|||T2[[InvP <- InvR,InvR <- InvP,TerR <- TerP,TerP <- TerR]])
+assert P1 :[deadlock free]

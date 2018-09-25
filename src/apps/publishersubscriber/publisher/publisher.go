@@ -16,7 +16,7 @@ func main() {
 
 	// start configuration
 	EE := executionenvironment.ExecutionEnvironment{}
-	EE.Exec(conf.GenerateConf(parameters.DIR_CONF+"/"+"MiddlewareProducer.conf"), parameters.IS_ADAPTIVE)
+	EE.Exec(conf.GenerateConf(parameters.DIR_CONF+"/"+"MiddlewarePublisher.conf"), parameters.IS_ADAPTIVE)
 
 	// proxy to naming service
 	queueingClientProxy := queueing.LocateQueueing(parameters.QUEUEING_HOST, parameters.QUEUESERVER_PORT)

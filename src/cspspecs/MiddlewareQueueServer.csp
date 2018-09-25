@@ -1,11 +1,11 @@
-datatype PROCNAMES = qs | t1 | srh 
+datatype PROCNAMES = srh | qs | t1 
 channel I_PreInvR,I_PosTerR,I_PosInvP
-channel InvR,TerR,InvP,TerP : PROCNAMES
+channel InvP,TerP,InvR,TerR : PROCNAMES
 SRH = I_PreInvR -> InvR.srh -> TerR.srh -> I_PosTerR -> SRH
 QS = InvP.qs -> I_PosInvP -> TerP.qs -> QS
 T1 = InvP.srh -> InvR.qs -> TerR.qs -> TerP.srh -> T1
 
 P1 = (SRH|||QS)
-[|{|InvR,TerR,InvP,TerP|}|]
+[|{|InvP,TerP,InvR,TerR|}|]
 (T1[[InvP <- InvR,InvR <- InvP,TerR <- TerP,TerP <- TerR]])
 assert P1 :[deadlock free]

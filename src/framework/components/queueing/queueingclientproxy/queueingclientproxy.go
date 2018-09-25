@@ -3,6 +3,7 @@ package queueingclientproxy
 import (
 	"framework/message"
 	"reflect"
+	"fmt"
 )
 
 type QueueingClientProxy struct {
@@ -19,19 +20,29 @@ var chIn = make(chan message.Message)
 var chOut = make(chan message.Message)
 
 func (n QueueingClientProxy) Publish(args ... interface{}) bool {
-	msg :=reflect.ValueOf(args[1]).String()
-	argsTemp := []interface{}{args[0], msg}
-	inv := message.Invocation{Host: n.Host, Port: n.Port, Op: "publish", Args: argsTemp}
+	msg :=reflect.ValueOf(args[0]).String()
+	argsTemp := []interface{}{msg}
+
+	requestHeader := message.RequestHeader{Operation:"publish"}
+	requestBody := message.RequestBody{Args:argsTemp}
+	miopHeader := message.MIOPHeader{Magic:"MIOP"}
+	miopBody := message.MIOPBody{RequestHeader:requestHeader,RequestBody:requestBody}
+
+	miop := message.MIOP{Header:miopHeader,Body:miopBody}
+	inv := message.ToCRH{Host:n.Host,Port:n.Port,MIOP:miop}
+
 	reqMsg := message.Message{inv}
 
 	chIn <- reqMsg
+
+	fmt.Println("QueueingClientProxy:: HERE")
 	repMsg := <-chOut
 	payload := repMsg.Payload.(map[string]interface{})
 	reply := payload["Reply"].(bool)
 	return reply
 }
 
-func (n QueueingClientProxy) Subscribe() []interface{} { //TODO
+func (n QueueingClientProxy) Subscribe()[]interface{} { //TODO
 	inv := message.Invocation{Host: n.Host, Port: n.Port, Op: "list"}
 	reqMsg := message.Message{inv}
 

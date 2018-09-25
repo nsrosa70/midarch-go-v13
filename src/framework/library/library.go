@@ -12,7 +12,8 @@ import (
 	"apps/calculator/calculatorinvoker"
 	"apps/fibonacci/fibonacciclientproxy"
 	"apps/fibonacci/fibonacciinvoker"
-	"framework/components/queueing"
+	"framework/components/queueing/queueing"
+	"framework/components/queueing/queueingclientproxy"
 )
 
 type Record struct {
@@ -34,6 +35,7 @@ var Repository = map[string]Record{
 	"naming.NamingService": Record{RBD: "TODO", PRISM: "TODO", Go: naming.NamingService{}, CSP: "B = InvP.e1 -> I_PosInvP -> TerP.e1 -> B"},
 	"naminginvoker.NamingInvoker": Record{RBD: "TODO", PRISM: "TODO", Go: naminginvoker.NamingInvoker{}, CSP: "B = InvP.e1 -> I_PosInvP -> InvR.e2 -> TerR.e2 -> I_PosTerR -> TerP.e1 -> B"},
 	"namingclientproxy.NamingClientProxy": Record{RBD: "TODO", PRISM: "TODO", Go: namingclientproxy.NamingClientProxy{}, CSP: "B = I_PreInvR -> InvR.e1 -> TerR.e1 -> I_PosTerR -> B"},
+	"queueingclientproxy.QueueingClientProxy": Record{RBD: "TODO", PRISM: "TODO", Go: queueingclientproxy.QueueingClientProxy{}, CSP: "B = I_PreInvR -> InvR.e1 -> TerR.e1 -> I_PosTerR -> B"},
 	"srh.SRH": Record{RBD: "TODO", PRISM: "TODO", Go: srh.SRH{}, CSP: "B = I_PreInvR -> InvR.e1 -> TerR.e1 -> I_PosTerR -> B"},
 	"crh.CRH": Record{RBD: "TODO", PRISM: "TODO", Go: crh.CRH{}, CSP: "B = InvP.e1 -> I_PosInvP -> I_PreTerP -> TerP.e1 -> B"},
 	"queueing.QueueingService": Record{RBD: "TODO", PRISM: "TODO", Go: queueing.QueueingService{}, CSP: "B = InvP.e1 -> I_PosInvP -> TerP.e1 -> B"}}

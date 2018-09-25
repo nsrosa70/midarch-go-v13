@@ -8,8 +8,8 @@ import (
 type CalculatorInvoker struct{}
 
 func (CalculatorInvoker) I_PosInvP(msg *message.Message) {
-	op := msg.Payload.(message.MIOP).RequestBody.Op
-	args := msg.Payload.(message.MIOP).RequestBody.Args
+	op := msg.Payload.(message.MIOP).Body.RequestHeader.Operation
+	args := msg.Payload.(message.MIOP).Body.RequestBody.Args
 
 	switch op {
 	case "add":
@@ -23,9 +23,9 @@ func (CalculatorInvoker) I_PosInvP(msg *message.Message) {
 		r := impl.Add(p1, p2)
 
 		// send reply
-		header := message.ReplyHeader{1} // 1 - Success
-		body := message.ReplyBody{Reply: r}
-		miop := message.MIOP{ReplyHeader: header, ReplyBody: body}
+		replyHeader := message.ReplyHeader{Status:1} // 1 - Success
+		replyBody := message.ReplyBody{Reply: r}
+		miop := message.MIOP{Header: message.MIOPHeader{Magic:"MIOP"},Body:message.MIOPBody{ReplyHeader:replyHeader,ReplyBody:replyBody}}
 		*msg = message.Message{miop}
 	}
 }

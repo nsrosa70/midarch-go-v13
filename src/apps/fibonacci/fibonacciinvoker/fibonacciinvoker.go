@@ -9,8 +9,8 @@ import (
 type FibonacciInvoker struct{}
 
 func (FibonacciInvoker) I_PosInvP(msg *message.Message) {
-	op := msg.Payload.(message.MIOP).RequestBody.Op
-	args := msg.Payload.(message.MIOP).RequestBody.Args
+	op := msg.Payload.(message.MIOP).Body.RequestHeader.Operation
+	args := msg.Payload.(message.MIOP).Body.RequestBody.Args
 
 	switch op {
 	case "fibo":
@@ -22,9 +22,13 @@ func (FibonacciInvoker) I_PosInvP(msg *message.Message) {
 		r := impl.Fibo(p1)
 
 		// send reply
-		header := message.ReplyHeader{1} // 1 - Success
-		body := message.ReplyBody{Reply: r}
-		miop := message.MIOP{ReplyHeader: header, ReplyBody: body}
+		replyHeader := message.ReplyHeader{Status:1} // 1 - Success
+		replyBody := message.ReplyBody{Reply: r}
+
+		miopHeader := message.MIOPHeader{Magic:"MIOP"}
+		miopBody := message.MIOPBody{ReplyHeader:replyHeader,ReplyBody:replyBody}
+
+		miop := message.MIOP{Header:miopHeader,Body:miopBody}
 		*msg = message.Message{miop}
 	default:
 		fmt.Println("FIBONACCIINVOKER:: Operation "+op+" not supported")

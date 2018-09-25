@@ -6,7 +6,7 @@ import (
 	"executionenvironment/executionenvironment"
 	"shared/conf"
 	"shared/parameters"
-	"framework/components/naming/naming"
+	"framework/components/queueing/queueing"
 )
 
 func main(){
@@ -19,7 +19,9 @@ func main(){
 	EE.Exec(conf.GenerateConf(parameters.DIR_CONF + "/MiddlewareProducer.conf"),parameters.IS_ADAPTIVE)
 
 	// proxy to naming service
-	queueingClientProxy := queueuing.LocateNaming(parameters.QUEUEING_HOST,parameters.QUEUESERVER_PORT)
+	queueingClientProxy := queueing.LocateQueueing(parameters.QUEUEING_HOST,parameters.QUEUESERVER_PORT)
+
+	queueingClientProxy.Publish("teste")
 
 	// obtain ior
 	//fibo := namingClientProxy.Lookup("Fibonacci").(fibonacciclientproxy.FibonacciClientProxy)

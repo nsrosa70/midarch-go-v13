@@ -17,7 +17,7 @@ type CRH struct {
 var conn net.Conn
 var err error
 
-var portApague int
+var portTmp int
 
 func (c CRH) I_PosInvP(msg *message.Message) {
 
@@ -28,7 +28,7 @@ func (c CRH) I_PosInvP(msg *message.Message) {
 
 	//defer conn.Close()
 
-	portApague = port
+	portTmp = port
 	if err != nil {
 		fmt.Println(err)
 		myError := errors.MyError{Source: "CRH", Message: "Unable to open connection to "+host+" : "+strconv.Itoa(port)}
@@ -51,7 +51,7 @@ func (c CRH) I_PreTerP(msg *message.Message) {
 
 	if err != nil {
 		fmt.Println(err)
-		myError := errors.MyError{Source: "CRH", Message: "Problem in decoding at Port "+strconv.Itoa(portApague)}
+		myError := errors.MyError{Source: "CRH", Message: "Problem in decoding at Port "+strconv.Itoa(portTmp)}
 		myError.ERROR()
 	}
 	conn.Close()

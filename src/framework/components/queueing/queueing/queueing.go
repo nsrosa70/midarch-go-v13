@@ -10,7 +10,7 @@ type QueueingService struct{}
 
 //var Repo = map[string]ior.IOR{}
 
-func (qs QueueingService) I_PosInvP(msg *message.Message) {
+func (QueueingService) I_PosInvP(msg *message.Message) {
 
 	// recover parameters
 	//op := msg.Payload.(message.Invocation).Op
@@ -23,7 +23,7 @@ func (qs QueueingService) I_PosInvP(msg *message.Message) {
 	fmt.Println("Queueing:: HERE")
 }
 
-func LocateNaming(host string, port int) namingclientproxy.NamingClientProxy {
-	p := namingclientproxy.NamingClientProxy{Host: host, Port: port}
+func LocateQueueing(host string, port int) queueingClientProxy.QueueingClientProxy {
+	p := queueingclientproxy.QueueingClientProxy{Host: host, Port: port}
 	return p
 }

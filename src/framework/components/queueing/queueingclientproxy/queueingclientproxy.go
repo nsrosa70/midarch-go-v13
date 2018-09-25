@@ -3,7 +3,6 @@ package queueingclientproxy
 import (
 	"framework/message"
 	"reflect"
-	"transport/myRPC/ior"
 )
 
 type QueueingClientProxy struct {
@@ -20,12 +19,9 @@ var chIn = make(chan message.Message)
 var chOut = make(chan message.Message)
 
 func (n QueueingClientProxy) Publish(args ... interface{}) bool {
-	message := int(reflect.ValueOf(args[1]).FieldByName("Port").Int())
-	host := reflect.ValueOf(args[1]).FieldByName("Host").String()
-	proxy := reflect.TypeOf(args[1]).String()
-	ior := ior.IOR{Host: host, Port: port, Proxy: proxy, Id: 1313} // TODO
-	argsTemp := []interface{}{args[0], ior}
-	inv := message.Invocation{Host: n.Host, Port: n.Port, Op: "register", Args: argsTemp}
+	msg :=reflect.ValueOf(args[1]).String()
+	argsTemp := []interface{}{args[0], msg}
+	inv := message.Invocation{Host: n.Host, Port: n.Port, Op: "publish", Args: argsTemp}
 	reqMsg := message.Message{inv}
 
 	chIn <- reqMsg
@@ -35,7 +31,7 @@ func (n QueueingClientProxy) Publish(args ... interface{}) bool {
 	return reply
 }
 
-func (n QueueingClientProxy) Subscribe() []interface{} {
+func (n QueueingClientProxy) Subscribe() []interface{} { //TODO
 	inv := message.Invocation{Host: n.Host, Port: n.Port, Op: "list"}
 	reqMsg := message.Message{inv}
 

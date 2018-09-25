@@ -2,8 +2,8 @@ package queueing
 
 import (
 	"framework/message"
-	"framework/components/naming/namingclientproxy"
 	"fmt"
+	"framework/components/queueing/queueingclientproxy"
 )
 
 type QueueingService struct{}
@@ -23,7 +23,7 @@ func (QueueingService) I_PosInvP(msg *message.Message) {
 	fmt.Println("Queueing:: HERE")
 }
 
-func LocateQueueing(host string, port int) queueingClientProxy.QueueingClientProxy {
+func LocateQueueing(host string, port int) queueingclientproxy.QueueingClientProxy{
 	p := queueingclientproxy.QueueingClientProxy{Host: host, Port: port}
 	return p
 }

@@ -4,7 +4,6 @@ import (
 	"apps/calculator/calculatorclientproxy"
 	"framework/components/requestor"
 	"framework/connectors"
-	"framework/components/invoker/naminginvoker"
 	"framework/components/srh"
 	"framework/components/naming/namingclientproxy"
 	"framework/components/naming/naming"
@@ -12,8 +11,10 @@ import (
 	"apps/calculator/calculatorinvoker"
 	"apps/fibonacci/fibonacciclientproxy"
 	"apps/fibonacci/fibonacciinvoker"
-	"framework/components/queueing/queueing"
 	"framework/components/queueing/queueingclientproxy"
+	"framework/components/naming/naminginvoker"
+	"framework/components/queueing/queueing"
+	"framework/components/queueing/queueinginvoker"
 )
 
 type Record struct {
@@ -32,10 +33,11 @@ var Repository = map[string]Record{
 	"requestor.Requestor": Record{RBD: "TODO", PRISM: "TODO", Go: requestor.Requestor{}, CSP: "B = InvP.e1 -> I_PosInvP -> InvR.e2 -> TerR.e2 -> I_PosTerR -> TerP.e1 -> B"},
 	"connectors.RequestReply": Record{RBD: "TODO", PRISM: "TODO", Go: connectors.RequestReply{}, CSP: "B = InvP.e1 -> InvR.e2 -> TerR.e2 -> TerP.e1 -> B"},
 	"connectors.NTo1": Record{RBD: "TODO", PRISM: "TODO", Go: connectors.NTo1{}, CSP: "B = InvP.e1 -> InvR.e2 -> TerR.e2 -> TerP.e1 -> B [] InvP.e3 -> InvR.e2 -> TerR.e2 -> TerP.e3 -> B"},
+	"queueing.QueueingService": Record{RBD: "TODO", PRISM: "TODO", Go: queueing.QueueingService{}, CSP: "B = InvP.e1 -> I_PosInvP -> TerP.e1 -> B"},
 	"naming.NamingService": Record{RBD: "TODO", PRISM: "TODO", Go: naming.NamingService{}, CSP: "B = InvP.e1 -> I_PosInvP -> TerP.e1 -> B"},
 	"naminginvoker.NamingInvoker": Record{RBD: "TODO", PRISM: "TODO", Go: naminginvoker.NamingInvoker{}, CSP: "B = InvP.e1 -> I_PosInvP -> InvR.e2 -> TerR.e2 -> I_PosTerR -> TerP.e1 -> B"},
+	"queueinginvoker.QueueingInvoker": Record{RBD: "TODO", PRISM: "TODO", Go: queueinginvoker.QueueingInvoker{}, CSP: "B = InvP.e1 -> I_PosInvP -> InvR.e2 -> TerR.e2 -> I_PosTerR -> TerP.e1 -> B"},
 	"namingclientproxy.NamingClientProxy": Record{RBD: "TODO", PRISM: "TODO", Go: namingclientproxy.NamingClientProxy{}, CSP: "B = I_PreInvR -> InvR.e1 -> TerR.e1 -> I_PosTerR -> B"},
 	"queueingclientproxy.QueueingClientProxy": Record{RBD: "TODO", PRISM: "TODO", Go: queueingclientproxy.QueueingClientProxy{}, CSP: "B = I_PreInvR -> InvR.e1 -> TerR.e1 -> I_PosTerR -> B"},
 	"srh.SRH": Record{RBD: "TODO", PRISM: "TODO", Go: srh.SRH{}, CSP: "B = I_PreInvR -> InvR.e1 -> TerR.e1 -> I_PosTerR -> B"},
-	"crh.CRH": Record{RBD: "TODO", PRISM: "TODO", Go: crh.CRH{}, CSP: "B = InvP.e1 -> I_PosInvP -> I_PreTerP -> TerP.e1 -> B"},
-	"queueing.QueueingService": Record{RBD: "TODO", PRISM: "TODO", Go: queueing.QueueingService{}, CSP: "B = InvP.e1 -> I_PosInvP -> TerP.e1 -> B"}}
+	"crh.CRH": Record{RBD: "TODO", PRISM: "TODO", Go: crh.CRH{}, CSP: "B = InvP.e1 -> I_PosInvP -> I_PreTerP -> TerP.e1 -> B"}}

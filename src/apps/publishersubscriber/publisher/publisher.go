@@ -9,17 +9,17 @@ import (
 	"framework/components/queueing/queueing"
 )
 
-func main(){
+func main() {
 
 	// read OS arguments
 	shared.ProcessOSArguments(os.Args[1:])
 
 	// start configuration
 	EE := executionenvironment.ExecutionEnvironment{}
-	EE.Exec(conf.GenerateConf(parameters.DIR_CONF + "/MiddlewareProducer.conf"),parameters.IS_ADAPTIVE)
+	EE.Exec(conf.GenerateConf(parameters.DIR_CONF+"/"+"MiddlewareProducer.conf"), parameters.IS_ADAPTIVE)
 
 	// proxy to naming service
-	queueingClientProxy := queueing.LocateQueueing(parameters.QUEUEING_HOST,parameters.QUEUESERVER_PORT)
+	queueingClientProxy := queueing.LocateQueueing(parameters.QUEUEING_HOST, parameters.QUEUESERVER_PORT)
 
 	queueingClientProxy.Publish("teste")
 

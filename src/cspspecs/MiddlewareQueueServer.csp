@@ -1,4 +1,4 @@
-datatype PROCNAMES = srh | queueing | invoker | t1 | t2 
+datatype PROCNAMES = t1 | t2 | queueing | invoker | srh 
 channel I_PosInvP,I_PosTerR,I_PreInvR
 channel InvR,TerR,InvP,TerP : PROCNAMES
 QUEUEING = InvP.queueing -> I_PosInvP -> TerP.queueing -> QUEUEING
@@ -8,6 +8,6 @@ T1 = InvP.srh -> InvR.invoker -> TerR.invoker -> TerP.srh -> T1
 T2 = InvP.invoker -> InvR.queueing -> TerR.queueing -> TerP.invoker -> T2
 
 P1 = (QUEUEING|||INVOKER|||SRH)
-[|{|TerP,InvR,TerR,InvP|}|]
+[|{|InvP,TerP,InvR,TerR|}|]
 (T1[[InvP <- InvR,InvR <- InvP,TerR <- TerP,TerP <- TerR]]|||T2[[InvP <- InvR,InvR <- InvP,TerR <- TerP,TerP <- TerR]])
 assert P1 :[deadlock free]

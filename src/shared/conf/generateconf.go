@@ -18,6 +18,8 @@ import (
 func GenerateConf(fileName string) configuration.Configuration {
 	conf := configuration.Configuration{}
 
+	fileName = parameters.DIR_CONF+"/"+fileName
+
 	// read file
 	fileContent := []string{}
 	file, err := os.Open(fileName)

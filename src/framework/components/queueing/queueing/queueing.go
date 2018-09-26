@@ -3,8 +3,6 @@ package queueing
 import (
 	"framework/message"
 	"fmt"
-	"framework/components/queueing/queueingclientproxy"
-	"shared/parameters"
 	"framework/components/queueing/queueimpl"
 )
 
@@ -37,7 +35,3 @@ func (QueueingService) I_PosInvP(msg *message.Message) {
 	}
 }
 
-func LocateQueueing() queueingclientproxy.QueueingClientProxy {
-	p := queueingclientproxy.QueueingClientProxy{Host: parameters.QUEUEING_HOST, Port: parameters.QUEUEING_PORT}
-	return p
-}

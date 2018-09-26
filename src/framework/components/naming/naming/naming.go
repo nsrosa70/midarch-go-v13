@@ -3,70 +3,35 @@ package naming
 import (
 	"framework/message"
 	"transport/myRPC/ior"
-	"fmt"
-	"framework/components/naming/namingclientproxy"
-	"shared/parameters"
+	"framework/components/naming/namingimpl"
 )
 
 type NamingService struct{}
-
-var Repo = map[string]ior.IOR{}
+var ns = namingimpl.NamingImpl{}
 
 func (n NamingService) I_PosInvP(msg *message.Message) {
-
-	// recover parameters
 	op := msg.Payload.(message.Invocation).Op
-	args := msg.Payload.(message.Invocation).Args
 
 	switch op {
 	case "register":
-		fmt.Println("Naming:: Register")
+		args := msg.Payload.(message.Invocation).Args
 	    argsX := args.([]interface{})
-		fmt.Println(argsX)
-	    p1 := argsX[0].(string)
-		p2 := argsX[1].(map[string]interface{})
-		ior := ior.IOR{Host:p2["Host"].(string),Port:int(p2["Port"].(float64)),Id:int(p2["Id"].(float64)),Proxy:p2["Proxy"].(string)}
-		r := n.Register(p1,ior)
-		msgRep := message.Message{r}
+	    _p1 := argsX[0].(string)
+		_p2 := argsX[1].(map[string]interface{})
+		ior := ior.IOR{Host:_p2["Host"].(string),Port:int(_p2["Port"].(float64)),Id:int(_p2["Id"].(float64)),Proxy:_p2["Proxy"].(string)}
+		_r := ns.Register(_p1,ior)
+		msgRep := message.Message{_r}
 		*msg = msgRep
 	case "lookup":
-		fmt.Println("Naming:: Lookup")
+		args := msg.Payload.(message.Invocation).Args
 		argsX := args.([]interface{})
-		p1 := argsX[0].(string)
-		r := n.Lookup(p1)
-		msgRep := message.Message{r}
+		_p1 := argsX[0].(string)
+		_r := n.Lookup(_p1)
+		msgRep := message.Message{_r}
 		*msg = msgRep
 	case "list":
-		fmt.Println("Naming:: List")
-		r := n.List()
-		msgRep := message.Message{r}
+		_r := n.List()
+		msgRep := message.Message{_r}
 		*msg = msgRep
 	}
-}
-
-// ************* Functional interface ****************//
-func (NamingService) Lookup(s string) ior.IOR {
-	return Repo[s]
-}
-
-func (NamingService) List() []string{
-	keys := make([]string, 0, len(Repo))
-	for k := range Repo {
-		keys = append(keys, k)
-	}
-	return keys
-}
-
-func (n NamingService) Register(serviceName string, ior ior.IOR) bool{
-	if _, ok := Repo[serviceName]; ok {
-		return false
-	} else {
-		Repo[serviceName] = ior
-		return true
-	}
- }
-
-func LocateNaming() namingclientproxy.NamingClientProxy {
-	p := namingclientproxy.NamingClientProxy{Host:parameters.NAMING_HOST,Port:parameters.NAMING_PORT}
-	return p
 }

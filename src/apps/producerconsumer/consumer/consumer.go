@@ -2,8 +2,8 @@ package main
 
 import (
 	EE "executionenvironment/executionenvironment"
-	"framework/components/queueing/queueing"
 	"fmt"
+	"shared/factories"
 )
 
 func main() {
@@ -11,8 +11,8 @@ func main() {
 	// start configuration
 	EE.ExecutionEnvironment{}.Deploy("MiddlewareQueueingClient.conf")
 
-	// proxy to naming service
-	queueingClientProxy := queueing.LocateQueueing()
+	// proxy to queueing service
+	queueingClientProxy := factories.FactoryQueueing()
 
 	for {
 		fmt.Println("Consumer:: Here")

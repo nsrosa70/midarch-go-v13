@@ -21,7 +21,7 @@ func main() {
 	// proxy to naming service
 	queueingClientProxy := queueing.LocateQueueing(parameters.QUEUEING_HOST, parameters.QUEUESERVER_PORT)
 
-	queueingClientProxy.Publish("teste")
+	queueingClientProxy.Publish("topic1","teste")
 
 	// obtain ior
 	//fibo := namingClientProxy.Lookup("Fibonacci").(fibonacciclientproxy.FibonacciClientProxy)

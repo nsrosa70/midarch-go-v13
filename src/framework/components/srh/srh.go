@@ -24,7 +24,6 @@ func (s SRH) I_PreInvR(msg *message.Message) {
 
 	if !serverUp {
 		addr := netshared.ResolveHostIp() + ":" + strings.TrimSpace(strconv.Itoa(s.Port))
-		fmt.Println("SRH:: "+addr)
 		ln, err = net.Listen("tcp", addr)
 
 		if err != nil {

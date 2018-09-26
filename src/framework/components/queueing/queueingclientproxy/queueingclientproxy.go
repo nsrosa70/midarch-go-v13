@@ -14,8 +14,9 @@ var chIn = make(chan message.Message)
 var chOut = make(chan message.Message)
 
 func (n QueueingClientProxy) Publish(args ... interface{}) bool {
-	msg :=reflect.ValueOf(args[0]).String()
-	argsTemp := []interface{}{msg}
+	topic := reflect.ValueOf(args[0]).String()
+	msg :=reflect.ValueOf(args[1]).String()
+	argsTemp := []interface{}{topic,msg}
 
 	inv := message.Invocation{Host: n.Host, Port: n.Port, Op: "publish", Args: argsTemp}
 	reqMsg := message.Message{inv}

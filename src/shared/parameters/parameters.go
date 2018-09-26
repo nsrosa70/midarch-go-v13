@@ -30,6 +30,7 @@ const EVOLUTIVE_CHANGE = 2
 const PROACTIVE_CHANGE = 3
 
 const CHAN_BUFFER_SIZE = 1
+const QUEUE_SIZE       = 1000
 
 //const PLUGIN_BASE_NAME  = "calculatorinvoker"
 const PLUGIN_BASE_NAME    = "fibonacciinvoker"

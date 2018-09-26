@@ -13,7 +13,7 @@ type QueueingClientProxy struct {
 var chIn = make(chan message.Message)
 var chOut = make(chan message.Message)
 
-func (n QueueingClientProxy) Publish(args ... interface{}) float64 {
+func (n QueueingClientProxy) Publish(args ... interface{}) bool {
 	topic := reflect.ValueOf(args[0]).String()
 	msg :=reflect.ValueOf(args[1]).String()
 	argsTemp := []interface{}{topic,msg}
@@ -23,7 +23,7 @@ func (n QueueingClientProxy) Publish(args ... interface{}) float64 {
 	chIn <- reqMsg
 	repMsg := <-chOut
 	payload := repMsg.Payload.(map[string]interface{})
-	reply := payload["Reply"].(float64)
+	reply := payload["Reply"].(bool)
 	return reply
 }
 
@@ -31,7 +31,7 @@ func (n QueueingClientProxy) Consume(args ... interface{}) string {
 	topic := reflect.ValueOf(args[0]).String()
 	argsTemp := []interface{}{topic}
 
-	inv := message.Invocation{Host: n.Host, Port: n.Port, Op: "consumer", Args: argsTemp}
+	inv := message.Invocation{Host: n.Host, Port: n.Port, Op: "consume", Args: argsTemp}
 	reqMsg := message.Message{inv}
 	chIn <- reqMsg
 	repMsg := <-chOut

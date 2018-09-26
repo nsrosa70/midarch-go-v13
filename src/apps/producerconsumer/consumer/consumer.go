@@ -1,15 +1,29 @@
 package main
 
-import "fmt"
+import (
+	"shared/shared"
+	"os"
+	"executionenvironment/executionenvironment"
+	"shared/conf"
+	"shared/parameters"
+	"framework/components/queueing/queueing"
+	"fmt"
+)
 
-func main(){
-	// os parameters
+func main() {
 
-	// start myRPC
+	// read OS arguments
+	shared.ProcessOSArguments(os.Args[1:])
 
-	// proxy to queue server
+	// start configuration
+	EE := executionenvironment.ExecutionEnvironment{}
+	EE.Exec(conf.GenerateConf(parameters.DIR_CONF+"/"+"MiddlewareQueueingClient.conf"), parameters.IS_ADAPTIVE)
 
-	// consumer
-	fmt.Println("Consumer running")
+	// proxy to naming service
+	queueingClientProxy := queueing.LocateQueueing(parameters.QUEUEING_HOST, parameters.QUEUESERVER_PORT)
+
+	for {
+		fmt.Println("Consumer:: Here")
+		fmt.Println(queueingClientProxy.Consume("Topic01"))
+	}
 }
-

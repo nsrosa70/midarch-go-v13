@@ -12,8 +12,6 @@ type QueueingService struct{}
 var Queues = map[string]chan string{}
 
 func (q QueueingService) I_PosInvP(msg *message.Message) {
-
-	// recover parameters
 	op := msg.Payload.(message.Invocation).Op
 	args := msg.Payload.(message.Invocation).Args
 
@@ -22,41 +20,50 @@ func (q QueueingService) I_PosInvP(msg *message.Message) {
 		argsX := args.([]interface{})
 		topic := argsX[0].(string)
 		m := argsX[1].(string)
-		r := q.Publish(topic,m)
-		msgRep := message.Message{r}
+		r := q.Publish(topic, m)
+		msgRep := message.Message{Payload: r}
 		*msg = msgRep
-	case "consumer":
+	case "consume":
 		argsX := args.([]interface{})
 		topic := argsX[0].(string)
 		r := q.Consume(topic)
-		msgRep := message.Message{r}
+		msgRep := message.Message{Payload: r}
 		*msg = msgRep
 	default:
-		fmt.Println("Queueing:: Operation "+op+" is not implemented by Queue Server")
+		fmt.Println("Queueing:: Operation " + op + " is not implemented by Queue Server")
 	}
 }
 
-func (QueueingService) Publish(topic string, msg string) int {
+func (QueueingService) Publish(topic string, msg string) bool {
+	r := false
 
 	if _, ok := Queues[topic]; !ok {
 		Queues[topic] = make(chan string, parameters.QUEUE_SIZE)
 	}
-	Queues[topic] <- msg
-	return len(Queues[topic])
+
+	if len(Queues[topic]) < parameters.QUEUE_SIZE {
+		Queues[topic] <- msg
+		r = true
+	} else {
+		r = false
+	}
+	return r
 }
 
 func (QueueingService) Consume(topic string) string {
-
+	r := ""
 	if _, ok := Queues[topic]; !ok {
 		Queues[topic] = make(chan string, parameters.QUEUE_SIZE)
 	}
-
-	msg := <- Queues[topic]
-
-	return msg
+	if len(Queues[topic]) == 0 {
+		r = "EMPTY QUEUE"
+	} else {
+		r = <-Queues[topic]
+	}
+	return r
 }
 
-func LocateQueueing(host string, port int) queueingclientproxy.QueueingClientProxy{
+func LocateQueueing(host string, port int) queueingclientproxy.QueueingClientProxy {
 	p := queueingclientproxy.QueueingClientProxy{Host: host, Port: port}
 	return p
 }

@@ -7,7 +7,6 @@ import (
 	"shared/conf"
 	"shared/parameters"
 	"framework/components/queueing/queueing"
-	"strconv"
 	"fmt"
 )
 
@@ -23,9 +22,9 @@ func main() {
 	// proxy to naming service
 	queueingClientProxy := queueing.LocateQueueing(parameters.QUEUEING_HOST, parameters.QUEUESERVER_PORT)
 
-	for i:= 0 ; i < 10 ; i++ {
-		queueingClientProxy.Publish("Topic 1",strconv.Itoa(i))
+	for {
+		r:= queueingClientProxy.Publish("Topic01","msg")
+		fmt.Print("Producer:: ")
+		fmt.Println(r)
 	}
-
-	fmt.Println(queueingClientProxy.Consume("Topic 1"))
 }

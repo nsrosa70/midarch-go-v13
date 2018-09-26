@@ -16,7 +16,7 @@ func main(){
 	executionenvironment.ExecutionEnvironment{}.Exec("MiddlewareFibonacciServer.conf")
 
 	// proxy to naming service
-	namingClientProxy := naming.LocateNaming(parameters.NAMING_HOST)
+	namingClientProxy := naming.LocateNaming()
 
 	// register
 	fibo := fibonacciclientproxy.FibonacciClientProxy{Host:netshared.ResolveHostIp(),Port:parameters.FIBONACCI_PORT} // TODO

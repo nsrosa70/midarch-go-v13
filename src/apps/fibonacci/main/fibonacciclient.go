@@ -15,7 +15,7 @@ func main(){
 	EE.ExecutionEnvironment{}.Exec("MiddlewareFibonacciClient.conf")
 
 	// proxy to naming service
-	namingClientProxy := naming.LocateNaming(parameters.NAMING_HOST)
+	namingClientProxy := naming.LocateNaming()
 
 	// obtain ior
 	fibo := namingClientProxy.Lookup("Fibonacci").(fibonacciclientproxy.FibonacciClientProxy)

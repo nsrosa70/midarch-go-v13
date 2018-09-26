@@ -66,7 +66,7 @@ func (n NamingService) Register(serviceName string, ior ior.IOR) bool{
 	}
  }
 
-func LocateNaming(host string) namingclientproxy.NamingClientProxy {
-	p := namingclientproxy.NamingClientProxy{Host:host,Port:parameters.NAMING_PORT}
+func LocateNaming() namingclientproxy.NamingClientProxy {
+	p := namingclientproxy.NamingClientProxy{Host:parameters.NAMING_HOST,Port:parameters.NAMING_PORT}
 	return p
 }

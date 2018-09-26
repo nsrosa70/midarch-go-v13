@@ -1,6 +1,6 @@
-datatype PROCNAMES = queueingProxy | requestor | crh | t1 | t2 
-channel I_PreInvR,I_PosTerR,I_PosInvP,I_PreTerP
-channel TerP,InvR,TerR,InvP : PROCNAMES
+datatype PROCNAMES = requestor | crh | queueingProxy | t1 | t2 
+channel I_PosInvP,I_PosTerR,I_PreTerP,I_PreInvR
+channel InvP,TerP,InvR,TerR : PROCNAMES
 QUEUEINGPROXY = I_PreInvR -> InvR.queueingProxy -> TerR.queueingProxy -> I_PosTerR -> QUEUEINGPROXY
 REQUESTOR = InvP.requestor -> I_PosInvP -> InvR.requestor -> TerR.requestor -> I_PosTerR -> TerP.requestor -> REQUESTOR
 CRH = InvP.crh -> I_PosInvP -> I_PreTerP -> TerP.crh -> CRH

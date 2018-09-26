@@ -63,7 +63,7 @@ func (QueueingService) Consume(topic string) string {
 	return r
 }
 
-func LocateQueueing(host string) queueingclientproxy.QueueingClientProxy {
-	p := queueingclientproxy.QueueingClientProxy{Host: host, Port: parameters.QUEUEING_PORT}
+func LocateQueueing() queueingclientproxy.QueueingClientProxy {
+	p := queueingclientproxy.QueueingClientProxy{Host: parameters.QUEUEING_HOST, Port: parameters.QUEUEING_PORT}
 	return p
 }

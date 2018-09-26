@@ -17,8 +17,7 @@ import (
 
 type ExecutionEnvironment struct{}
 
-//func (ExecutionEnvironment) Exec(confFile string, is_adaptive bool) {
-func (ExecutionEnvironment) Exec(confFile string) {
+func (ExecutionEnvironment) Deploy(confFile string) {
 
 	// generate configuration
 	shared.LoadParameters(os.Args[1:])

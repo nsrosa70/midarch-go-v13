@@ -5,6 +5,7 @@ import (
 	"transport/myRPC/ior"
 	"fmt"
 	"framework/components/naming/namingclientproxy"
+	"shared/parameters"
 )
 
 type NamingService struct{}
@@ -65,7 +66,7 @@ func (n NamingService) Register(serviceName string, ior ior.IOR) bool{
 	}
  }
 
-func LocateNaming(host string, port int) namingclientproxy.NamingClientProxy {
-	p := namingclientproxy.NamingClientProxy{Host:host,Port:port}
+func LocateNaming(host string) namingclientproxy.NamingClientProxy {
+	p := namingclientproxy.NamingClientProxy{Host:host,Port:parameters.NAMING_PORT}
 	return p
 }

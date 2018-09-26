@@ -1,6 +1,6 @@
-datatype PROCNAMES = t1 | t2 | queueing | invoker | srh 
+datatype PROCNAMES = srh | queueing | invoker | t2 | t1 
 channel I_PosInvP,I_PosTerR,I_PreInvR
-channel InvR,TerR,InvP,TerP : PROCNAMES
+channel InvP,TerP,InvR,TerR : PROCNAMES
 QUEUEING = InvP.queueing -> I_PosInvP -> TerP.queueing -> QUEUEING
 INVOKER = InvP.invoker -> I_PosInvP -> InvR.invoker -> TerR.invoker -> I_PosTerR -> TerP.invoker -> INVOKER
 SRH = I_PreInvR -> InvR.srh -> TerR.srh -> I_PosTerR -> SRH

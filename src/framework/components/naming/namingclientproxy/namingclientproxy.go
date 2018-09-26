@@ -12,11 +12,6 @@ type NamingClientProxy struct {
 	Port int
 }
 
-//var reqMsg message.Message
-//var repMsg message.Message
-//var opRequested = false
-//var opFinished = false
-
 var chIn = make(chan message.Message)
 var chOut = make(chan message.Message)
 

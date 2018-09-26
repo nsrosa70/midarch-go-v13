@@ -1,10 +1,7 @@
 package main
 
 import (
-	"shared/shared"
-	"os"
-	"executionenvironment/executionenvironment"
-	"shared/conf"
+	EE "executionenvironment/executionenvironment"
 	"shared/parameters"
 	"framework/components/queueing/queueing"
 	"fmt"
@@ -12,12 +9,8 @@ import (
 
 func main() {
 
-	// read OS arguments
-	shared.ProcessOSArguments(os.Args[1:])
-
 	// start configuration
-	EE := executionenvironment.ExecutionEnvironment{}
-	EE.Exec(conf.GenerateConf("MiddlewareQueueingClient.conf"), parameters.IS_ADAPTIVE)
+	EE.ExecutionEnvironment{}.Exec("MiddlewareQueueingClient.conf")
 
 	// proxy to naming service
 	queueingClientProxy := queueing.LocateQueueing(parameters.QUEUEING_HOST)

@@ -7,7 +7,7 @@ import (
 
 type FibonacciClientProxy struct {
 	Host  string
-	Port  int
+	Port int
 	Proxy string
 }
 
@@ -18,7 +18,7 @@ func (c FibonacciClientProxy) Fibo(p1 int) int {
 
 	// configure parameters
 	args := []int{p1}
-	inv := message.Invocation{Host: c.Host, Port: c.Port, Op: "fibo", Args: args}
+	inv := message.Invocation{Host: c.Host, Port: parameters.FIBONACCI_PORT, Op: "fibo", Args: args}
 	reqMsg := message.Message{inv}
 
 	// send invocation to the requestor

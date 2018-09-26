@@ -6,23 +6,16 @@ import (
 	"time"
 	"apps/fibonacci/fibonacciclientproxy"
 	"shared/parameters"
-	"shared/conf"
-	"executionenvironment/executionenvironment"
-	"os"
-	"shared/shared"
+	EE "executionenvironment/executionenvironment"
 )
 
 func main(){
 
-	// read OS arguments
-	shared.ProcessOSArguments(os.Args[1:])
-
 	// start configuration
-	EE := executionenvironment.ExecutionEnvironment{}
-	EE.Exec(conf.GenerateConf(parameters.DIR_CONF + "/MiddlewareFibonacciClient.conf"),parameters.IS_ADAPTIVE)
+	EE.ExecutionEnvironment{}.Exec("MiddlewareFibonacciClient.conf")
 
 	// proxy to naming service
-	namingClientProxy := naming.LocateNaming(parameters.NAMING_HOST,parameters.NAMING_PORT)
+	namingClientProxy := naming.LocateNaming(parameters.NAMING_HOST)
 
 	// obtain ior
 	fibo := namingClientProxy.Lookup("Fibonacci").(fibonacciclientproxy.FibonacciClientProxy)

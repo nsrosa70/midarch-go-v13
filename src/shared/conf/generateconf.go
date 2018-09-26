@@ -18,7 +18,7 @@ import (
 func GenerateConf(fileName string) configuration.Configuration {
 	conf := configuration.Configuration{}
 
-	fileName = parameters.DIR_CONF+"/"+fileName
+	fileName = parameters.DIR_CONF + "/" + fileName
 
 	// read file
 	fileContent := []string{}
@@ -41,12 +41,43 @@ func GenerateConf(fileName string) configuration.Configuration {
 			confName = strings.TrimSpace(temp[1])
 		}
 	}
-
 	if confName == "" {
 		fmt.Println("Something is Wrong in 'Configuration'")
 		os.Exit(0)
 	}
 	conf.Id = confName
+
+	// Define adaptatibility
+	foundAdaptability := false
+	for l := range fileContent {
+		tempLine := fileContent[l]
+		if strings.Contains(tempLine, "Configuration") {
+			foundAdaptability = false
+		}
+
+		if (foundAdaptability && tempLine != "") {
+			if strings.Contains(tempLine, "true") {
+				parameters.IS_ADAPTIVE = true
+				break
+			} else {
+				if strings.Contains(tempLine, "false") {
+					parameters.IS_ADAPTIVE = false
+					break
+				} else {
+					fmt.Println("Something is wrong in 'Adaptability'")
+					os.Exit(0)
+				}
+			}
+		}
+		if strings.Contains(tempLine, "Adaptability") {
+			foundAdaptability = true
+		}
+	}
+
+	if !foundAdaptability{
+		fmt.Println("'Adaptability' NOT defined!")
+		os.Exit(0)
+	}
 
 	// Identify Components
 	foundComponents := false
@@ -130,7 +161,7 @@ func GenerateConf(fileName string) configuration.Configuration {
 	// Add components to configuration
 	compsTemp := make(map[string]element.Element)
 	for c := range comps {
-		if strings.Contains(comps[c].ElemType, "SRH")  {
+		if strings.Contains(comps[c].ElemType, "SRH") {
 			srhElem := srh.SRH{comps[c].Param}
 			compsTemp[c] = element.Element{Id: c, TypeElem: srhElem}
 		} else if strings.Contains(comps[c].ElemType, "CRH") {
@@ -157,7 +188,6 @@ func GenerateConf(fileName string) configuration.Configuration {
 		c2 := compsTemp[strings.TrimSpace(attsTemp[2])]
 		conf.AddAtt(attachments.Attachment{C1: c1, T: t, C2: c2})
 	}
-
 	return conf
 }
 

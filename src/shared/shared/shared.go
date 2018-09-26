@@ -121,7 +121,7 @@ type Quotient struct {
 	Quo, Rem int
 }
 
-func ProcessOSArguments(args []string){
+func LoadParameters(args []string){
 	for i:= range args{
 		variable := strings.Split(args[i],"=")
 		switch strings.TrimSpace(variable[0]) {

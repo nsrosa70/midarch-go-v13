@@ -10,11 +10,19 @@ import (
 	"strings"
 	"strconv"
 	"executionenvironment/versioninginjector"
+	"shared/conf"
+	"shared/shared"
+	"os"
 )
 
 type ExecutionEnvironment struct{}
 
-func (ExecutionEnvironment) Exec(conf configuration.Configuration, is_adaptive bool) {
+//func (ExecutionEnvironment) Exec(confFile string, is_adaptive bool) {
+func (ExecutionEnvironment) Exec(confFile string) {
+
+	// generate configuration
+	shared.LoadParameters(os.Args[1:])
+	conf := conf.GenerateConf(confFile)
 
 	// Initialize channels between Units and Adaptation manager
 	channsUnits := make(map[string]chan commands.LowLevelCommand)
@@ -40,7 +48,7 @@ func (ExecutionEnvironment) Exec(conf configuration.Configuration, is_adaptive b
 	go executionEngine.Exec(conf, *channs, *elemMaps, channsUnits)
 
 	// start adaptation manager
-	if is_adaptive {
+	if parameters.IS_ADAPTIVE {
 		adaptationManager := adaptationmanager.AdaptationManager{}
 		go adaptationManager.Exec(conf, *channs, *elemMaps, channsUnits)
 		go versioninginjector.InjectAdaptiveEvolution(parameters.PLUGIN_BASE_NAME)

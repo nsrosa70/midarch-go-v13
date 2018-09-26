@@ -17,9 +17,9 @@ import (
 
 type ExecutionEnvironment struct{}
 
-func (ExecutionEnvironment) Deploy(confFile string) {
+func (ee ExecutionEnvironment) Deploy(confFile string) {
 
-	// generate configuration
+	// Generate configuration
 	shared.LoadParameters(os.Args[1:])
 	conf := conf.GenerateConf(confFile)
 
@@ -34,19 +34,19 @@ func (ExecutionEnvironment) Deploy(confFile string) {
 		channsUnits[id] = make(chan commands.LowLevelCommand)
 	}
 
-	// initialize basic elements used throughout execution
+	// Initialize basic elements used throughout execution
 	channs := new(map[string]chan message.Message)
 	elemMaps := new(map[string]string)
 
-	// configure channels & maps
-	*channs = configureChannels(conf)
-	*elemMaps = configureMaps(conf)
+	// Configure channels & maps
+	*channs = ee.ConfigureChannels(conf)
+	*elemMaps = ee.ConfigureMaps(conf)
 
 	// Start execution engine
 	executionEngine := executionengine.ExecutionEngine{}
 	go executionEngine.Exec(conf, *channs, *elemMaps, channsUnits)
 
-	// start adaptation manager
+	// Start adaptation manager
 	if parameters.IS_ADAPTIVE {
 		adaptationManager := adaptationmanager.AdaptationManager{}
 		go adaptationManager.Exec(conf, *channs, *elemMaps, channsUnits)
@@ -54,7 +54,7 @@ func (ExecutionEnvironment) Deploy(confFile string) {
 	}
 }
 
-func configureChannels(conf configuration.Configuration) (map[string]chan message.Message) {
+func (ExecutionEnvironment) ConfigureChannels(conf configuration.Configuration) (map[string]chan message.Message) {
 	channs := make(map[string]chan message.Message)
 
 	for i := range conf.Attachments {
@@ -86,7 +86,7 @@ func configureChannels(conf configuration.Configuration) (map[string]chan messag
 	return channs
 }
 
-func configureMaps(conf configuration.Configuration) (map[string]string) {
+func (ExecutionEnvironment) ConfigureMaps(conf configuration.Configuration) (map[string]string) {
 
 	elemMaps := make(map[string]string)
 	partners := make(map[string]string)

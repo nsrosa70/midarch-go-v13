@@ -5,62 +5,36 @@ import (
 	"fmt"
 	"framework/components/queueing/queueingclientproxy"
 	"shared/parameters"
+	"framework/components/queueing/queueimpl"
 )
 
 type QueueingService struct{}
 
-var Queues = map[string]chan string{}
+var qs = queueimpl.QueueServiceImpl{}
 
-func (q QueueingService) I_PosInvP(msg *message.Message) {
+func (QueueingService) I_PosInvP(msg *message.Message) {
 	op := msg.Payload.(message.Invocation).Op
-	args := msg.Payload.(message.Invocation).Args
 
 	switch op {
 	case "publish":
+		args := msg.Payload.(message.Invocation).Args
 		argsX := args.([]interface{})
-		topic := argsX[0].(string)
-		m := argsX[1].(string)
-		r := q.Publish(topic, m)
-		msgRep := message.Message{Payload: r}
+		_p1 := argsX[0].(string)
+		_p2 := argsX[1].(string)
+		_r := qs.Publish(_p1, _p2)
+		msgRep := message.Message{Payload: _r}
 		*msg = msgRep
 	case "consume":
+		args := msg.Payload.(message.Invocation).Args
 		argsX := args.([]interface{})
-		topic := argsX[0].(string)
-		r := q.Consume(topic)
-		msgRep := message.Message{Payload: r}
+		_p1 := argsX[0].(string)
+		_r := qs.Consume(_p1)
+		msgRep := message.Message{Payload: _r}
 		*msg = msgRep
+	case "subscribe":
 	default:
 		fmt.Println("Queueing:: Operation " + op + " is not implemented by Queue Server")
 	}
-}
-
-func (QueueingService) Publish(topic string, msg string) bool {
-	r := false
-
-	if _, ok := Queues[topic]; !ok {
-		Queues[topic] = make(chan string, parameters.QUEUE_SIZE)
-	}
-
-	if len(Queues[topic]) < parameters.QUEUE_SIZE {
-		Queues[topic] <- msg
-		r = true
-	} else {
-		r = false
-	}
-	return r
-}
-
-func (QueueingService) Consume(topic string) string {
-	r := ""
-	if _, ok := Queues[topic]; !ok {
-		Queues[topic] = make(chan string, parameters.QUEUE_SIZE)
-	}
-	if len(Queues[topic]) == 0 {
-		r = "EMPTY QUEUE"
-	} else {
-		r = <-Queues[topic]
-	}
-	return r
 }
 
 func LocateQueueing() queueingclientproxy.QueueingClientProxy {

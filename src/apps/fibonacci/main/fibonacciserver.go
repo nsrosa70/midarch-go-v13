@@ -13,15 +13,16 @@ import (
 func main(){
 
 	// start configuration
-	executionenvironment.ExecutionEnvironment{}.Exec("MiddlewareFibonacciServer.conf")
+	executionenvironment.ExecutionEnvironment{}.Deploy("MiddlewareFibonacciServer.conf")
 
 	// proxy to naming service
 	namingClientProxy := naming.LocateNaming()
 
 	// register
-	fibo := fibonacciclientproxy.FibonacciClientProxy{Host:netshared.ResolveHostIp(),Port:parameters.FIBONACCI_PORT} // TODO
-	namingClientProxy.Register("Fibonacci", fibo)
-	fmt.Println("Fibonacci Server ready at port "+strconv.Itoa(fibo.Port))
+	fiboProxy := fibonacciclientproxy.FibonacciClientProxy{Host:netshared.ResolveHostIp(),Port:parameters.FIBONACCI_PORT} // TODO
+	namingClientProxy.Register("Fibonacci", fiboProxy)
+
+	fmt.Println("Fibonacci Server ready at port "+strconv.Itoa(fiboProxy.Port))
 
 	fmt.Scanln()
 	fmt.Println("done")

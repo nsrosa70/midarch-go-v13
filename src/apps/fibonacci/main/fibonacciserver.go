@@ -3,11 +3,11 @@ package main
 import (
 	"fmt"
 	"strconv"
-	"framework/components/naming/naming"
 	"apps/fibonacci/fibonacciclientproxy"
 	"shared/parameters"
 	"executionenvironment/executionenvironment"
 	"shared/net"
+	"shared/factories"
 )
 
 func main(){
@@ -16,7 +16,7 @@ func main(){
 	executionenvironment.ExecutionEnvironment{}.Deploy("MiddlewareFibonacciServer.conf")
 
 	// proxy to naming service
-	namingClientProxy := naming.LocateNaming()
+	namingClientProxy := factories.LocateNaming()
 
 	// register
 	fiboProxy := fibonacciclientproxy.FibonacciClientProxy{Host:netshared.ResolveHostIp(),Port:parameters.FIBONACCI_PORT} // TODO

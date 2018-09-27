@@ -2,8 +2,8 @@ package naming
 
 import (
 	"framework/message"
-	"transport/myRPC/ior"
 	"framework/components/naming/namingimpl"
+	"framework/components/naming/ior"
 )
 
 type NamingService struct{}
@@ -26,11 +26,11 @@ func (n NamingService) I_PosInvP(msg *message.Message) {
 		args := msg.Payload.(message.Invocation).Args
 		argsX := args.([]interface{})
 		_p1 := argsX[0].(string)
-		_r := n.Lookup(_p1)
+		_r := ns.Lookup(_p1)
 		msgRep := message.Message{_r}
 		*msg = msgRep
 	case "list":
-		_r := n.List()
+		_r := ns.List()
 		msgRep := message.Message{_r}
 		*msg = msgRep
 	}

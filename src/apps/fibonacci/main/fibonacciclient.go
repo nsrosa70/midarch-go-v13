@@ -1,12 +1,12 @@
 package main
 
 import (
-	"framework/components/naming/naming"
 	"fmt"
 	"time"
 	"apps/fibonacci/fibonacciclientproxy"
 	"shared/parameters"
 	EE "executionenvironment/executionenvironment"
+	"shared/factories"
 )
 
 func main(){
@@ -15,9 +15,9 @@ func main(){
 	EE.ExecutionEnvironment{}.Deploy("MiddlewareFibonacciClient.conf")
 
 	// proxy to naming service
-	namingClientProxy := naming.LocateNaming()
+	namingClientProxy := factories.LocateNaming()
 
-	// obtain ior
+	// obtain proxy
 	fibo := namingClientProxy.Lookup("Fibonacci").(fibonacciclientproxy.FibonacciClientProxy)
 
 	// invoke remote method

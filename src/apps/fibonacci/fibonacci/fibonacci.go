@@ -1,8 +1,8 @@
-package impl
+package fibonacci
 
 type Fibonacci struct{}
 
-func Fibo(n int) int {
+func (Fibonacci) Fibo(n int) int {
 	return F(n)
 }
 

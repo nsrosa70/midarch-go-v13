@@ -28,9 +28,7 @@ func main(){
 		t2 := time.Now()
 
 		x:= float64(t2.Sub(t1).Nanoseconds())/1000000
-
 		fmt.Printf("%F \n",x)
-
 		time.Sleep(parameters.REQUEST_TIME * time.Millisecond)
 	}
 }

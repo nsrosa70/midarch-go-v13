@@ -2,7 +2,6 @@ package queueingclientproxy
 
 import (
 	"framework/message"
-	"reflect"
 )
 
 type QueueingClientProxy struct {
@@ -10,40 +9,37 @@ type QueueingClientProxy struct {
 	Port int
 }
 
-var chIn = make(chan message.Message)
-var chOut = make(chan message.Message)
+var i_PreInvR = make(chan message.Message)
+var i_PosTerR = make(chan message.Message)
 
-func (n QueueingClientProxy) Publish(args ... interface{}) bool {
-	topic := reflect.ValueOf(args[0]).String()
-	msg :=reflect.ValueOf(args[1]).String()
-	argsTemp := []interface{}{topic,msg}
+func (n QueueingClientProxy) Publish(_p1 string, _p2 string) bool {
+	_args := []interface{}{_p1, _p2}
+	_reqMsg := message.Message{message.Invocation{Host: n.Host, Port: n.Port, Op: "Publish", Args: _args}}
 
-	inv := message.Invocation{Host: n.Host, Port: n.Port, Op: "publish", Args: argsTemp}
-	reqMsg := message.Message{inv}
-	chIn <- reqMsg
-	repMsg := <-chOut
-	payload := repMsg.Payload.(map[string]interface{})
-	reply := payload["Reply"].(bool)
-	return reply
+	i_PreInvR <- _reqMsg
+	_repMsg := <-i_PosTerR
+
+	_payload := _repMsg.Payload.(map[string]interface{})
+	_reply := _payload["Reply"].(bool)
+	return _reply
 }
 
-func (n QueueingClientProxy) Consume(args ... interface{}) string {
-	topic := reflect.ValueOf(args[0]).String()
-	argsTemp := []interface{}{topic}
+func (n QueueingClientProxy) Consume(_p1 string) string {
+	_args := []interface{}{_p1}
+	_reqMsg := message.Message{message.Invocation{Host: n.Host, Port: n.Port, Op: "Consume", Args: _args}}
 
-	inv := message.Invocation{Host: n.Host, Port: n.Port, Op: "consume", Args: argsTemp}
-	reqMsg := message.Message{inv}
-	chIn <- reqMsg
-	repMsg := <-chOut
-	payload := repMsg.Payload.(map[string]interface{})
-	reply := payload["Reply"].(string)
-	return reply
+	i_PreInvR <- _reqMsg
+	_repMsg := <-i_PosTerR
+
+	_payload := _repMsg.Payload.(map[string]interface{})
+	_reply := _payload["Reply"].(string)
+	return _reply
 }
 
 func (QueueingClientProxy) I_PreInvR(msg *message.Message) {
-	*msg = <-chIn
+	*msg = <-i_PreInvR
 }
 
 func (QueueingClientProxy) I_PosTerR(msg *message.Message) {
-	chOut <- *msg
+	i_PosTerR <- *msg
 }

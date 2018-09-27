@@ -1,13 +1,11 @@
-datatype PROCNAMES = t2 | queueing | invoker | srh | t1 
-channel I_PosTerR,I_PreInvR,I_PosInvP
-channel InvP,TerP,InvR,TerR : PROCNAMES
-INVOKER = InvP.invoker -> I_PosInvP -> InvR.invoker -> TerR.invoker -> I_PosTerR -> TerP.invoker -> INVOKER
+datatype PROCNAMES = invoker | srh | t1 
+channel I_PosInvP,I_PreInvR,I_PosTerR
+channel TerR,InvP,TerP,InvR : PROCNAMES
+INVOKER = InvP.invoker -> I_PosInvP -> TerP.invoker -> INVOKER
 SRH = I_PreInvR -> InvR.srh -> TerR.srh -> I_PosTerR -> SRH
-QUEUEING = InvP.queueing -> I_PosInvP -> TerP.queueing -> QUEUEING
-T2 = InvP.invoker -> InvR.queueing -> TerR.queueing -> TerP.invoker -> T2
 T1 = InvP.srh -> InvR.invoker -> TerR.invoker -> TerP.srh -> T1
 
-P1 = (INVOKER|||SRH|||QUEUEING)
-[|{|InvP,TerP,InvR,TerR|}|]
-(T1[[InvP <- InvR,InvR <- InvP,TerR <- TerP,TerP <- TerR]]|||T2[[InvP <- InvR,InvR <- InvP,TerR <- TerP,TerP <- TerR]])
+P1 = (INVOKER|||SRH)
+[|{|InvR,TerR,InvP,TerP|}|]
+(T1[[InvP <- InvR,InvR <- InvP,TerR <- TerP,TerP <- TerR]])
 assert P1 :[deadlock free]

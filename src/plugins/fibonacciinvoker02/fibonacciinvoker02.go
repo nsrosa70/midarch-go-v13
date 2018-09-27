@@ -2,7 +2,7 @@ package main
 
 import (
 	"framework/message"
-	"apps/fibonacci/impl"
+	"apps/fibonacci/fibonacci"
 	"fmt"
 )
 
@@ -29,7 +29,7 @@ func (FibonacciInvoker) I_PosInvP(msg *message.Message) {
 		argsX := args.([]interface{})
 		p1 := int(argsX[0].(float64))
 
-		r := impl.Fibo(p1)
+		r := fibonacci.Fibo(p1)
 		fmt.Println("[PLUGIN 03]")
 		fmt.Println(r)
 

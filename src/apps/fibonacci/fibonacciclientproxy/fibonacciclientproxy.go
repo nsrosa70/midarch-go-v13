@@ -8,26 +8,19 @@ import (
 type FibonacciClientProxy struct {
 	Host  string
 	Port int
-	Proxy string
 }
 
-var chIn = make(chan message.Message, parameters.CHAN_BUFFER_SIZE)
-var chOut = make(chan message.Message, parameters.CHAN_BUFFER_SIZE)
+var i_PreInvR  = make(chan message.Message, parameters.CHAN_BUFFER_SIZE)
+var i_PosTerT = make(chan message.Message, parameters.CHAN_BUFFER_SIZE)
 
-func (c FibonacciClientProxy) Fibo(p1 int) int {
+func (c FibonacciClientProxy) Fibo(_p1 int) int {
+	c.Port = parameters.FIBONACCI_PORT // TODO
+	_args := []int{_p1}
+	reqMsg := message.Message{message.Invocation{Host: c.Host, Port: c.Port, Op: "Fibo", Args: _args}}
 
-	// configure parameters
-	args := []int{p1}
-	inv := message.Invocation{Host: c.Host, Port: parameters.FIBONACCI_PORT, Op: "fibo", Args: args}
-	reqMsg := message.Message{inv}
+	i_PreInvR  <- reqMsg
+	repMsg := <-i_PosTerT
 
-	// send invocation to the requestor
-	chIn <- reqMsg
-
-	// receive response from the requestor
-	repMsg := <-chOut
-
-	// configure reply to the client
 	payload := repMsg.Payload.(map[string]interface{})
 	reply := int(payload["Reply"].(float64))
 
@@ -35,9 +28,9 @@ func (c FibonacciClientProxy) Fibo(p1 int) int {
 }
 
 func (FibonacciClientProxy) I_PreInvR(msg *message.Message) {
-	*msg = <-chIn
+	*msg = <-i_PreInvR
 }
 
 func (FibonacciClientProxy) I_PosTerR(msg *message.Message) {
-	chOut <- *msg
+	i_PosTerT <- *msg
 }

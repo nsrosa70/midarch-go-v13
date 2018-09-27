@@ -1,16 +1,16 @@
-datatype PROCNAMES = srh | namingProxy | fibonacciInvoker | requestor | crh | t1 | t2 | t3 
-channel I_PosTerR,I_PosInvP,I_PreTerP,I_PreInvR
-channel TerR,InvP,TerP,InvR : PROCNAMES
+datatype PROCNAMES = t2 | t3 | fibonacciInvoker | requestor | crh | srh | namingProxy | t1 
+channel I_PreInvR,I_PosTerR,I_PosInvP,I_PreTerP
+channel InvP,TerP,InvR,TerR : PROCNAMES
 REQUESTOR = InvP.requestor -> I_PosInvP -> InvR.requestor -> TerR.requestor -> I_PosTerR -> TerP.requestor -> REQUESTOR
 CRH = InvP.crh -> I_PosInvP -> I_PreTerP -> TerP.crh -> CRH
 SRH = I_PreInvR -> InvR.srh -> TerR.srh -> I_PosTerR -> SRH
 NAMINGPROXY = I_PreInvR -> InvR.namingProxy -> TerR.namingProxy -> I_PosTerR -> NAMINGPROXY
 FIBONACCIINVOKER = InvP.fibonacciInvoker -> I_PosInvP -> TerP.fibonacciInvoker -> FIBONACCIINVOKER
+T1 = InvP.namingProxy -> InvR.requestor -> TerR.requestor -> TerP.namingProxy -> T1
 T2 = InvP.requestor -> InvR.crh -> TerR.crh -> TerP.requestor -> T2
 T3 = InvP.srh -> InvR.fibonacciInvoker -> TerR.fibonacciInvoker -> TerP.srh -> T3
-T1 = InvP.namingProxy -> InvR.requestor -> TerR.requestor -> TerP.namingProxy -> T1
 
-P1 = (FIBONACCIINVOKER|||REQUESTOR|||CRH|||SRH|||NAMINGPROXY)
+P1 = (NAMINGPROXY|||FIBONACCIINVOKER|||REQUESTOR|||CRH|||SRH)
 [|{|InvP,TerP,InvR,TerR|}|]
 (T2[[InvP <- InvR,InvR <- InvP,TerR <- TerP,TerP <- TerR]]|||T3[[InvP <- InvR,InvR <- InvP,TerR <- TerP,TerP <- TerR]]|||T1[[InvP <- InvR,InvR <- InvP,TerR <- TerP,TerP <- TerR]])
 assert P1 :[deadlock free]

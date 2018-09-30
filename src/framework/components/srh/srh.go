@@ -24,9 +24,7 @@ func (s SRH) I_PreInvR(msg *message.Message) {
 
 	if !serverUp {
 		addr := netshared.ResolveHostIp() + ":" + strings.TrimSpace(strconv.Itoa(s.Port))
-
 		ln, err = net.Listen("tcp", addr)
-
 		if err != nil {
 			fmt.Println(err)
 			myError := errors.MyError{Source: "SRH", Message: "Unable to listen on port " + strconv.Itoa(s.Port)}
@@ -37,7 +35,6 @@ func (s SRH) I_PreInvR(msg *message.Message) {
 
 	if ln != nil {
 		conn, err = ln.Accept()
-
 		if err != nil {
 			fmt.Println(err)
 			myError := errors.MyError{Source: "SRH", Message: "Unable to accept connections at port " + strconv.Itoa(s.Port)}

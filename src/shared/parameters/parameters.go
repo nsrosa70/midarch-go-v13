@@ -10,6 +10,7 @@ const DIR_CSP     = BASE_DIR+ "/src/cspspecs"
 const DIR_SOURCE  = BASE_DIR
 const DIR_CONF    = BASE_DIR+"/src/apps/conf"
 const DIR_GO      = "/usr/local/go/bin"
+const DIR_FDR     = "/Volumes/Macintosh HD/Applications/FDR4-2.app/Contents/MacOS"
 
 // Ports
 

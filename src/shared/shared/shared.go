@@ -79,6 +79,8 @@ type ParMapActions struct {
 	P2 *chan message.Message
 	P3 interface{}
 	P4 string
+	P5 *chan string // REMOVE
+	P6 *string      // REMOVE
 }
 
 type SubMessage struct {

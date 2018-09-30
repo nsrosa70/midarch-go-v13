@@ -50,7 +50,7 @@ func saveCSP(conf configuration.Configuration, csp string) {
 }
 
 func invokeFDR(conf configuration.Configuration) bool {
-	cmdExp := commands.FDR_COMMAND
+	cmdExp := parameters.DIR_FDR+"/"+commands.FDR_COMMAND
 	fileName := conf.Id + ".csp"
 	inputFile := parameters.DIR_CSP + "/" + fileName
 

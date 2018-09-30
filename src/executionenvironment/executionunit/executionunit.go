@@ -95,7 +95,6 @@ func isBehaviourValid(elem element.Element) bool {
 			}
 		}
 	}
-
 	return e
 }
 

@@ -13,7 +13,6 @@ import (
 	"shared/conf"
 	"shared/shared"
 	"os"
-	"fmt"
 )
 
 type ExecutionEnvironment struct{}
@@ -44,9 +43,6 @@ func (ee ExecutionEnvironment) Deploy(confFile string) {
 	// Configure channels & maps
 	*channs = ee.ConfigureChannels(conf)
 	*elemMaps = ee.ConfigureMaps(conf)
-
-	fmt.Println(channs)
-	os.Exit(0)   // TODO
 
 	// Start execution engine
 	executionEngine := executionengine.ExecutionEngine{}

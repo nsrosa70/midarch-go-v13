@@ -1,30 +1,22 @@
 package client
 
-import (
-	"framework/message"
-	"fmt"
-	"strconv"
-)
+import "fmt"
 
-type Client struct {}
+type Client struct{}
 
-var count int
-
-func (Client) I_PreInvR(msg *message.Message) {
-	//time.Sleep(500 * time.Millisecond)
-
-	header := message.RequestHeader{Magic:"MIOP"}
-	count++
-	body := message.RequestBody{Op:strconv.Itoa(count)}
-	miop := message.MIOP{RequestHeader:header,RequestBody:body}
-	toCRH := message.ToCRH{Host:"localhost",Port:7070,MIOP:miop}
-
-	//*msg := message.Message{"teste"}
-	*msg = message.Message{toCRH}
+func (Client) Loop(invR,terR chan string) {
+	msg := "testV1"
+	for {
+		select {
+		case invR <- msg :
+			//fmt.Println("Sender:: invR")
+			//case terP <- msgRecv:
+			//fmt.Println("Sender:: terP")
+			case msgRecv := <-terR:
+			fmt.Println("Sender:: terR "+msgRecv)
+			//case <-invP:
+			//fmt.Println("Sender:: invP")
+		}
+	}
 }
 
-func (Client) I_PosTerR(msg *message.Message) {
-	payload := msg.Payload
-	fmt.Println(payload)
-	//fmt.Println(reflect.ValueOf(msg.Payload))
-}

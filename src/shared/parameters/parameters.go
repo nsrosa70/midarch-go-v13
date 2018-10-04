@@ -4,7 +4,7 @@ import "time"
 
 // Dirs
 //const BASE_DIR    = "/go/midarch-go"  // docker
-const BASE_DIR    = "/Users/nsr/Dropbox/go/software-architecture-v9"
+const BASE_DIR    = "/Users/nsr/Dropbox/go/software-architecture-v10"
 const DIR_PLUGINS = BASE_DIR + "/src/plugins"
 const DIR_CSP     = BASE_DIR+ "/src/cspspecs"
 const DIR_SOURCE  = BASE_DIR

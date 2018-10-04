@@ -44,7 +44,7 @@ func (ee ExecutionEnvironment) Deploy(confFile string) {
 	*channs = ee.ConfigureChannels(conf)
 	*elemMaps = ee.ConfigureMaps(conf)
 
-	// Start execution engine
+	// Start execution engine (manage the execution units)
 	executionEngine := executionengine.ExecutionEngine{}
 	go executionEngine.Exec(conf, *channs, *elemMaps, channsUnits)
 

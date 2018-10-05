@@ -1,18 +1,11 @@
 package executionenvironment
 
 import (
-	"executionenvironment/executionengine"
-	"framework/configuration/configuration"
-	"framework/configuration/commands"
-	"executionenvironment/adaptationmanager"
-	"shared/parameters"
-	"framework/message"
-	"strings"
-	"strconv"
-	"executionenvironment/versioninginjector"
 	"shared/conf"
 	"shared/shared"
 	"os"
+	"fmt"
+	"verificationtools/fdr"
 )
 
 type ExecutionEnvironment struct{}
@@ -23,8 +16,30 @@ func (ee ExecutionEnvironment) Deploy(confFile string) {
 	shared.LoadParameters(os.Args[1:])
 
 	// Generate Go configuration
-	conf := conf.GenerateConf(confFile)
+	conf := conf.GenerateConf("MiddlewareNamingServer.conf")
+	fdrGraph := fdr.FDR{}.CreateFDRGraph()
+	execGraph, channels := shared.CreateExecGraph(fdrGraph)
 
+
+	// srh
+	elemChannels1 := shared.DefineChannels(channels, "srh")
+	i_PreInvR1 := shared.DefineChannel(elemChannels1, "I_PreInvR_srh")
+	invR1 := shared.DefineChannel(elemChannels1, "InvR")
+	terR1 := shared.DefineChannel(elemChannels1, "TerR")
+	i_PosTerR1 := shared.DefineChannel(elemChannels1, "I_PosTerR_srh")
+
+	// invoker
+	elemChannels2 := shared.DefineChannels(channels, "invoker")
+	invP2 := shared.DefineChannel(elemChannels2, "InvP")
+	i_PosInvP2 := shared.DefineChannel(elemChannels2, "I_PosInvP_invoker")
+	terP2 := shared.DefineChannel(elemChannels2, "TerP")
+
+	go shared.Control(execGraph)
+	go shared.Invoke(conf.Components["srh"].TypeElem, "Loop", i_PreInvR1,invR1,terR1,i_PosTerR1)
+	go shared.Invoke(conf.Components["invoker"].TypeElem, "Loop", invP2, i_PosInvP2,terP2)
+
+	fmt.Scanln()
+	/*
 	// Initialize channels between Units and Adaptation manager
 	channsUnits := make(map[string]chan commands.LowLevelCommand)
 	for i := range conf.Components {
@@ -54,72 +69,6 @@ func (ee ExecutionEnvironment) Deploy(confFile string) {
 		go adaptationManager.Exec(conf, *channs, *elemMaps, channsUnits)
 		go versioninginjector.InjectAdaptiveEvolution(parameters.PLUGIN_BASE_NAME)
 	}
+	*/
 }
 
-func (ExecutionEnvironment) ConfigureChannels(conf configuration.Configuration) (map[string]chan message.Message) {
-	channs := make(map[string]chan message.Message)
-
-	for i := range conf.Attachments {
-		c1Id := conf.Attachments[i].C1.Id
-		c2Id := conf.Attachments[i].C2.Id
-		tId := conf.Attachments[i].T.Id
-
-		// c1 -> t
-		key01 := c1Id + "." + "InvR" + "." + tId
-		key02 := tId + "." + "InvP" + "." + c1Id
-		key03 := tId + "." + "TerP" + "." + c1Id
-		key04 := c1Id + "." + "TerR" + "." + tId
-		channs[key01] = make(chan message.Message, parameters.CHAN_BUFFER_SIZE)
-		channs[key02] = channs[key01]
-		channs[key03] = make(chan message.Message, parameters.CHAN_BUFFER_SIZE)
-		channs[key04] = channs[key03]
-
-		// t -> c2
-		key01 = tId + "." + "InvR" + "." + c2Id
-		key02 = c2Id + "." + "InvP" + "." + tId
-		key03 = c2Id + "." + "TerP" + "." + tId
-		key04 = tId + "." + "TerR" + "." + c2Id
-		channs[key01] = make(chan message.Message, parameters.CHAN_BUFFER_SIZE)
-		channs[key02] = channs[key01]
-		channs[key03] = make(chan message.Message, parameters.CHAN_BUFFER_SIZE)
-		channs[key04] = channs[key03]
-	}
-
-	return channs
-}
-
-func (ExecutionEnvironment) ConfigureMaps(conf configuration.Configuration) (map[string]string) {
-
-	elemMaps := make(map[string]string)
-	partners := make(map[string]string)
-
-	for i := range conf.Attachments {
-		c1Id := conf.Attachments[i].C1.Id
-		c2Id := conf.Attachments[i].C2.Id
-		tId := conf.Attachments[i].T.Id
-		if !strings.Contains(partners[c1Id], tId) {
-			partners[c1Id] += ":" + tId
-		}
-		if !strings.Contains(partners[tId], c1Id) {
-			partners[tId] += ":" + c1Id
-		}
-		if !strings.Contains(partners[tId], c2Id) {
-			partners[tId] += ":" + c2Id
-		}
-		if !strings.Contains(partners[c2Id], tId) {
-			partners[c2Id] += ":" + tId
-		}
-	}
-
-	for i := range partners {
-		p := strings.Split(partners[i], ":")
-		c := 1
-		for j := range p {
-			if p[j] != "" {
-				elemMaps[i+".e"+strconv.Itoa(c)] = p[j]
-				c++
-			}
-		}
-	}
-	return elemMaps
-}

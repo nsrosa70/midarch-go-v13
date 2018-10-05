@@ -11,9 +11,25 @@ import (
 	"shared/parameters"
 	"shared/errors"
 	"framework/configuration/commands"
+	"graph/fdrgraph"
 )
 
 type FDR struct{}
+
+func (FDR) CreateFDRGraph() fdrgraph.Graph { // This will disapear after integrated with FDR graph generator
+	graph := fdrgraph.NewGraph(20)
+
+	// MiddlewareNamingServer
+	graph.AddEdge(0, 1, "I_PreInvR_srh")
+	graph.AddEdge(1, 2, "InvR.srh")
+	graph.AddEdge(2, 3, "InvP.invoker")
+	graph.AddEdge(3, 4, "I_PosInvP_invoker")
+	graph.AddEdge(4, 5, "TerP.invoker")
+	graph.AddEdge(5, 6, "TerR.srh")
+	graph.AddEdge(6, 0, "I_PosTerR_srh")
+
+	return *graph
+}
 
 func (FDR) CheckBehaviour(conf configuration.Configuration, elemMaps map[string]string) bool {
 

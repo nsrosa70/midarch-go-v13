@@ -9,6 +9,8 @@ import (
 	"shared/parameters"
 	"fmt"
 	"strconv"
+	"graph/fdrgraph"
+	"graph/execgraph"
 )
 
 const PREFIX_ACTION = "->"
@@ -155,3 +157,108 @@ func LoadParameters(args []string){
 		}
 	}
 }
+
+func CreateExecGraph(fdrGraph fdrgraph.Graph) (execgraph.GraphX, map[string]chan message.Message) {
+	graph := execgraph.NewGraphX(fdrGraph.NumNodes)
+	channels := map[string]chan message.Message{}
+
+	// create channels
+	for e1 := range fdrGraph.Edges {
+		for e2 := range fdrGraph.Edges[e1] {
+			eTemp := fdrGraph.Edges[e1][e2]
+			if _, ok := channels[eTemp.Action]; !ok {
+				channels[eTemp.Action] = make(chan message.Message)
+			}
+			graph.AddEdgeX(eTemp.From, eTemp.To, execgraph.ExecActionX{Action: eTemp.Action, Channel: channels[eTemp.Action]})
+		}
+	}
+	return *graph, channels
+}
+
+func DefineChannels(channels map[string]chan message.Message, elem string) map[string]chan message.Message {
+	r := map[string]chan message.Message{}
+
+	for c := range channels {
+		if strings.Contains(c, elem) {
+			r[c] = channels[c]
+		}
+	}
+	return r
+}
+
+func DefineChannel(channels map[string]chan message.Message, a string) chan message.Message {
+	var r chan message.Message
+	found := false
+
+	for c := range channels {
+		if (a[:2] != "I_") {
+			if strings.Contains(c, a) && c[:2] != "I_" {
+				r = channels[c]
+				found = true
+				break
+			}
+		} else {
+			if strings.Contains(c, a) {
+				r = channels[c]
+				found = true
+				break
+			}
+		}
+	}
+
+	if !found {
+		fmt.Println("Error: channel '" + a + " not found")
+	}
+
+	return r
+}
+
+func Control(g execgraph.GraphX) {
+	node := 0
+	var msg = message.Message{}
+	for {
+		edges := g.AdjacentEdgesX(node)
+		if len(edges) == 1 { // one edge
+			node = edges[0].To
+			if IsToElement(edges[0].Action.Action) {
+				edges[0].Action.Channel <- msg
+			} else {
+				msg = <-edges[0].Action.Channel
+			}
+		} else { // two+ edges
+			chosen := 0
+			ChoiceX(&msg, &chosen, edges)
+			node = edges[chosen].To
+		}
+	}
+}
+
+func IsToElement(action string) bool {
+	if action[:2] == "I_" || action[:4] == "InvP" || action[:4] == "TerR" {
+		return true
+	} else { // TerP and InvR
+		return false
+	}
+}
+
+func ChoiceX(msg *message.Message, chosen *int, edges []execgraph.EdgeX) {
+	cases := make([]reflect.SelectCase, len(edges))
+	var value reflect.Value
+
+	for i := 0; i < len(edges); i++ {
+		if IsToElement(edges[i].Action.Action) {
+			cases[i] = reflect.SelectCase{Dir: reflect.SelectSend, Chan: reflect.ValueOf(edges[i].Action.Channel), Send: reflect.ValueOf(*msg)}
+		} else {
+			cases[i] = reflect.SelectCase{Dir: reflect.SelectRecv, Chan: reflect.ValueOf(edges[i].Action.Channel), Send: reflect.Value{}}
+		}
+	}
+
+	*chosen, value, _ = reflect.Select(cases)
+	if !IsToElement(edges[*chosen].Action.Action) {
+		*msg = value.Interface().(message.Message)
+	}
+	cases = nil
+}
+
+
+

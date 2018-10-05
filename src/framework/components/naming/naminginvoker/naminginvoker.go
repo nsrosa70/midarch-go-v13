@@ -8,7 +8,20 @@ import (
 	"framework/components/naming/ior"
 )
 
-type NamingInvoker struct {}
+type NamingInvoker struct{}
+
+func (n NamingInvoker) Loop(InvP, TerP, I_PosInvP chan message.Message) {
+	var msgReq message.Message
+	for {
+		select {
+		case msgReq = <-InvP:
+		case <-I_PosInvP:
+			n.I_PosInvP(&msgReq)
+		case TerP <- msgReq:
+		}
+	}
+
+}
 
 func (NamingInvoker) I_PosInvP(msg *message.Message) {
 	op := msg.Payload.(message.MIOP).Body.RequestHeader.Operation

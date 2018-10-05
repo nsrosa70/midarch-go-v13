@@ -41,7 +41,7 @@ func createGraph(invR, terR, invP, terP, i_PosInvP *chan string) wgraph.Graph {
 	graph.AddEdge(2, 3, shared.ParMapActions{P5: invR, P4: "InvR.Sender"})
 	graph.AddEdge(3, 1, shared.ParMapActions{P5: i_PosInvP, P4: "I_PosInvP_Receiver"})
 
-	// client/server
+	// clientX/server
 	/*
 	graph.AddEdge(0, 1, shared.ParMapActions{P5: invR, P4: "InvR.Client"})
 	graph.AddEdge(1, 2, shared.ParMapActions{P5: invP, P4: "InvP.Server"})

@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"reflect"
-	"strconv"
 	"strings"
 	"graph/fdrgraph"
 	"graph/execgraph"
@@ -17,79 +16,60 @@ type Client struct{}
 type Server struct{}
 
 func main() {
-	conf := conf.GenerateConf("SenderReceiver.conf")
+	//mainClientServer()
+	//mainSenderReceiver()
+	mainNamingServer()
+}
+
+func mainNamingServer() {
+	conf := conf.GenerateConf("MiddlewareNamingServer.conf")
 	fdrGraph := CreateFDRGraph()
 	execGraph, channels := CreateExecGraph(fdrGraph)
 
-	go Control(execGraph)
-
-	fmt.Println(channels)
-	elemChannels1 := DefineChannels(channels, "sender")
+	elemChannels1 := DefineChannels(channels, "srh")
+	i_PreInvR1 := DefineChannel(elemChannels1, "I_PreInvR_srh")
 	invR1 := DefineChannel(elemChannels1, "InvR")
+	terR1 := DefineChannel(elemChannels1, "TerR")
+	i_PosTerR1 := DefineChannel(elemChannels1, "I_PosTerR_srh")
 
-	elemChannels2 := DefineChannels(channels, "receiver")
-	invP := DefineChannel(elemChannels2, "InvP")
-	i_PosInvP := DefineChannel(elemChannels2, "I_PosInvP")
+	//elemChannels2 := DefineChannels(channels, "invoker")
+	//invP2 := DefineChannel(elemChannels2, "InvP")
+	//i_PosInvP2 := DefineChannel(elemChannels2, "I_PosInvP_invoker")
+	//terP2 := DefineChannel(elemChannels2, "TerP")
 
-	go shared.Invoke(conf.Components["sender"].TypeElem, "Loop", invR1)
-	go shared.Invoke(conf.Components["receiver"].TypeElem, "Loop", invP, i_PosInvP)
+	go Control(execGraph)
+	go shared.Invoke(conf.Components["srh"].TypeElem, "Loop", i_PreInvR1,invR1,terR1,i_PosTerR1)
+	//go shared.Invoke(conf.Components["invoker"].TypeElem, "Loop", invP2, i_PosInvP2,terP2)
 
 	fmt.Scanln()
 }
 
-func DefineChannels(channels map[string]chan string, elem string) map[string]chan string {
-	r := map[string]chan string{}
 
-	for c := range channels {
-		if strings.Contains(c, elem) {
-			r[c] = channels[c]
-		}
-	}
-	return r
-}
-
-func DefineChannel(channels map[string]chan string, a string) chan string {
-	r := make(chan string)
-	found := false
-
-	for c := range channels {
-		if (a[:2] != "I_") {
-			if strings.Contains(c, a) {
-				r = channels[c]
-				found = true
-				break
-			}
-		} else {
-			if strings.Contains(c, a) {
-				r = channels[c]
-				found = true
-				break
-			}
-		}
-	}
-
-	if !found {
-		fmt.Println("Error: channel '" + a + " not found")
-	}
-
-	return r
-}
 func CreateFDRGraph() fdrgraph.Graph {
 	graph := fdrgraph.NewGraph(20)
 
+	// MiddlewareNamingServer
+	graph.AddEdge(0, 1, "I_PreInvR_srh")
+	graph.AddEdge(1, 2, "InvR.srh")
+	graph.AddEdge(2, 3, "InvP.invoker")
+	graph.AddEdge(3, 4, "I_PosInvP_invoker")
+	graph.AddEdge(4, 5, "TerP.invoker")
+	graph.AddEdge(5, 6, "TerR.srh")
+	graph.AddEdge(6, 0, "I_PosTerR_srh")
+
 	// Sender/Receiver
-	graph.AddEdge(0, 1, "InvR.sender")
-	graph.AddEdge(1, 2, "InvP.receiver")
-	graph.AddEdge(2, 0, "I_PosInvP_receiver")
-	graph.AddEdge(2, 3, "InvR.sender")
-	graph.AddEdge(3, 1, "I_PosInvP_receiver")
+	//graph.AddEdge(0, 1, "InvR.sender")
+	//graph.AddEdge(1, 2, "InvP.receiver")
+	//graph.AddEdge(2, 0, "I_PosInvP_receiver")
+	//graph.AddEdge(2, 3, "InvR.sender")
+	//graph.AddEdge(3, 1, "I_PosInvP_receiver")
 
 	// Client/Server
-	graph.AddEdge(0, 1, "InvR.sender")
-	graph.AddEdge(1, 2, "InvP.receiver")
-	graph.AddEdge(2, 0, "I_PosInvP_receiver")
-	graph.AddEdge(2, 3, "InvR.sender")
-	graph.AddEdge(3, 1, "I_PosInvP_receiver")
+	//graph.AddEdge(0, 1, "InvR.client")
+	//graph.AddEdge(1, 2, "InvP.server")
+	//graph.AddEdge(2, 3, "I_PosInvP_server")
+	//graph.AddEdge(3, 4, "TerP.server")
+	//graph.AddEdge(4, 0, "TerR.client")
 
 	return *graph
 }
@@ -113,24 +93,24 @@ func CreateExecGraph(fdrGraph fdrgraph.Graph) (execgraph.Graph, map[string]chan 
 
 func Choice(msg *string, chosen *int, edges []execgraph.Edge) {
 	cases := make([]reflect.SelectCase, len(edges))
+	var value reflect.Value
 
 	for i := 0; i < len(edges); i++ {
-		if IsSendAction(edges[i].Action.Action) {
+		if IsToElement(edges[i].Action.Action) {
 			cases[i] = reflect.SelectCase{Dir: reflect.SelectSend, Chan: reflect.ValueOf(edges[i].Action.Channel), Send: reflect.ValueOf(*msg)}
 		} else {
 			cases[i] = reflect.SelectCase{Dir: reflect.SelectRecv, Chan: reflect.ValueOf(edges[i].Action.Channel), Send: reflect.Value{}}
 		}
 	}
 
-	var value reflect.Value
 	*chosen, value, _ = reflect.Select(cases)
-	if !IsSendAction(edges[*chosen].Action.Action) {
+	if !IsToElement(edges[*chosen].Action.Action) {
 		*msg = value.Interface().(string)
 	}
 	cases = nil
 }
 
-func IsSendAction(action string) bool {
+func IsToElement(action string) bool {
 	if action[:2] == "I_" || action[:4] == "InvP" || action[:4] == "TerR" {
 		return true
 	} else { // TerP and InvR
@@ -144,14 +124,11 @@ func Control(g execgraph.Graph) {
 	for {
 		edges := g.AdjacentEdges(node)
 		if len(edges) == 1 { // one edge
-			chn := make(chan string)
-			chn = edges[0].Action.Channel
 			node = edges[0].To
-			action := edges[0].Action.Action
-			if !IsSendAction(action) {
-				msg = <-chn
+			if IsToElement(edges[0].Action.Action) {
+				edges[0].Action.Channel <- msg
 			} else {
-				chn <- msg
+				msg = <-edges[0].Action.Channel
 			}
 		} else { // two+ edges
 			chosen := 0
@@ -161,31 +138,81 @@ func Control(g execgraph.Graph) {
 	}
 }
 
-func (Client) Loop(invR, terR chan string) {
-	msgSent := "testV1"
-	i := 0
-	for {
-		select {
-		case invR <- msgSent + strconv.Itoa(i):
-			i++
-		case msgRecv := <-terR:
-			fmt.Println("Message: " + msgRecv)
+func DefineChannels(channels map[string]chan string, elem string) map[string]chan string {
+	r := map[string]chan string{}
+
+	for c := range channels {
+		if strings.Contains(c, elem) {
+			r[c] = channels[c]
 		}
 	}
+	return r
 }
 
-func (Server) Loop(invP, terP, i_PosInvP chan string) {
-	msgRecv := ""
-	for {
-		select {
-		case <-invP:
-		case terP <- msgRecv:
-		case msgRecv = <-i_PosInvP:
-			Server{}.I_PosInvP(&msgRecv)
+func DefineChannel(channels map[string]chan string, a string) chan string {
+	var r chan string
+	found := false
+
+	for c := range channels {
+		if (a[:2] != "I_") {
+			if strings.Contains(c, a) && c[:2] != "I_" {
+				r = channels[c]
+				found = true
+				break
+			}
+		} else {
+			if strings.Contains(c, a) {
+				r = channels[c]
+				found = true
+				break
+			}
 		}
 	}
+
+	if !found {
+		fmt.Println("Error: channel '" + a + " not found")
+	}
+
+	return r
 }
 
-func (Server) I_PosInvP(msg *string) {
-	*msg = strings.ToUpper(*msg)
+func mainSenderReceiver() {
+	conf := conf.GenerateConf("SenderReceiver.conf")
+	fdrGraph := CreateFDRGraph()
+	execGraph, channels := CreateExecGraph(fdrGraph)
+
+	elemChannels1 := DefineChannels(channels, "sender")
+	invR1 := DefineChannel(elemChannels1, "InvR")
+
+	elemChannels2 := DefineChannels(channels, "receiver")
+	invP2 := DefineChannel(elemChannels2, "InvP")
+	i_PosInvP2 := DefineChannel(elemChannels2, "I_PosInvP_receiver")
+
+	go Control(execGraph)
+	go shared.Invoke(conf.Components["sender"].TypeElem, "Loop", invR1)
+	go shared.Invoke(conf.Components["receiver"].TypeElem, "Loop", invP2, i_PosInvP2)
+
+	fmt.Scanln()
+}
+
+func mainClientServer() {
+	conf := conf.GenerateConf("ClientServer.conf")
+	fdrGraph := CreateFDRGraph()
+	execGraph, channels := CreateExecGraph(fdrGraph)
+
+	elemChannels1 := DefineChannels(channels, "client")
+
+	invR1 := DefineChannel(elemChannels1, "InvR")
+	terR1 := DefineChannel(elemChannels1, "TerR")
+
+	elemChannels2 := DefineChannels(channels, "server")
+	invP2 := DefineChannel(elemChannels2, "InvP")
+	i_PosInvP2 := DefineChannel(elemChannels2, "I_PosInvP_server")
+	terP2 := DefineChannel(elemChannels2, "TerP")
+
+	go Control(execGraph)
+	go shared.Invoke(conf.Components["client"].TypeElem, "Loop", invR1, terR1)
+	go shared.Invoke(conf.Components["server"].TypeElem, "Loop", invP2, terP2, i_PosInvP2)
+
+	fmt.Scanln()
 }

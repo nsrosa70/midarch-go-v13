@@ -20,6 +20,20 @@ var err error
 var ln net.Listener
 var serverUp = false
 
+func (s SRH) Loop(I_PreInvR, InvR, TerR, I_PosInvR chan message.Message) {
+	var msgPreInvR,msgInvR,msgTerR,msgPosInvR message.Message
+	for {
+		select {
+		case msgPreInvR = <-I_PreInvR:
+			s.I_PreInvR(&msgPreInvR)
+		case InvR <- msgInvR:
+		case msgTerR = <- TerR:
+		case msgPosInvR = <- I_PosInvR:
+			s.I_PosTerR(&msgPosInvR)
+		}
+	}
+}
+
 func (s SRH) I_PreInvR(msg *message.Message) {
 
 	if !serverUp {

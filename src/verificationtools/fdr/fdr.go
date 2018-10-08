@@ -12,22 +12,41 @@ import (
 	"shared/errors"
 	"framework/configuration/commands"
 	"graph/fdrgraph"
+	"log"
+	"bufio"
 )
 
 type FDR struct{}
 
-func (FDR) CreateFDRGraph() fdrgraph.Graph { // This will disapear after integrated with FDR graph generator
-	graph := fdrgraph.NewGraph(20)
+func (FDR) CreateFDRGraph(confFile string) fdrgraph.Graph { // This will disapear after integrated with FDR graph generator
+	graph := fdrgraph.NewGraph(100)
 
-	// MiddlewareNamingServer
-	graph.AddEdge(0, 1, "I_PreInvR_srh")
-	graph.AddEdge(1, 2, "InvR.srh")
-	graph.AddEdge(2, 3, "InvP.invoker")
-	graph.AddEdge(3, 4, "I_PosInvP_invoker")
-	graph.AddEdge(4, 5, "TerP.invoker")
-	graph.AddEdge(5, 6, "TerR.srh")
-	graph.AddEdge(6, 0, "I_PosTerR_srh")
+	dotFileName := strings.Replace(confFile,".conf",".dot",1)
+	dotFileName = parameters.DIR_CSP + "/" + dotFileName
 
+	// read file
+	fileContent := []string{}
+	file, err := os.Open(dotFileName)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		fileContent = append(fileContent, scanner.Text())
+	}
+
+	// Generate Configuration
+	for l := range fileContent {
+		line := fileContent[l]
+		if strings.Contains(line, "->") {
+			from,_ := strconv.Atoi(strings.TrimSpace(line[:strings.Index(line,"->")]))
+			to,_:= strconv.Atoi(strings.TrimSpace(line[strings.Index(line,"->")+2:strings.Index(line,"[")]))
+			action := line[strings.Index(line,"=")+2:strings.LastIndex(line,"]")-2]
+			graph.AddEdge(from, to, action)
+		}
+	}
 	return *graph
 }
 

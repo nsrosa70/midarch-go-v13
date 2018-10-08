@@ -207,7 +207,7 @@ func DefineChannel(channels map[string]chan message.Message, a string) chan mess
 	}
 
 	if !found {
-		fmt.Println("Error: channel '" + a + " not found")
+		fmt.Println("Error: channel '" + a + "' not found")
 	}
 
 	return r

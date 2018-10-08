@@ -1,6 +1,8 @@
 package naming
 
-import "framework/components/naming/ior"
+import (
+	"framework/components/naming/ior"
+)
 
 type Naming struct{}
 

@@ -8,6 +8,18 @@ import (
 
 type FibonacciInvoker struct{}
 
+func (n FibonacciInvoker) Loop(InvP, I_PosInvP, TerP chan message.Message) {
+	var msgReq message.Message
+	for {
+		select {
+		case msgReq = <-InvP:
+		case <-I_PosInvP:
+			n.I_PosInvP(&msgReq)
+		case TerP <- msgReq:
+		}
+	}
+}
+
 func (FibonacciInvoker) I_PosInvP(msg *message.Message) {
 	op := msg.Payload.(message.MIOP).Body.RequestHeader.Operation
 

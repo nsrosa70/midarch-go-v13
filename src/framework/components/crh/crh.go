@@ -19,6 +19,20 @@ var err error
 
 var portTmp int
 
+func (e CRH) Loop(InvP, I_PosInvP, I_PreTerP, TerP chan message.Message) {
+	var msgPosInvP, msgPreTerP message.Message
+	for {
+		select {
+		case <-InvP:
+		case msgPosInvP = <-I_PosInvP:
+			e.I_PosInvP(&msgPosInvP)
+		case msgPreTerP = <-I_PreTerP:
+			e.I_PreTerP(&msgPreTerP)
+		case TerP <- msgPreTerP:
+		}
+	}
+}
+
 func (c CRH) I_PosInvP(msg *message.Message) {
 
 	host := msg.Payload.(message.ToCRH).Host
@@ -31,7 +45,7 @@ func (c CRH) I_PosInvP(msg *message.Message) {
 	portTmp = port
 	if err != nil {
 		fmt.Println(err)
-		myError := errors.MyError{Source: "CRH", Message: "Unable to open connection to "+host+" : "+strconv.Itoa(port)}
+		myError := errors.MyError{Source: "CRH", Message: "Unable to open connection to " + host + " : " + strconv.Itoa(port)}
 		myError.ERROR()
 	}
 
@@ -39,7 +53,7 @@ func (c CRH) I_PosInvP(msg *message.Message) {
 	err = encoder.Encode(msg.Payload.(message.ToCRH).MIOP)
 	if err != nil {
 		fmt.Println(err)
-		myError := errors.MyError{Source: "CRH", Message: "Unable to send data to "+host+":"+strconv.Itoa(port)}
+		myError := errors.MyError{Source: "CRH", Message: "Unable to send data to " + host + ":" + strconv.Itoa(port)}
 		myError.ERROR()
 	}
 }
@@ -51,7 +65,7 @@ func (c CRH) I_PreTerP(msg *message.Message) {
 
 	if err != nil {
 		fmt.Println(err)
-		myError := errors.MyError{Source: "CRH", Message: "Problem in decoding at Port "+strconv.Itoa(portTmp)}
+		myError := errors.MyError{Source: "CRH", Message: "Problem in decoding at Port " + strconv.Itoa(portTmp)}
 		myError.ERROR()
 	}
 	conn.Close()

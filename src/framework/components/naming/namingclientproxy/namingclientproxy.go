@@ -15,7 +15,21 @@ type NamingClientProxy struct {
 var i_PreInvR = make(chan message.Message)
 var i_PosTerR = make(chan message.Message)
 
-func (n NamingClientProxy) Register(_p1 string,_p2 interface{}) bool {
+func (e NamingClientProxy) Loop(I_PreInvR, InvR, TerR, I_PosTerR chan message.Message) {
+	var msgTerR, msgPreInvR message.Message
+	for {
+		select {
+		case msgPreInvR = <-I_PreInvR:
+			e.I_PreInvR(&msgPreInvR)
+		case InvR <- msgPreInvR:
+		case msgTerR = <-TerR:
+		case <-I_PosTerR:
+			e.I_PosTerR(&msgTerR)
+		}
+	}
+}
+
+func (n NamingClientProxy) Register(_p1 string, _p2 interface{}) bool {
 	_p3 := reflect.ValueOf(_p2).FieldByName("Host").String()
 	_p4 := int(reflect.ValueOf(_p2).FieldByName("Port").Int())
 	_p5 := reflect.TypeOf(_p2).String()

@@ -1,20 +1,21 @@
 package sender
 
-import (
-	"fmt"
-)
+import "framework/message"
 
 type Sender struct{}
 
-func (Sender) T() {
-	fmt.Println("Here")
+
+func (Sender) I_PreInvR(msg *message.Message) {
+	*msg = message.Message{Payload:"testV2"}
 }
 
-func (Sender) Loop(invR chan string) {
-	msg := "testV1"
+func (e Sender) Loop(i_PreInvR, invR chan message.Message) {
+	var msgIPreInvR message.Message
 	for {
 		select {
-		case invR <- msg:
+		case msgIPreInvR = <- i_PreInvR:
+			e.I_PreInvR(&msgIPreInvR)
+		case invR <- msgIPreInvR:
 		}
 	}
 }

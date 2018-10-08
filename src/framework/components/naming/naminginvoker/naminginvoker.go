@@ -10,17 +10,16 @@ import (
 
 type NamingInvoker struct{}
 
-func (n NamingInvoker) Loop(InvP, TerP, I_PosInvP chan message.Message) {
-	var msgReq message.Message
+func (n NamingInvoker) Loop(InvP, I_PosInvP, TerP chan message.Message) {
+	var msgPosInvP message.Message
 	for {
 		select {
-		case msgReq = <-InvP:
-		case <-I_PosInvP:
-			n.I_PosInvP(&msgReq)
-		case TerP <- msgReq:
+		case <-InvP:
+		case msgPosInvP = <-I_PosInvP:
+			n.I_PosInvP(&msgPosInvP)
+		case TerP <- msgPosInvP:
 		}
 	}
-
 }
 
 func (NamingInvoker) I_PosInvP(msg *message.Message) {
@@ -58,7 +57,7 @@ func (NamingInvoker) I_PosInvP(msg *message.Message) {
 		*msg = message.Message{_miop}
 	case "List":
 	default:
-		fmt.Println("Queueing:: Operation " + op + " is not implemented by Naming Server")
+		fmt.Println("NamingInvoker:: Operation " + op + " is not implemented by Naming Server")
 		os.Exit(0)
 	}
 }

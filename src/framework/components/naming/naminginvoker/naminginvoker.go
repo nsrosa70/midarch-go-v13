@@ -10,14 +10,14 @@ import (
 
 type NamingInvoker struct{}
 
-func (n NamingInvoker) Loop(InvP, I_PosInvP, TerP chan message.Message) {
+func (n NamingInvoker) Loop(channels map[string] chan message.Message) {
 	var msgPosInvP message.Message
 	for {
 		select {
-		case <-InvP:
-		case msgPosInvP = <-I_PosInvP:
+		case <-channels["InvP"]:
+		case msgPosInvP = <-channels["I_PosInvP_naminginvoker"]:
 			n.I_PosInvP(&msgPosInvP)
-		case TerP <- msgPosInvP:
+		case channels["TerP"] <- msgPosInvP:
 		}
 	}
 }

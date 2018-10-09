@@ -12,11 +12,11 @@ func (Receiver) I_PosInvP(m *message.Message) {
 	fmt.Println(m.Payload)
 }
 
-func (Receiver) Loop(invP, i_PosInvP chan message.Message) {
+func (Receiver) Loop(channels map[string]chan message.Message) {
 	for {
 		select {
-		case <-invP:
-		case msgRcv := <-i_PosInvP:
+		case <-channels["InvP"]:
+		case msgRcv := <-channels["I_PosInvP_receiver"]:
 			Receiver{}.I_PosInvP(&msgRcv)
 		}
 	}

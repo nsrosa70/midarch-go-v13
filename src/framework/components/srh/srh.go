@@ -20,15 +20,15 @@ var err error
 var ln net.Listener
 var serverUp = false
 
-func (s SRH) Loop(I_PreInvR, InvR, TerR, I_PosTerR chan message.Message) {
+func (s SRH) Loop(channels map[string]chan message.Message) {
 	var msgPreInvR, msgPosTerR message.Message
 	for {
 		select {
-		case msgPreInvR = <-I_PreInvR:
+		case msgPreInvR = <-channels["I_PreInvR_srh"]:
 			s.I_PreInvR(&msgPreInvR)
-		case InvR <- msgPreInvR:
-		case <- TerR:
-		case msgPosTerR = <-I_PosTerR:
+		case channels["InvR"] <- msgPreInvR:
+		case <- channels["TerR"]:
+		case msgPosTerR = <-channels["I_PosTerR_srh"]:
 			s.I_PosTerR(&msgPosTerR)
 		}
 	}

@@ -19,16 +19,16 @@ var err error
 
 var portTmp int
 
-func (e CRH) Loop(InvP, I_PosInvP, I_PreTerP, TerP chan message.Message) {
+func (e CRH) Loop(channels map[string] chan message.Message) {
 	var msgPosInvP, msgPreTerP message.Message
 	for {
 		select {
-		case <-InvP:
-		case msgPosInvP = <-I_PosInvP:
+		case <-channels["InvP"]:
+		case msgPosInvP = <-channels["I_PosInvP_crh"]:
 			e.I_PosInvP(&msgPosInvP)
-		case msgPreTerP = <-I_PreTerP:
+		case msgPreTerP = <-channels["I_PreTerP_crh"]:
 			e.I_PreTerP(&msgPreTerP)
-		case TerP <- msgPreTerP:
+		case channels["TerP"] <- msgPreTerP:
 		}
 	}
 }

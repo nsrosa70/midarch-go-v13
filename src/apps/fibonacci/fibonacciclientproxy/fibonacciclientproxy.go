@@ -13,15 +13,15 @@ type FibonacciClientProxy struct {
 var i_PreInvR  = make(chan message.Message, parameters.CHAN_BUFFER_SIZE)
 var i_PosTerT = make(chan message.Message, parameters.CHAN_BUFFER_SIZE)
 
-func (e FibonacciClientProxy) Loop(I_PreInvR, InvR, TerR, I_PosTerR chan message.Message) {
+func (e FibonacciClientProxy) Loop(channels map[string] chan message.Message) {
 	var msgTerR, msgPreInvR message.Message
 	for {
 		select {
-		case msgPreInvR = <-I_PreInvR:
+		case msgPreInvR = <-channels["I_PreInvR_fibonacciproxy"]:
 			e.I_PreInvR(&msgPreInvR)
-		case InvR <- msgPreInvR:
-		case msgTerR = <-TerR:
-		case <-I_PosTerR:
+		case channels["InvR"] <- msgPreInvR:
+		case msgTerR = <-channels["TerR"]:
+		case <-channels["I_PosTerR_fibonacciproxy"]:
 			e.I_PosTerR(&msgTerR)
 		}
 	}

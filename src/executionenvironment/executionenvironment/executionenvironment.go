@@ -4,11 +4,13 @@ import (
 	"shared/conf"
 	"shared/shared"
 	"os"
-	"fmt"
 	"verificationtools/fdr"
 	"framework/configuration/configuration"
 	"framework/message"
 	"graph/execgraph"
+	"reflect"
+	"framework/library"
+	"strings"
 )
 
 type ExecutionEnvironment struct{}
@@ -22,56 +24,23 @@ func (ee ExecutionEnvironment) Deploy(confFile string) {
 	conf := conf.GenerateConf(confFile)
 	fdrGraph := fdr.FDR{}.CreateFDRGraph(confFile)
 	execGraph, channels := shared.CreateExecGraph(fdrGraph)
+	ee.DeployGeneric(confFile,conf,channels,execGraph)
+}
 
-	switch confFile {
-	case "SenderReceiver.conf":
-		ee.DeploySenderReceiver(confFile,conf,channels,execGraph)
-	case "MiddlewareFibonacciServer.conf":
-		ee.DeployFibonacciServer(confFile, conf, channels, execGraph)
-	case "MiddlewareFibonacciClient.conf":
-		ee.DeployFibonacciClient(confFile, conf, channels, execGraph)
-	case "MiddlewareNamingServer.conf":
-		ee.DeployNaming(confFile, conf, channels, execGraph)
-	default:
-		fmt.Println("Configuration does not exist...")
+func (ee ExecutionEnvironment) DeployGeneric(confFile string, conf configuration.Configuration, channels map[string]chan message.Message, execGraph execgraph.GraphX) {
+
+	go shared.Control(execGraph)
+	for e := range conf.Components {
+		elemChannels := shared.DefineChannels(channels, conf.Components[e].Id)
+		actions := map[string][]string{}
+		behaviour := library.Repository[reflect.TypeOf(conf.Components[e].TypeElem).String()].CSP
+		actions[e] = FilterActions(strings.Split(behaviour," "))
+		individualChannels := map[string]chan message.Message{}
+		for a := range actions[e] {
+			individualChannels[actions[e][a]] = shared.DefineChannel(elemChannels,actions[e][a])
+		}
+		go shared.Invoke(conf.Components[conf.Components[e].Id].TypeElem, "Loop", individualChannels)
 	}
-}
-
-func (ee ExecutionEnvironment) DeployNaming(confFile string, conf configuration.Configuration, channels map[string]chan message.Message, execGraph execgraph.GraphX) {
-
-	// srh
-	elemChannels1 := shared.DefineChannels(channels, "srh")
-	i_PreInvR1 := shared.DefineChannel(elemChannels1, "I_PreInvR_srh")
-	invR1 := shared.DefineChannel(elemChannels1, "InvR")
-	terR1 := shared.DefineChannel(elemChannels1, "TerR")
-	i_PosTerR1 := shared.DefineChannel(elemChannels1, "I_PosTerR_srh")
-
-	// invoker
-	elemChannels2 := shared.DefineChannels(channels, "invoker")
-	invP2 := shared.DefineChannel(elemChannels2, "InvP")
-	i_PosInvP2 := shared.DefineChannel(elemChannels2, "I_PosInvP_invoker")
-	terP2 := shared.DefineChannel(elemChannels2, "TerP")
-
-	go shared.Control(execGraph)
-	go shared.Invoke(conf.Components["srh"].TypeElem, "Loop", i_PreInvR1, invR1, terR1, i_PosTerR1)
-	go shared.Invoke(conf.Components["invoker"].TypeElem, "Loop", invP2, i_PosInvP2, terP2)
-}
-
-func (ee ExecutionEnvironment) DeploySenderReceiver(confFile string, conf configuration.Configuration, channels map[string]chan message.Message, execGraph execgraph.GraphX) {
-
-	// sender
-	elemChannels1 := shared.DefineChannels(channels, "sender")
-	i_PreInvR1 := shared.DefineChannel(elemChannels1, "I_PreInvR")
-	invR1 := shared.DefineChannel(elemChannels1, "InvR")
-
-	// receiver
-	elemChannels2 := shared.DefineChannels(channels, "receiver")
-	invP2 := shared.DefineChannel(elemChannels2, "InvP")
-	i_PosInvP2 := shared.DefineChannel(elemChannels2, "I_PosInvP_receiver")
-
-	go shared.Control(execGraph)
-	go shared.Invoke(conf.Components["sender"].TypeElem, "Loop", i_PreInvR1,invR1)
-	go shared.Invoke(conf.Components["receiver"].TypeElem, "Loop", invP2, i_PosInvP2)
 }
 
 func (ee ExecutionEnvironment) DeployFibonacciServer(confFile string, conf configuration.Configuration, channels map[string]chan message.Message, execGraph execgraph.GraphX) {
@@ -157,4 +126,19 @@ func (ee ExecutionEnvironment) DeployFibonacciClient(confFile string, conf confi
 	go shared.Invoke(conf.Components["fibonacciproxy"].TypeElem, "Loop", I_PreInvR_fibonacciproxy2, InvR2, TerR2, I_PosTerR_fibonacciproxy2)
 	go shared.Invoke(conf.Components["requestor"].TypeElem, "Loop", InvP3, I_PosInvP_requestor3, InvR3, TerR3, I_PosTerR_requestor3, TerP3)
 	go shared.Invoke(conf.Components["crh"].TypeElem, "Loop", InvP4, I_PosInvP_crh4, I_PreTerP_crh4, TerP4)
+}
+
+func FilterActions(actions []string) [] string {
+	r := []string{}
+
+	for a := range actions {
+		action := actions[a]
+		if strings.Contains(action, "I") || strings.Contains(action,"T"){ // TODO
+			if strings.Contains(action,"."){
+				action = action[:strings.Index(action,".")]
+			}
+			r = append(r, action)
+		}
+	}
+	return r
 }

@@ -15,15 +15,15 @@ type NamingClientProxy struct {
 var i_PreInvR = make(chan message.Message)
 var i_PosTerR = make(chan message.Message)
 
-func (e NamingClientProxy) Loop(I_PreInvR, InvR, TerR, I_PosTerR chan message.Message) {
+func (e NamingClientProxy) Loop(channels map[string] chan message.Message) {
 	var msgTerR, msgPreInvR message.Message
 	for {
 		select {
-		case msgPreInvR = <-I_PreInvR:
+		case msgPreInvR = <-channels["I_PreInvR_namingproxy"]:
 			e.I_PreInvR(&msgPreInvR)
-		case InvR <- msgPreInvR:
-		case msgTerR = <-TerR:
-		case <-I_PosTerR:
+		case channels["InvR"] <- msgPreInvR:
+		case msgTerR = <-channels["TerR"]:
+		case <-channels["I_PosTerR_namingproxy"]:
 			e.I_PosTerR(&msgTerR)
 		}
 	}

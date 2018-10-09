@@ -8,14 +8,14 @@ import (
 
 type FibonacciInvoker struct{}
 
-func (n FibonacciInvoker) Loop(InvP, I_PosInvP, TerP chan message.Message) {
+func (n FibonacciInvoker) Loop(channels map[string] chan message.Message) {
 	var msgReq message.Message
 	for {
 		select {
-		case msgReq = <-InvP:
-		case <-I_PosInvP:
+		case msgReq = <-channels["InvP"]:
+		case <-channels["I_PosInvP_fibonacciinvoker"]:
 			n.I_PosInvP(&msgReq)
-		case TerP <- msgReq:
+		case channels["TerP"] <- msgReq:
 		}
 	}
 }

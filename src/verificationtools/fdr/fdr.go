@@ -18,7 +18,7 @@ import (
 
 type FDR struct{}
 
-func (FDR) CreateFDRGraph(confFile string) fdrgraph.Graph { // This will disapear after integrated with FDR graph generator
+func (FDR) LoadFDRGraph(confFile string) fdrgraph.Graph {
 	graph := fdrgraph.NewGraph(100)
 
 	dotFileName := strings.Replace(confFile,".conf",".dot",1)

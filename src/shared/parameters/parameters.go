@@ -3,7 +3,7 @@ package parameters
 import "time"
 
 // Dirs
-//const BASE_DIR    = "/go/midarch-go"  // docker
+//const BASE_DIR  = "/go/midarch-go"  // docker
 const BASE_DIR    = "/Users/nsr/Dropbox/go/software-architecture-v10"
 const DIR_PLUGINS = BASE_DIR + "/src/plugins"
 const DIR_CSP     = BASE_DIR+ "/src/cspspecs"
@@ -17,7 +17,7 @@ const DIR_FDR     = "/Volumes/Macintosh HD/Applications/FDR4-2.app/Contents/MacO
 const NAMING_PORT      = 4040
 const CALCULATOR_PORT  = 2020
 const FIBONACCI_PORT   = 2030
-const QUEUEING_PORT = 2040
+const QUEUEING_PORT    = 2040
 
 var SetOfPorts = map[string]int{
 	"NAMING_PORT"     : NAMING_PORT,

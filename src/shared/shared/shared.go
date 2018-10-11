@@ -123,6 +123,15 @@ type Quotient struct {
 	Quo, Rem int
 }
 
+func IsToElement(action string) bool {
+	if action[:2] == "I_" || action[:4] == "InvP" || action[:4] == "TerR" {
+		return true
+	} else { // TerP and InvR
+		return false
+	}
+}
+
+
 func LoadParameters(args []string){
 	for i:= range args{
 		variable := strings.Split(args[i],"=")
@@ -185,3 +194,4 @@ func ShowExecutionParameters(s bool){
 		fmt.Println("******************************************")
 	}
 }
+

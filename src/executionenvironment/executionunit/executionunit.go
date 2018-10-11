@@ -24,21 +24,34 @@ func (ExecutionUnit) Exec(elem element.Element, execChannels map[string]chan mes
 		individualChannels[actions[elem.Id][a]] = DefineChannel(elemChannels, actions[elem.Id][a])
 	}
 
+	// Assembly cases
+	var msg message.Message
+	cases := make([]reflect.SelectCase, len(individualChannels))
+	auxCases := []string{}
+	idx := 0
+
+	for c := range individualChannels {
+		if !shared.IsToElement(c) {
+			cases[idx] = reflect.SelectCase{Dir: reflect.SelectSend, Chan: reflect.ValueOf(individualChannels[c]), Send: reflect.ValueOf(msg)}
+		} else {
+			cases[idx] = reflect.SelectCase{Dir: reflect.SelectRecv, Chan: reflect.ValueOf(individualChannels[c]), Send: reflect.Value{}}
+		}
+		auxCases = append(auxCases, c)
+		idx++
+	}
+
 	for {
-		shared.Invoke(elem.TypeElem, "Loop", individualChannels)
-		//if elem.Id == "fibonacciinvoker" {
-			fmt.Println("Execution Unit "+elem.Id)
-		//}
+		//shared.Invoke(elem.TypeElem, "Loop", individualChannels) // Individual loop
+		shared.Invoke(element.Element{}, "Loop", elem.TypeElem, cases, auxCases) // Generic Loop
 		select {
 		case cmd := <-chanUnit: // a new management action is received
 			switch cmd.Cmd {
 			case commands.REPLACE_COMPONENT:
-				fmt.Println("Unit:: Replace")
 				elem = cmd.Args
 			case commands.STOP:
 				fmt.Println("Unit:: STOP [TODO]")
 			}
-		default: // no new management action received
+		default:
 		}
 	}
 }

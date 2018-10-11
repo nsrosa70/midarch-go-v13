@@ -1,21 +1,11 @@
-datatype PROCNAMES = sender | receiver
-channel InvP,TerP,InvR,TerR : PROCNAMES
-channel I_PosInvP_receiver, I_PreInvR_sender
-
--- Sender = InvR.e1 -> Client
-Sender = I_PreInvR_sender -> InvR.sender -> Sender
-
--- Receiver = InvP.e1 -> I_PosInvP_Server -> Receiver
-Receiver = InvP.receiver -> I_PosInvP_receiver -> Receiver
-
--- OneWay = InvP.e1 -> InvR.e2 -> OneWay
+datatype PROCNAMES = receiver | t1 | sender 
+channel I_PosInvP_receiver,I_PreInvR_sender
+channel InvR,InvP : PROCNAMES
+SENDER = I_PreInvR_sender -> InvR.sender -> SENDER
+RECEIVER = InvP.receiver -> I_PosInvP_receiver -> RECEIVER
 T1 = InvP.sender -> InvR.receiver -> T1
 
--- COMPOSITION
-
-P1 = (Sender ||| Receiver)
-[|{|InvP,TerP,InvR,TerR|}|] 
-(T1 [[InvP<-InvR,InvR<-InvP,TerP<-TerR, TerR<-TerP]])
-
--- DEADLOCK CHECKING
+P1 = (SENDER|||RECEIVER)
+[|{|InvP,InvR|}|]
+(T1[[InvP <- InvR,InvR <- InvP]])
 assert P1 :[deadlock free]

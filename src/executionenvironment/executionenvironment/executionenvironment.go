@@ -57,7 +57,7 @@ func (ee ExecutionEnvironment) Deploy(confFile string) {
 	execGraph, execChannels := CreateExecGraph(fdrGraph)
 
 	// Show execution parameters
-	shared.ShowExecutionParameters(true)
+	shared.ShowExecutionParameters(false)
 
 	// Start engine
 	go StartEngine(execGraph)
@@ -130,7 +130,7 @@ func StartEngine(g execgraph.GraphX) {
 		edges := g.AdjacentEdgesX(node)
 		if len(edges) == 1 { // one edge
 			node = edges[0].To
-			if IsToElement(edges[0].Action.Action) {
+			if shared.IsToElement(edges[0].Action.Action) {
 				edges[0].Action.Channel <- msg
 			} else {
 				msg = <-edges[0].Action.Channel
@@ -143,20 +143,12 @@ func StartEngine(g execgraph.GraphX) {
 	}
 }
 
-func IsToElement(action string) bool {
-	if action[:2] == "I_" || action[:4] == "InvP" || action[:4] == "TerR" {
-		return true
-	} else { // TerP and InvR
-		return false
-	}
-}
-
 func ChoiceX(msg *message.Message, chosen *int, edges []execgraph.EdgeX) {
 	cases := make([]reflect.SelectCase, len(edges))
 	var value reflect.Value
 
 	for i := 0; i < len(edges); i++ {
-		if IsToElement(edges[i].Action.Action) {
+		if shared.IsToElement(edges[i].Action.Action) {
 			cases[i] = reflect.SelectCase{Dir: reflect.SelectSend, Chan: reflect.ValueOf(edges[i].Action.Channel), Send: reflect.ValueOf(*msg)}
 		} else {
 			cases[i] = reflect.SelectCase{Dir: reflect.SelectRecv, Chan: reflect.ValueOf(edges[i].Action.Channel), Send: reflect.Value{}}
@@ -164,7 +156,7 @@ func ChoiceX(msg *message.Message, chosen *int, edges []execgraph.EdgeX) {
 	}
 
 	*chosen, value, _ = reflect.Select(cases)
-	if !IsToElement(edges[*chosen].Action.Action) {
+	if !shared.IsToElement(edges[*chosen].Action.Action) {
 		*msg = value.Interface().(message.Message)
 	}
 	cases = nil

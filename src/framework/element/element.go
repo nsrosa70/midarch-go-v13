@@ -87,3 +87,24 @@ func Log(args...string){
 		fmt.Println(args[0]+":"+args[1]+":"+args[2]+":"+args[3])
 	}
 }
+
+func (Element) Loop(e interface{}, cases []reflect.SelectCase, auxCases []string){
+	var msg message.Message
+
+	for {
+		chosen, value, _ := reflect.Select(cases)
+		if cases[chosen].Dir == reflect.SelectRecv {
+			msg = value.Interface().(message.Message)
+		}
+		if auxCases[chosen][:2] == "I_" {
+			f := auxCases[chosen][:strings.LastIndex(auxCases[chosen],"_")]
+			shared.Invoke(e,f,&msg)
+			//e.I_PreInvR(&msg)
+			for c := range cases {
+				if cases[c].Dir == reflect.SelectSend {
+					cases[c].Send = reflect.ValueOf(msg)
+				}
+			}
+		}
+	}
+}

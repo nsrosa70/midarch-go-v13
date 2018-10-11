@@ -2,13 +2,13 @@ package srh
 
 import (
 	"net"
+	"framework/message"
+	"shared/net"
 	"strings"
 	"strconv"
-	"encoding/json"
-	"framework/message"
 	"fmt"
 	"shared/errors"
-	"shared/net"
+	"encoding/json"
 )
 
 type SRH struct {

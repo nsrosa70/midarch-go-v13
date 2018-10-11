@@ -2,10 +2,10 @@ package naminginvoker
 
 import (
 	"framework/message"
+	"framework/components/naming/ior"
+	"framework/components/naming/naming"
 	"fmt"
 	"os"
-	"framework/components/naming/naming"
-	"framework/components/naming/ior"
 )
 
 type NamingInvoker struct{}

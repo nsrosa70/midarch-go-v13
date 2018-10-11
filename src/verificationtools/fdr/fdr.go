@@ -131,7 +131,8 @@ func adjustPartnersComponent(id string, behaviour string) string {
 
 func adjustPartnersConnectors(id string, behaviour string, elemMaps map[string]string) string {
 	numPartners := strings.Count(behaviour,".e")
-	for i := 0; i < numPartners; i++ {
+
+	for i := 1; i < numPartners+1; i++ {
 		key := id + "." + "e" + strconv.Itoa(i)
 		value, ok := elemMaps[key]
 		if ok {
@@ -272,7 +273,6 @@ func createProcessExp(conf configuration.Configuration, elemMaps map[string]stri
 		connectorProcesses[strings.ToUpper(id)] = behaviour
 		processesExp += connectorProcesses[strings.ToUpper(id)] + "\n"
 	}
-
 	return processesExp, componentProcesses, connectorProcesses
 }
 

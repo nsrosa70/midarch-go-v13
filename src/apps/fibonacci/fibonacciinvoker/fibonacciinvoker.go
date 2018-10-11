@@ -8,14 +8,15 @@ import (
 
 type FibonacciInvoker struct{}
 
-func (n FibonacciInvoker) Loop(channels map[string] chan message.Message) {
-	var msgReq message.Message
+func (n FibonacciInvoker) Loop(channels map[string]chan message.Message) {
+	var msgPosInvP message.Message
 	for {
 		select {
-		case msgReq = <-channels["InvP"]:
-		case <-channels["I_PosInvP_fibonacciinvoker"]:
-			n.I_PosInvP(&msgReq)
-		case channels["TerP"] <- msgReq:
+		case <-channels["InvP"]:
+		case msgPosInvP = <-channels["I_PosInvP_fibonacciinvoker"]:
+			n.I_PosInvP(&msgPosInvP)
+		case channels["TerP"] <- msgPosInvP:
+			return
 		}
 	}
 }
@@ -32,13 +33,13 @@ func (FibonacciInvoker) I_PosInvP(msg *message.Message) {
 		_r := fibonacci.Fibonacci{}.Fibo(_p1) // dispatch
 
 		// send reply
-		_replyHeader := message.ReplyHeader{Status:1} // 1 - Success
+		_replyHeader := message.ReplyHeader{Status: 1} // 1 - Success
 		_replyBody := message.ReplyBody{Reply: _r}
-		_miopHeader := message.MIOPHeader{Magic:"MIOP"}
-		_miopBody := message.MIOPBody{ReplyHeader:_replyHeader,ReplyBody:_replyBody}
-		_miop := message.MIOP{Header:_miopHeader,Body:_miopBody}
+		_miopHeader := message.MIOPHeader{Magic: "MIOP"}
+		_miopBody := message.MIOPBody{ReplyHeader: _replyHeader, ReplyBody: _replyBody}
+		_miop := message.MIOP{Header: _miopHeader, Body: _miopBody}
 		*msg = message.Message{_miop}
 	default:
-		fmt.Println("FIBONACCIINVOKER:: Operation "+op+" not supported")
+		fmt.Println("FIBONACCIINVOKER:: Operation " + op + " not supported")
 	}
 }

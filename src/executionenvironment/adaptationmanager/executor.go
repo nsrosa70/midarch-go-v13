@@ -4,6 +4,7 @@ import (
 	"framework/message"
 	"framework/configuration/configuration"
 	"framework/configuration/commands"
+	"fmt"
 )
 
 type Executor struct{}
@@ -18,6 +19,8 @@ func (Executor) Exec(conf configuration.Configuration, channs map[string]chan me
 				newElement := plan.Cmds[i].Args
 				id := newElement.Id
 				cmd := commands.LowLevelCommand{commands.REPLACE_COMPONENT, newElement}
+				fmt.Println("Planner:: Replace Component "+id)
+				fmt.Println(channsUnit)
 				channsUnit[id] <- cmd
 			default:
 			}

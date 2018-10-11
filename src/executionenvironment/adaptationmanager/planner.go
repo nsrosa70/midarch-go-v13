@@ -11,6 +11,7 @@ import (
 	"shared/parameters"
 	"framework/configuration/commands"
 	"shared/errors"
+	"fmt"
 )
 
 type Planner struct{}
@@ -96,6 +97,8 @@ func loadPlugin(pluginName string, symbolName string) (plugin.Symbol) {
 	var err error
 
 	lib, err = plugin.Open(parameters.DIR_PLUGINS + "/" + pluginName)
+
+	fmt.Println("Planner: "+pluginName)
 
 	if err != nil {
 		myError := errors.MyError{Source: "Planner", Message: "Error on open plugin " + pluginName}

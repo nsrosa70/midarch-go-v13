@@ -176,11 +176,12 @@ func ShowExecutionParameters(s bool){
 		fmt.Println("Plugin Base Name: " + parameters.PLUGIN_BASE_NAME)
 		fmt.Println("Max Graph Size  : " + strconv.Itoa(parameters.GRAPH_SIZE))
 		fmt.Println("------------------------------------------")
-		fmt.Println("Injection enabled : " + strconv.FormatBool(parameters.INJECTION_ENABLED))
-		fmt.Println("Monitor Time (s)  : " + parameters.MONITOR_TIME.String())
-		fmt.Println("Injection Time (s): " + parameters.INJECTION_TIME.String())
+		fmt.Println("Adaptive          : " + strconv.FormatBool(parameters.IS_ADAPTIVE))
+		//fmt.Println("Injection enabled : " + strconv.FormatBool(parameters.INJECTION_ENABLED))
+		fmt.Println("Monitor Time (s)  : " + (parameters.MONITOR_TIME*time.Second).String())
+		fmt.Println("Injection Time (s): " + (parameters.INJECTION_TIME*time.Second).String())
 		fmt.Println("Request Time (ms) : " + parameters.REQUEST_TIME.String())
-		fmt.Println("Strategy          : TODO")
+		fmt.Println("Strategy (0-NOT DEFINED 1-No change 2-Change once 3-change same plugin 4-alternate plugins): "+strconv.Itoa(parameters.STRATEGY))
 		fmt.Println("******************************************")
 	}
 }

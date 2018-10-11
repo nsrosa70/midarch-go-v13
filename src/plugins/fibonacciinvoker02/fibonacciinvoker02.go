@@ -19,24 +19,40 @@ func GetBehaviourExp() string {
 	return "B = InvP.e1 -> I_PosInvP -> TerP.e1 -> B"
 }
 
+func (n FibonacciInvoker) Loop(channels map[string]chan message.Message) {
+	var msgPosInvP message.Message
+	for {
+		select {
+		case <-channels["InvP"]:
+		case msgPosInvP = <-channels["I_PosInvP_fibonacciinvoker"]:
+			n.I_PosInvP(&msgPosInvP)
+		case channels["TerP"] <- msgPosInvP:
+			return
+		}
+	}
+}
+
 func (FibonacciInvoker) I_PosInvP(msg *message.Message) {
-	op := msg.Payload.(message.MIOP).RequestBody.Op
-	args := msg.Payload.(message.MIOP).RequestBody.Args
+	op := msg.Payload.(message.MIOP).Body.RequestHeader.Operation
 
 	switch op {
-	case "fibo":
-		// prepare invocation
-		argsX := args.([]interface{})
-		p1 := int(argsX[0].(float64))
+	case "Fibo":
+		// process request
+		_args := msg.Payload.(message.MIOP).Body.RequestBody.Args
+		_argsX := _args.([]interface{})
+		_p1 := int(_argsX[0].(float64))
+		_r := fibonacci.Fibonacci{}.Fibo(_p1) // dispatch
 
-		r := fibonacci.Fibo(p1)
-		fmt.Println("[PLUGIN 03]")
-		fmt.Println(r)
+		fmt.Println("Plugin 02")
 
 		// send reply
-		header := message.ReplyHeader{1} // 1 - Success
-		body := message.ReplyBody{Reply: r}
-		miop := message.MIOP{ReplyHeader: header, ReplyBody: body}
-		*msg = message.Message{miop}
+		_replyHeader := message.ReplyHeader{Status: 1} // 1 - Success
+		_replyBody := message.ReplyBody{Reply: _r}
+		_miopHeader := message.MIOPHeader{Magic: "MIOP"}
+		_miopBody := message.MIOPBody{ReplyHeader: _replyHeader, ReplyBody: _replyBody}
+		_miop := message.MIOP{Header: _miopHeader, Body: _miopBody}
+		*msg = message.Message{_miop}
+	default:
+		fmt.Println("FIBONACCIINVOKER:: Operation " + op + " not supported")
 	}
 }

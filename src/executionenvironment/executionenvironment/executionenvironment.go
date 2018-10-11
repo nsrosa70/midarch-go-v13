@@ -12,12 +12,14 @@ import (
 	"framework/library"
 	"strings"
 	"graph/fdrgraph"
-	"fmt"
 	"shared/errors"
 	"framework/configuration/commands"
 	"strconv"
 	"shared/parameters"
 	"framework/element"
+	"executionenvironment/adaptationmanager"
+	"executionenvironment/versioninginjector"
+	"executionenvironment/executionunit"
 )
 
 type ExecutionEnvironment struct{}
@@ -27,53 +29,21 @@ func (ee ExecutionEnvironment) Deploy(confFile string) {
 	// Load execution parameters
 	shared.LoadParameters(os.Args[1:])
 
-	// check of parameters
-	shared.ShowExecutionParameters(false)
-
 	// Generate Go configuration
 	conf := conf.GenerateConf(confFile)
 
-	// Initialize channels between Units and Adaptation manager
-	channsUnits := make(map[string]chan commands.LowLevelCommand)
-	for i := range conf.Components {
-		id := conf.Components[i].Id
-		channsUnits[id] = make(chan commands.LowLevelCommand)
-	}
-	for i := range conf.Connectors {
-		id := conf.Connectors[i].Id
-		channsUnits[id] = make(chan commands.LowLevelCommand)
-	}
+	// Initialize management channels
+	channsUnits := InitializeManagementChannels(conf)
 
-	// Initialize basic elements used throughout execution
-	//channs := map[string]chan message.Message{}
-	elemMaps := map[string]string{}
-
-	// Configure channels & maps
-	//channs = ee.ConfigureChannels(conf)
-	elemMaps = ee.ConfigureMaps(conf)
+	// Initialize and configure channels & maps
+	channs := ee.ConfigureChannels(conf)
+	elemMaps := ee.ConfigureMaps(conf)
 
 	// Configure behaviour & behaviour expressions
-	for i := range conf.Components {
-		b := library.Repository[reflect.TypeOf(conf.Components[i].TypeElem).String()].CSP
-		if b == "" {
-			myError := errors.MyError{Source:"Execution Engine",Message:"Component '"+conf.Components[i].Id+"' does not exist in the Library"}
-			myError.ERROR()
-		}
-		tempElem := element.Element{conf.Components[i].Id,element.Element{}.Behaviour,conf.Components[i].TypeElem,b}
-		conf.Components[i] = tempElem
-	}
-	for i := range conf.Connectors {
-		b := library.Repository[reflect.TypeOf(conf.Connectors[i].TypeElem).String()].CSP
-		if b == "" {
-			myError := errors.MyError{Source:"Execution Engine",Message:"Connector '"+conf.Connectors[i].Id+"'does not exist in the Library"}
-			myError.ERROR()
-		}
-		tempElem := element.Element{conf.Connectors[i].Id,element.Element{}.Behaviour,conf.Connectors[i].TypeElem, b}
-		conf.Connectors[i] = tempElem
-	}
+	ConfigureBehaviour(&conf)
 
 	// Check behaviour using FDR
-	fdr := new(fdr.FDR)   // TODO
+	fdr := new(fdr.FDR)
 	ok := fdr.CheckBehaviour(conf,elemMaps)
 	if !ok{
 		myError := errors.MyError{Source:"Execution Engine",Message:"Configuration has a problem detected by FDR4"}
@@ -86,42 +56,54 @@ func (ee ExecutionEnvironment) Deploy(confFile string) {
 	// Generate executable graph
 	execGraph, execChannels := CreateExecGraph(fdrGraph)
 
-	// Deploy configuration
-	ee.Exec(conf, execChannels, execGraph)
-}
-
-func (ee ExecutionEnvironment) Exec(conf configuration.Configuration, channels map[string]chan message.Message, execGraph execgraph.GraphX) {
+	// Show execution parameters
+	shared.ShowExecutionParameters(true)
 
 	// Start engine
 	go StartEngine(execGraph)
 
-	// Start components
+	// Start adaptation manager
+	if parameters.IS_ADAPTIVE {
+		adaptationManager := adaptationmanager.AdaptationManager{}
+		go adaptationManager.Exec(conf, channs, elemMaps, channsUnits)
+		go versioninginjector.InjectAdaptiveEvolution(parameters.PLUGIN_BASE_NAME)
+	}
+
+	// Start execution units
 	for e := range conf.Components {
-		elemChannels := DefineChannels(channels, conf.Components[e].Id)
-		actions := map[string][]string{}
-		behaviour := library.Repository[reflect.TypeOf(conf.Components[e].TypeElem).String()].CSP
-		actions[e] = FilterActions(strings.Split(behaviour, " "))
-		individualChannels := map[string]chan message.Message{}
-		for a := range actions[e] {
-			individualChannels[actions[e][a]] = DefineChannel(elemChannels, actions[e][a])
-		}
-		go shared.Invoke(conf.Components[conf.Components[e].Id].TypeElem, "Loop", individualChannels)
+		go executionunit.ExecutionUnit{}.Exec(conf.Components[e], execChannels, channs, elemMaps, channsUnits[conf.Components[e].Id])
 	}
 }
 
-func FilterActions(actions []string) [] string {
-	r := []string{}
-
-	for a := range actions {
-		action := actions[a]
-		if strings.Contains(action, "I") || strings.Contains(action, "T") { // TODO
-			if strings.Contains(action, ".") {
-				action = action[:strings.Index(action, ".")]
-			}
-			r = append(r, action)
-		}
+func InitializeManagementChannels(conf configuration.Configuration) map[string]chan commands.LowLevelCommand {
+	channsUnits := make(map[string]chan commands.LowLevelCommand)
+	for i := range conf.Components {
+		id := conf.Components[i].Id
+		channsUnits[id] = make(chan commands.LowLevelCommand)
 	}
-	return r
+	return channsUnits
+}
+
+func ConfigureBehaviour(conf *configuration.Configuration) {
+
+	for i := range conf.Components {
+		b := library.Repository[reflect.TypeOf(conf.Components[i].TypeElem).String()].CSP
+		if b == "" {
+			myError := errors.MyError{Source: "Execution Engine", Message: "Component '" + conf.Components[i].Id + "' does not exist in the Library"}
+			myError.ERROR()
+		}
+		tempElem := element.Element{conf.Components[i].Id, element.Element{}.Behaviour, conf.Components[i].TypeElem, b}
+		conf.Components[i] = tempElem
+	}
+	for i := range conf.Connectors {
+		b := library.Repository[reflect.TypeOf(conf.Connectors[i].TypeElem).String()].CSP
+		if b == "" {
+			myError := errors.MyError{Source: "Execution Engine", Message: "Connector '" + conf.Connectors[i].Id + "'does not exist in the Library"}
+			myError.ERROR()
+		}
+		tempElem := element.Element{conf.Connectors[i].Id, element.Element{}.Behaviour, conf.Connectors[i].TypeElem, b}
+		conf.Connectors[i] = tempElem
+	}
 }
 
 func CreateExecGraph(fdrGraph fdrgraph.Graph) (execgraph.GraphX, map[string]chan message.Message) {
@@ -139,44 +121,6 @@ func CreateExecGraph(fdrGraph fdrgraph.Graph) (execgraph.GraphX, map[string]chan
 		}
 	}
 	return *graph, channels
-}
-
-func DefineChannels(channels map[string]chan message.Message, elem string) map[string]chan message.Message {
-	r := map[string]chan message.Message{}
-
-	for c := range channels {
-		if strings.Contains(c, elem) {
-			r[c] = channels[c]
-		}
-	}
-	return r
-}
-
-func DefineChannel(channels map[string]chan message.Message, a string) chan message.Message {
-	var r chan message.Message
-	found := false
-
-	for c := range channels {
-		if (a[:2] != "I_") {
-			if strings.Contains(c, a) && c[:2] != "I_" {
-				r = channels[c]
-				found = true
-				break
-			}
-		} else {
-			if strings.Contains(c, a) {
-				r = channels[c]
-				found = true
-				break
-			}
-		}
-	}
-
-	if !found {
-		fmt.Println("Error: channel '" + a + "' not found")
-	}
-
-	return r
 }
 
 func StartEngine(g execgraph.GraphX) {

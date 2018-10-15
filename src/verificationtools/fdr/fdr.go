@@ -18,6 +18,15 @@ import (
 
 type FDR struct{}
 
+func (FDR) CheckBehaviour(conf configuration.Configuration, elemMaps map[string]string) bool {
+
+	csp := createCSP(conf, elemMaps)
+	saveCSP(conf, csp)
+	r := invokeFDR(conf)
+
+	return r
+}
+
 func (FDR) LoadFDRGraph(confFile string) fdrgraph.Graph {
 	graph := fdrgraph.NewGraph(100)
 
@@ -48,15 +57,6 @@ func (FDR) LoadFDRGraph(confFile string) fdrgraph.Graph {
 		}
 	}
 	return *graph
-}
-
-func (FDR) CheckBehaviour(conf configuration.Configuration, elemMaps map[string]string) bool {
-
-	csp := createCSP(conf, elemMaps)
-	saveCSP(conf, csp)
-	r := invokeFDR(conf)
-
-	return r
 }
 
 func saveCSP(conf configuration.Configuration, csp string) {
@@ -122,9 +122,10 @@ func createCSP(conf configuration.Configuration, elemMaps map[string]string) str
 }
 
 func adjustPartnersComponent(id string, behaviour string) string {
+	numPartners := strings.Count(behaviour,".e")
 
-	for i := 0; i < 99; i++ {
-		behaviour = strings.Replace(behaviour, "e"+strconv.Itoa(i), id, 99)
+	for i := 1; i < numPartners+1; i++ {
+		behaviour = strings.Replace(behaviour, "e"+strconv.Itoa(i), id, numPartners+1)
 	}
 	return behaviour
 }

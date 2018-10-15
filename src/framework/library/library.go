@@ -13,10 +13,10 @@ import (
 	"framework/components/queueing/queueingclientproxy"
 	"framework/components/naming/naminginvoker"
 	"framework/components/queueing/queueinginvoker"
-	"framework/components/sender"
-	"framework/components/receiver"
 	"framework/components/clientX"
 	"framework/components/server"
+	"apps/senderreceiver/sender"
+	"apps/senderreceiver/receiver"
 )
 
 type Record struct {
@@ -25,10 +25,11 @@ type Record struct {
 	CSP   string
 	Go    interface{}
 	PetriNet string
+	LTS string   // *.dot file name
 }
 
 var Repository = map[string]Record{
-	"calculatorclientproxy.CalculatorClientProxy": Record{RBD: "TODO", PRISM: "TODO", Go: calculatorclientproxy.CalculatorClientProxy{}, CSP: "B = I_PreInvR -> InvR.e1 -> TerR.e1 -> I_PosTerR -> B"},
+	"calculatorclientproxy.CalculatorClientProxy": Record{LTS:"TODO",RBD: "TODO", PRISM: "TODO", Go: calculatorclientproxy.CalculatorClientProxy{}, CSP: "B = I_PreInvR -> InvR.e1 -> TerR.e1 -> I_PosTerR -> B"},
 	"calculatorinvoker.CalculatorInvoker": Record{RBD: "TODO", PRISM: "TODO", Go: calculatorinvoker.CalculatorInvoker{}, CSP: "B = InvP.e1 -> I_PosInvP -> TerP.e1 -> B"},
 	"fibonacciclientproxy.FibonacciClientProxy": Record{RBD: "TODO", PRISM: "TODO", Go: fibonacciclientproxy.FibonacciClientProxy{}, CSP: "B = I_PreInvR_fibonacciproxy -> InvR.e1 -> TerR.e1 -> I_PosTerR_fibonacciproxy -> B"},
 	"fibonacciinvoker.FibonacciInvoker": Record{RBD: "TODO", PRISM: "TODO", Go: fibonacciinvoker.FibonacciInvoker{}, CSP: "B = InvP.e1 -> I_PosInvP_fibonacciinvoker -> TerP.e1 -> B"},
@@ -38,8 +39,6 @@ var Repository = map[string]Record{
 	"connectors.OneWay": Record{RBD: "TODO", PRISM: "TODO", Go: connectors.OneWay{}, CSP: "B = InvP.e1 -> InvR.e2 -> B"},
 	"sender.Sender":Record{RBD: "TODO", PRISM: "TODO", Go: sender.Sender{}, CSP: "B = I_PreInvR_sender -> InvR.e1 -> B"},
 	"receiver.Receiver":Record{RBD: "TODO", PRISM: "TODO", Go: receiver.Receiver{}, CSP: "B = InvP.e1 -> I_PosInvP_receiver -> B"},
-	"clientX.ClientX":Record{RBD: "TODO", PRISM: "TODO", Go: clientX.ClientX{}, CSP: "B = InvR.e1 -> TerR.e1 -> B"},
-	"server.Server":Record{RBD: "TODO", PRISM: "TODO", Go: server.Server{}, CSP: "B = InvP.e1 -> I_PosInvP -> TerP.e1 -> B"},
 	"naminginvoker.NamingInvoker": Record{RBD: "TODO", PRISM: "TODO", Go: naminginvoker.NamingInvoker{}, CSP: "B = InvP.e1 -> I_PosInvP_naminginvoker -> TerP.e1 -> B"},
 	"queueinginvoker.QueueingInvoker": Record{RBD: "TODO", PRISM: "TODO", Go: queueinginvoker.QueueingInvoker{}, CSP: "B = InvP.e1 -> I_PosInvP -> TerP.e1 -> B"},
 	"namingclientproxy.NamingClientProxy": Record{RBD: "TODO", PRISM: "TODO", Go: namingclientproxy.NamingClientProxy{}, CSP: "B = I_PreInvR_namingproxy -> InvR.e1 -> TerR.e1 -> I_PosTerR_namingproxy -> B"},

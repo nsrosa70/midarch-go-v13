@@ -88,7 +88,7 @@ func Log(args...string){
 	}
 }
 
-func (Element) Loop(e interface{}, cases []reflect.SelectCase, auxCases []string){
+func (Element) Loop(elem interface{}, cases []reflect.SelectCase, auxCases []string){
 	var msg message.Message
 
 	for {
@@ -96,10 +96,9 @@ func (Element) Loop(e interface{}, cases []reflect.SelectCase, auxCases []string
 		if cases[chosen].Dir == reflect.SelectRecv {
 			msg = value.Interface().(message.Message)
 		}
-		if auxCases[chosen][:2] == "I_" {
-			f := auxCases[chosen][:strings.LastIndex(auxCases[chosen],"_")]
-			shared.Invoke(e,f,&msg)
-			//e.I_PreInvR(&msg)
+		if auxCases[chosen][:2] == "I_" { // Update 'message' of sent actions
+			internalAction := auxCases[chosen][:strings.LastIndex(auxCases[chosen],"_")] // TODO improve
+			shared.Invoke(elem,internalAction,&msg)
 			for c := range cases {
 				if cases[c].Dir == reflect.SelectSend {
 					cases[c].Send = reflect.ValueOf(msg)

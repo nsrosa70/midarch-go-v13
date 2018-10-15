@@ -44,9 +44,9 @@ func (ee ExecutionEnvironment) Deploy(confFile string) {
 
 	// Check behaviour using FDR
 	fdr := new(fdr.FDR)
-	ok := fdr.CheckBehaviour(conf,elemMaps)
-	if !ok{
-		myError := errors.MyError{Source:"Execution Engine",Message:"Configuration has a problem detected by FDR4"}
+	ok := fdr.CheckBehaviour(conf, elemMaps)
+	if !ok {
+		myError := errors.MyError{Source: "Execution Engine", Message: "Configuration has a problem detected by FDR4"}
 		myError.ERROR()
 	}
 

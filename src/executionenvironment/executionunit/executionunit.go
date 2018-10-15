@@ -41,8 +41,8 @@ func (ExecutionUnit) Exec(elem element.Element, execChannels map[string]chan mes
 	}
 
 	for {
-		//shared.Invoke(elem.TypeElem, "Loop", individualChannels) // Individual loop
-		shared.Invoke(element.Element{}, "Loop", elem.TypeElem, cases, auxCases) // Generic Loop
+		shared.Invoke(elem.TypeElem, "Loop", individualChannels) // Individual loop
+		//shared.Invoke(element.Element{}, "Loop", elem.TypeElem, cases, auxCases) // Generic Loop
 		select {
 		case cmd := <-chanUnit: // a new management action is received
 			switch cmd.Cmd {

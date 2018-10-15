@@ -1,11 +1,11 @@
-datatype PROCNAMES = srh | t1 | naminginvoker 
-channel I_PreInvR_srh,I_PosTerR_srh,I_PosInvP_naminginvoker
-channel InvR,TerR,InvP,TerP : PROCNAMES
-SRH = I_PreInvR_srh -> InvR.srh -> TerR.srh -> I_PosTerR_srh -> SRH
+datatype PROCNAMES = naminginvoker | srh | t1 
+channel I_PosInvP_naminginvoker,I_PreInvR_srh,I_PosTerR_srh
+channel InvP,TerP,InvR,TerR : PROCNAMES
 NAMINGINVOKER = InvP.naminginvoker -> I_PosInvP_naminginvoker -> TerP.naminginvoker -> NAMINGINVOKER
+SRH = I_PreInvR_srh -> InvR.srh -> TerR.srh -> I_PosTerR_srh -> SRH
 T1 = InvP.srh -> InvR.naminginvoker -> TerR.naminginvoker -> TerP.srh -> T1
 
-P1 = (SRH|||NAMINGINVOKER)
+P1 = (NAMINGINVOKER|||SRH)
 [|{|InvR,TerR,InvP,TerP|}|]
 (T1[[InvP <- InvR,InvR <- InvP,TerR <- TerP,TerP <- TerR]])
 assert P1 :[deadlock free]

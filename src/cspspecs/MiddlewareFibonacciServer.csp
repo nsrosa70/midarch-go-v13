@@ -1,16 +1,16 @@
-datatype PROCNAMES = srh | namingproxy | fibonacciinvoker | requestor | crh | t1 | t2 | t3 
-channel I_PreTerP_crh,I_PosTerR_srh,I_PosInvP_requestor,I_PosTerR_requestor,I_PosInvP_crh,I_PreInvR_namingproxy,I_PosTerR_namingproxy,I_PosInvP_fibonacciinvoker,I_PreInvR_srh
-channel InvP,TerP,InvR,TerR : PROCNAMES
-SRH = I_PreInvR_srh -> InvR.srh -> TerR.srh -> I_PosTerR_srh -> SRH
-NAMINGPROXY = I_PreInvR_namingproxy -> InvR.namingproxy -> TerR.namingproxy -> I_PosTerR_namingproxy -> NAMINGPROXY
+datatype PROCNAMES = t3 | namingproxy | fibonacciinvoker | requestor | crh | srh | t1 | t2 
+channel I_PosInvP_requestor,I_PosTerR_requestor,I_PreTerP_crh,I_PreInvR_namingproxy,I_PosInvP_fibonacciinvoker,I_PosTerR_namingproxy,I_PosInvP_crh,I_PreInvR_srh,I_PosTerR_srh
+channel TerR,TerP,InvP,InvR : PROCNAMES
 FIBONACCIINVOKER = InvP.fibonacciinvoker -> I_PosInvP_fibonacciinvoker -> TerP.fibonacciinvoker -> FIBONACCIINVOKER
 REQUESTOR = InvP.requestor -> I_PosInvP_requestor -> InvR.requestor -> TerR.requestor -> I_PosTerR_requestor -> TerP.requestor -> REQUESTOR
 CRH = InvP.crh -> I_PosInvP_crh -> I_PreTerP_crh -> TerP.crh -> CRH
-T1 = InvP.namingproxy -> InvR.requestor -> TerR.requestor -> TerP.namingproxy -> T1
+SRH = I_PreInvR_srh -> InvR.srh -> TerR.srh -> I_PosTerR_srh -> SRH
+NAMINGPROXY = I_PreInvR_namingproxy -> InvR.namingproxy -> TerR.namingproxy -> I_PosTerR_namingproxy -> NAMINGPROXY
 T2 = InvP.requestor -> InvR.crh -> TerR.crh -> TerP.requestor -> T2
 T3 = InvP.srh -> InvR.fibonacciinvoker -> TerR.fibonacciinvoker -> TerP.srh -> T3
+T1 = InvP.namingproxy -> InvR.requestor -> TerR.requestor -> TerP.namingproxy -> T1
 
-P1 = (CRH|||SRH|||NAMINGPROXY|||FIBONACCIINVOKER|||REQUESTOR)
-[|{|InvP,TerP,InvR,TerR|}|]
+P1 = (FIBONACCIINVOKER|||REQUESTOR|||CRH|||SRH|||NAMINGPROXY)
+[|{|InvP,InvR,TerR,TerP|}|]
 (T1[[InvP <- InvR,InvR <- InvP,TerR <- TerP,TerP <- TerR]]|||T2[[InvP <- InvR,InvR <- InvP,TerR <- TerP,TerP <- TerR]]|||T3[[InvP <- InvR,InvR <- InvP,TerR <- TerP,TerP <- TerR]])
 assert P1 :[deadlock free]

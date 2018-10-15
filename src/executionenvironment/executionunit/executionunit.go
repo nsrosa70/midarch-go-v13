@@ -15,6 +15,7 @@ type ExecutionUnit struct{}
 
 func (ExecutionUnit) Exec(elem element.Element, execChannels map[string]chan message.Message, channs map[string]chan message.Message, elemMaps map[string]string, chanUnit chan commands.LowLevelCommand) {
 
+	// Define channels
 	elemChannels := DefineChannels(execChannels, elem.Id)
 	actions := map[string][]string{}
 	behaviour := libraries.Repository[reflect.TypeOf(elem.TypeElem).String()].CSP
@@ -73,8 +74,8 @@ func DefineChannel(channels map[string]chan message.Message, a string) chan mess
 	found := false
 
 	for c := range channels {
-		if (a[:2] != "I_") {
-			if strings.Contains(c, a) && c[:2] != "I_" {
+		if (a[:2] != shared.PREFIX_INTERNAL_ACTION) {
+			if strings.Contains(c, a) && c[:2] != shared.PREFIX_INTERNAL_ACTION {
 				r = channels[c]
 				found = true
 				break

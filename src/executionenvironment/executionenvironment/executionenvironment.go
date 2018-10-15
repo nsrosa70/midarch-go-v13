@@ -9,7 +9,6 @@ import (
 	"framework/message"
 	"graph/execgraph"
 	"reflect"
-	//"framework/libraries"
 	"strings"
 	"graph/fdrgraph"
 	"shared/errors"
@@ -172,20 +171,20 @@ func (ExecutionEnvironment) ConfigureChannels(conf configuration.Configuration) 
 		tId := conf.Attachments[i].T.Id
 
 		// c1 -> t
-		key01 := c1Id + "." + "InvR" + "." + tId
-		key02 := tId + "." + "InvP" + "." + c1Id
-		key03 := tId + "." + "TerP" + "." + c1Id
-		key04 := c1Id + "." + "TerR" + "." + tId
+		key01 := c1Id + "." + shared.INVR + "." + tId
+		key02 := tId + "." + shared.INVP + "." + c1Id
+		key03 := tId + "." + shared.TERP + "." + c1Id
+		key04 := c1Id + "." + shared.TERR + "." + tId
 		channs[key01] = make(chan message.Message, parameters.CHAN_BUFFER_SIZE)
 		channs[key02] = channs[key01]
 		channs[key03] = make(chan message.Message, parameters.CHAN_BUFFER_SIZE)
 		channs[key04] = channs[key03]
 
 		// t -> c2
-		key01 = tId + "." + "InvR" + "." + c2Id
-		key02 = c2Id + "." + "InvP" + "." + tId
-		key03 = c2Id + "." + "TerP" + "." + tId
-		key04 = tId + "." + "TerR" + "." + c2Id
+		key01 = tId + "." + shared.INVR + "." + c2Id
+		key02 = c2Id + "." + shared.INVP + "." + tId
+		key03 = c2Id + "." + shared.TERP + "." + tId
+		key04 = tId + "." + shared.TERR + "." + c2Id
 		channs[key01] = make(chan message.Message, parameters.CHAN_BUFFER_SIZE)
 		channs[key02] = channs[key01]
 		channs[key03] = make(chan message.Message, parameters.CHAN_BUFFER_SIZE)

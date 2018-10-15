@@ -30,7 +30,7 @@ func (FDR) CheckBehaviour(conf configuration.Configuration, elemMaps map[string]
 func (FDR) LoadFDRGraph(confFile string) fdrgraph.Graph {
 	graph := fdrgraph.NewGraph(100)
 
-	dotFileName := strings.Replace(confFile,".conf",".dot",1)
+	dotFileName := strings.Replace(confFile, ".conf", ".dot", 1)
 	dotFileName = parameters.DIR_CSP + "/" + dotFileName
 
 	// read file
@@ -50,9 +50,9 @@ func (FDR) LoadFDRGraph(confFile string) fdrgraph.Graph {
 	for l := range fileContent {
 		line := fileContent[l]
 		if strings.Contains(line, "->") {
-			from,_ := strconv.Atoi(strings.TrimSpace(line[:strings.Index(line,"->")]))
-			to,_:= strconv.Atoi(strings.TrimSpace(line[strings.Index(line,"->")+2:strings.Index(line,"[")]))
-			action := line[strings.Index(line,"=")+2:strings.LastIndex(line,"]")-2]
+			from, _ := strconv.Atoi(strings.TrimSpace(line[:strings.Index(line, "->")]))
+			to, _ := strconv.Atoi(strings.TrimSpace(line[strings.Index(line, "->")+2 : strings.Index(line, "[")]))
+			action := line[strings.Index(line, "=")+2 : strings.LastIndex(line, "]")-2]
 			graph.AddEdge(from, to, action)
 		}
 	}
@@ -85,7 +85,7 @@ func saveCSP(conf configuration.Configuration, csp string) {
 }
 
 func invokeFDR(conf configuration.Configuration) bool {
-	cmdExp := parameters.DIR_FDR+"/"+commands.FDR_COMMAND
+	cmdExp := parameters.DIR_FDR + "/" + commands.FDR_COMMAND
 	fileName := conf.Id + ".csp"
 	inputFile := parameters.DIR_CSP + "/" + fileName
 
@@ -112,7 +112,7 @@ func createCSP(conf configuration.Configuration, elemMaps map[string]string) str
 	internalChannelsExp, _ := createInternalChannelExp(conf)
 	externalChannelsExp, externalChannels := createExternalChannelExp(conf)
 	processesExp, componentProcesses, _ := createProcessExp(conf, elemMaps)
-	generalBehaviour := createGeneralBehaviourExp(conf,externalChannels,componentProcesses)
+	generalBehaviour := createGeneralBehaviourExp(conf, externalChannels, componentProcesses)
 
 	// assertion
 	assertion := "assert P1 :[deadlock free]"
@@ -122,7 +122,7 @@ func createCSP(conf configuration.Configuration, elemMaps map[string]string) str
 }
 
 func adjustPartnersComponent(id string, behaviour string) string {
-	numPartners := strings.Count(behaviour,".e")
+	numPartners := strings.Count(behaviour, ".e")
 
 	for i := 1; i < numPartners+1; i++ {
 		behaviour = strings.Replace(behaviour, "e"+strconv.Itoa(i), id, numPartners+1)
@@ -131,7 +131,7 @@ func adjustPartnersComponent(id string, behaviour string) string {
 }
 
 func adjustPartnersConnectors(id string, behaviour string, elemMaps map[string]string) string {
-	numPartners := strings.Count(behaviour,".e")
+	numPartners := strings.Count(behaviour, ".e")
 
 	for i := 1; i < numPartners+1; i++ {
 		key := id + "." + "e" + strconv.Itoa(i)
@@ -144,36 +144,34 @@ func adjustPartnersConnectors(id string, behaviour string, elemMaps map[string]s
 }
 
 func renamingPorts(elem element.Element) string {
-
 	id := elem.Id
 	behaviour := elem.BehaviourExp
-	actions := shared.ToActions(behaviour)
+	tokens := strings.Split(behaviour," ")
 	renamingExp := strings.ToUpper(id) + "[["
-	for i := range actions {
-		action := strings.TrimSpace(actions[i])
-		if !strings.Contains(action, "I_") {
-			action := action[0:strings.Index(action, ".")]
+
+	for i := range tokens {
+		token := strings.TrimSpace(tokens[i])
+		if !shared.IsInternal(token) && shared.IsAction(token){
+			action := token[0:strings.Index(token, ".")]
 			switch action {
-			case "InvP":
-				renamingExp += "InvP <- InvR" + ","
-			case "TerP":
-				renamingExp += "TerP <- TerR" + ","
-			case "InvR":
-				renamingExp += "InvR <- InvP" + ","
-			case "TerR":
-				renamingExp += "TerR <- TerP" + ","
+			case shared.INVP:
+				renamingExp += shared.INVP + " <- " + shared.INVR + ","
+			case shared.TERP:
+				renamingExp += shared.TERP + " <- " + shared.TERR + ","
+			case shared.INVR:
+				renamingExp += shared.INVR + " <- " + shared.INVP + ","
+			case shared.TERR:
+				renamingExp += shared.TERR + " <- " + shared.TERP + ","
 			}
 		}
 	}
-
 	renamingExp = renamingExp[0:strings.LastIndex(renamingExp, ",")] + "]]"
 	return renamingExp
 }
 
 func createDataTypeExp(conf configuration.Configuration) string {
-
-	// datatypes
 	dataTypes := make(map[string]string)
+
 	for i := range conf.Components {
 		dataTypes [conf.Components[i].Id] = conf.Components[i].Id
 	}
@@ -191,24 +189,24 @@ func createDataTypeExp(conf configuration.Configuration) string {
 }
 
 func createInternalChannelExp(conf configuration.Configuration) (string, map[string]string) {
-
 	internalChannels := make(map[string]string)
+
 	for i := range conf.Components {
-		behaviour := conf.Components[i].BehaviourExp
-		actions := shared.ToActions(behaviour)
-		for j := range actions {
-			if strings.Contains(actions[j], "I_") {
-				internalChannels[actions[j]] = strings.TrimSpace(actions[j])
+		tokens := strings.Split(conf.Components[i].BehaviourExp, " ")
+		for i := range tokens {
+			if strings.Contains(tokens[i], shared.PREFIX_INTERNAL_ACTION) {
+				iAction := strings.TrimSpace(tokens[i])
+				internalChannels[iAction] = iAction
 			}
 		}
 	}
 
 	for i := range conf.Connectors {
-		behaviour := conf.Connectors[i].BehaviourExp
-		actions := shared.ToActions(behaviour)
-		for j := range actions {
-			if strings.Contains(actions[j], "I_") {
-				internalChannels[actions[j]] = strings.TrimSpace(actions[j])
+		tokens := strings.Split(conf.Connectors[i].BehaviourExp, " ")
+		for i := range tokens {
+			if strings.Contains(tokens[i], shared.PREFIX_INTERNAL_ACTION) {
+				iAction := strings.TrimSpace(tokens[i])
+				internalChannels[iAction] = iAction
 			}
 		}
 	}
@@ -222,30 +220,39 @@ func createInternalChannelExp(conf configuration.Configuration) (string, map[str
 }
 
 func createExternalChannelExp(conf configuration.Configuration) (string, map[string]string) {
-
 	externalChannels := make(map[string]string)
+
 	for i := range conf.Components {
-		behaviour := conf.Components[i].BehaviourExp
-		actions := shared.ToActions(behaviour)
-		for j := range actions {
-			if !strings.Contains(actions[j], "I_") {
-				tempChannel := strings.TrimSpace(actions[j])
-				tempChannel = tempChannel[0:strings.Index(tempChannel, ".")]
-				externalChannels[tempChannel] = tempChannel
-			}
+		b := conf.Components[i].BehaviourExp
+		if strings.Contains(b, shared.INVR) {
+			externalChannels[shared.INVR] = shared.INVR
+		}
+		if strings.Contains(b, shared.TERR) {
+			externalChannels[shared.TERR] = shared.TERR
+		}
+		if strings.Contains(b, shared.INVP) {
+			externalChannels[shared.INVP] = shared.INVP
+		}
+		if strings.Contains(b, shared.TERP) {
+			externalChannels[shared.TERP] = shared.TERP
 		}
 	}
 	for i := range conf.Connectors {
-		behaviour := conf.Connectors[i].BehaviourExp
-		actions := shared.ToActions(behaviour)
-		for j := range actions {
-			if !shared.IsInternal(actions[j]) {
-				tempChannel := strings.TrimSpace(actions[j])
-				tempChannel = tempChannel[0:strings.Index(tempChannel, ".")]
-				externalChannels[tempChannel] = tempChannel
-			}
+		b := conf.Connectors[i].BehaviourExp
+		if strings.Contains(b, shared.INVR) {
+			externalChannels[shared.INVR] = shared.INVR
+		}
+		if strings.Contains(b, shared.TERR) {
+			externalChannels[shared.TERR] = shared.TERR
+		}
+		if strings.Contains(b, shared.INVP) {
+			externalChannels[shared.INVP] = shared.INVP
+		}
+		if strings.Contains(b, shared.TERP) {
+			externalChannels[shared.TERP] = shared.TERP
 		}
 	}
+
 	externalChannelsExp := "channel "
 	for i := range externalChannels {
 		externalChannelsExp += externalChannels[i] + ","

@@ -4,15 +4,20 @@ import (
 	"reflect"
 	"framework/message"
 	"strings"
-	"os"
-	"time"
 	"shared/parameters"
-	"fmt"
 	"strconv"
+	"time"
+	"fmt"
+	"os"
 )
 
 const PREFIX_ACTION = "->"
-const CHOICE = "[]"
+//const CHOICE = "[]"
+const PREFIX_INTERNAL_ACTION = "I_"
+const INVP = "InvP"
+const TERP = "TerP"
+const INVR = "InvR"
+const TERR = "TerR"
 
 type Invocation struct {
 	Method  reflect.Value
@@ -30,46 +35,35 @@ type AnalysisResult struct {
 }
 
 var ValidActions = map[string]bool{
-	"InvP": true,
-	"TerP": true,
-	"InvR": true,
-	"TerR": true}
+	INVP: true,
+	TERP: true,
+	INVR: true,
+	TERR: true}
 
 func IsInternal(action string) bool {
-	return action[0:2] == "I_"
-}
-
-func ToActions(behaviour string) [] string {
-	// B = InvP -> B [] InvP -> B
-	var actions []string
-
-	if !strings.Contains(behaviour, "[]") {
-		behaviourTemp := strings.Split(behaviour, "=")
-		behaviour = behaviourTemp[1][0:strings.LastIndex(behaviourTemp[1], "->")]
-		actions = strings.Split(behaviour, PREFIX_ACTION)
-		if len(actions) == 0 {
-			actions[0] = strings.TrimSpace(behaviour)
-		} else {
-			for i := range actions {
-				actions[i] = strings.TrimSpace(actions[i])
-			}
+	r := false
+	if len(action) >= 2 {
+		if action[0:2] == PREFIX_INTERNAL_ACTION {
+			r = true
 		}
 	} else {
-		behaviourTemp := strings.Split(behaviour, "=")
-		branches := strings.Split(behaviourTemp[1], "[]")
-		idx := 0
-		for i := range branches {
-			actionsTemp := strings.Split(branches[i], PREFIX_ACTION)
-			for j := range actionsTemp {
-				action := strings.TrimSpace(actionsTemp[j])
-				if action != "B" && action != "" {
-					actions = append(actions, strings.TrimSpace(action))
-					idx++
-				}
-			}
+		r = false
+	}
+	return r
+}
+
+func IsAction(action string) bool {
+	r := false
+
+	action = strings.TrimSpace(action)
+	if len(action) > 2{
+		if strings.Contains(action,INVP) || strings.Contains(action,TERP) || strings.Contains(action, INVR) || strings.Contains(action,TERR){
+			r = true
+		} else {
+			r = false
 		}
 	}
-	return actions
+	return r
 }
 
 type ParMapActions struct {
@@ -79,17 +73,6 @@ type ParMapActions struct {
 	P2 *chan message.Message
 	P3 interface{}
 	P4 string
-	P5 *chan string // REMOVE
-	P6 *string      // REMOVE
-}
-
-type SubMessage struct {
-	I int
-}
-type MyMessage struct {
-	Name string
-	Age  int
-	X    interface{}
 }
 
 func Invoke(any interface{}, name string, args ... interface{}) {
@@ -104,17 +87,6 @@ func Invoke(any interface{}, name string, args ... interface{}) {
 	return
 }
 
-func SelectChan(action string, id string, channs map[string]chan message.Message, elemMaps map[string]string) chan message.Message {
-
-	p1 := action[0:strings.Index(action, ".")]
-	p2 := action[strings.Index(action, ".")+1 : len(action)]
-
-	keyMaps := id + "." + p2
-	keyChannel := id + "." + p1 + "." + elemMaps[keyMaps]
-
-	return channs[keyChannel]
-}
-
 type Args struct {
 	A, B int
 }
@@ -124,7 +96,7 @@ type Quotient struct {
 }
 
 func IsToElement(action string) bool {
-	if action[:2] == "I_" || action[:4] == "InvP" || action[:4] == "TerR" {
+	if action[:2] == PREFIX_INTERNAL_ACTION || action[:4] == INVP || action[:4] == TERR {
 		return true
 	} else { // TerP and InvR
 		return false

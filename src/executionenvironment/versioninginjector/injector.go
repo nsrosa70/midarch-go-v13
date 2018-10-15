@@ -1,13 +1,13 @@
 package versioninginjector
 
 import (
-	"framework/library"
 	"strings"
 	"fmt"
 	"os"
 	"os/exec"
 	"shared/parameters"
 	"time"
+	"framework/libraries"
 )
 
 func InjectAdaptiveEvolution(elementName string) {
@@ -82,7 +82,7 @@ func InjectAdaptiveEvolution(elementName string) {
 func confToGoType(tConf string) string {
 	foundType := false
 	tGo := ""
-	for t := range library.Repository {
+	for t := range libraries.Repository {
 		if strings.Contains(t, tConf) {
 			tGo = t
 			foundType = true

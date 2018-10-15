@@ -9,7 +9,7 @@ import (
 	"framework/message"
 	"graph/execgraph"
 	"reflect"
-	"framework/library"
+	//"framework/libraries"
 	"strings"
 	"graph/fdrgraph"
 	"shared/errors"
@@ -20,6 +20,7 @@ import (
 	"executionenvironment/adaptationmanager"
 	"executionenvironment/versioninginjector"
 	"executionenvironment/executionunit"
+	"framework/libraries"
 )
 
 type ExecutionEnvironment struct{}
@@ -87,7 +88,7 @@ func InitializeManagementChannels(conf configuration.Configuration) map[string]c
 func ConfigureBehaviour(conf *configuration.Configuration) {
 
 	for i := range conf.Components {
-		b := library.Repository[reflect.TypeOf(conf.Components[i].TypeElem).String()].CSP
+		b := libraries.Repository[reflect.TypeOf(conf.Components[i].TypeElem).String()].CSP
 		if b == "" {
 			myError := errors.MyError{Source: "Execution Engine", Message: "Component '" + conf.Components[i].Id + "' does not exist in the Library"}
 			myError.ERROR()
@@ -96,7 +97,7 @@ func ConfigureBehaviour(conf *configuration.Configuration) {
 		conf.Components[i] = tempElem
 	}
 	for i := range conf.Connectors {
-		b := library.Repository[reflect.TypeOf(conf.Connectors[i].TypeElem).String()].CSP
+		b := libraries.Repository[reflect.TypeOf(conf.Connectors[i].TypeElem).String()].CSP
 		if b == "" {
 			myError := errors.MyError{Source: "Execution Engine", Message: "Connector '" + conf.Connectors[i].Id + "'does not exist in the Library"}
 			myError.ERROR()

@@ -2,9 +2,10 @@ package namingclientproxy
 
 import (
 	"framework/message"
-	"framework/components/clientproxy/proxy"
 	"reflect"
 	"framework/components/naming/ior"
+
+	"framework/proxy"
 )
 
 type NamingClientProxy struct {

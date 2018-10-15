@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"strings"
 	"reflect"
-	"framework/library"
 	"framework/configuration/commands"
 	"shared/shared"
+	"framework/libraries"
 )
 
 type ExecutionUnit struct{}
@@ -17,7 +17,7 @@ func (ExecutionUnit) Exec(elem element.Element, execChannels map[string]chan mes
 
 	elemChannels := DefineChannels(execChannels, elem.Id)
 	actions := map[string][]string{}
-	behaviour := library.Repository[reflect.TypeOf(elem.TypeElem).String()].CSP
+	behaviour := libraries.Repository[reflect.TypeOf(elem.TypeElem).String()].CSP
 	actions[elem.Id] = FilterActions(strings.Split(behaviour, " "))
 	individualChannels := map[string]chan message.Message{}
 	for a := range actions[elem.Id] {

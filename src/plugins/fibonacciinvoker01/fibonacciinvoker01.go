@@ -15,7 +15,7 @@ func GetTypeElem() interface{}{
 }
 
 func GetBehaviourExp() string {
-	//return library.BehaviourLibrary[calculatorinvoker.CalculatorInvoker{}]
+	//return libraries.BehaviourLibrary[calculatorinvoker.CalculatorInvoker{}]
 	return "B = InvP.e1 -> I_PosInvP -> TerP.e1 -> B"
 }
 

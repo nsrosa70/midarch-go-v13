@@ -1,4 +1,4 @@
-package library
+package libraries
 
 import (
 	"apps/calculator/calculatorclientproxy"
@@ -13,8 +13,6 @@ import (
 	"framework/components/queueing/queueingclientproxy"
 	"framework/components/naming/naminginvoker"
 	"framework/components/queueing/queueinginvoker"
-	"framework/components/clientX"
-	"framework/components/server"
 	"apps/senderreceiver/sender"
 	"apps/senderreceiver/receiver"
 )

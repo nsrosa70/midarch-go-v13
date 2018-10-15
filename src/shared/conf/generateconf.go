@@ -2,7 +2,7 @@ package conf
 
 import (
 	"framework/element"
-	"framework/library"
+	"framework/libraries"
 	"strings"
 	"framework/configuration/attachments"
 	"framework/configuration/configuration"
@@ -168,7 +168,7 @@ func GenerateConf(fileName string) configuration.Configuration {
 			srhElem := crh.CRH{comps[c].Param}
 			compsTemp[c] = element.Element{Id: c, TypeElem: srhElem}
 		} else {
-			compsTemp[c] = element.Element{Id: c, TypeElem: library.Repository[confToGoType(comps[c].ElemType)].Go}
+			compsTemp[c] = element.Element{Id: c, TypeElem: libraries.Repository[confToGoType(comps[c].ElemType)].Go}
 		}
 		conf.AddComp(compsTemp[c])
 	}
@@ -176,7 +176,7 @@ func GenerateConf(fileName string) configuration.Configuration {
 	// add connectors to configuration
 	connsTemp := make(map[string]element.Element)
 	for t := range conns {
-		connsTemp[t] = element.Element{Id: t, TypeElem: library.Repository[confToGoType(conns[t])].Go}
+		connsTemp[t] = element.Element{Id: t, TypeElem: libraries.Repository[confToGoType(conns[t])].Go}
 		conf.AddConn(connsTemp[t])
 	}
 
@@ -195,7 +195,7 @@ func confToGoType(tConf string) string {
 	foundType := false
 	tGo := ""
 
-	for t := range library.Repository {
+	for t := range libraries.Repository {
 		if strings.Contains(t, tConf) {
 			tGo = t
 			foundType = true

@@ -10,6 +10,9 @@ type Configuration struct {
 	Components  map[string] element.Element
 	Connectors  map[string] element.Element
 	Attachments [] attachments.Attachment
+	CSP string
+	FileName string
+	//StateMachine
 }
 
 func (conf *Configuration) AddComp(comp element.Element) {

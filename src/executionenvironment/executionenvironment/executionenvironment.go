@@ -108,8 +108,8 @@ func ConfigureBehaviour(conf *configuration.Configuration) {
 	}
 }
 
-func CreateExecGraph(fdrGraph fdrgraph.Graph) (execgraph.GraphX, map[string]chan message.Message) {
-	graph := execgraph.NewGraphX(fdrGraph.NumNodes)
+func CreateExecGraph(fdrGraph fdrgraph.Graph) (execgraph.Graph, map[string]chan message.Message) {
+	graph := execgraph.NewGraph(fdrGraph.NumNodes)
 	channels := map[string]chan message.Message{}
 
 	// create channels
@@ -119,17 +119,17 @@ func CreateExecGraph(fdrGraph fdrgraph.Graph) (execgraph.GraphX, map[string]chan
 			if _, ok := channels[eTemp.Action]; !ok {
 				channels[eTemp.Action] = make(chan message.Message)
 			}
-			graph.AddEdgeX(eTemp.From, eTemp.To, execgraph.ExecActionX{Action: eTemp.Action, Channel: channels[eTemp.Action]})
+			graph.AddEdgeX(eTemp.From, eTemp.To, execgraph.Action{Action: eTemp.Action, Channel: channels[eTemp.Action]})
 		}
 	}
 	return *graph, channels
 }
 
-func StartEngine(g execgraph.GraphX) {
+func StartEngine(g execgraph.Graph) {
 	node := 0
 	var msg = message.Message{}
 	for {
-		edges := g.AdjacentEdgesX(node)
+		edges := g.AdjacentEdges(node)
 		if len(edges) == 1 { // one edge
 			node = edges[0].To
 			if shared.IsToElement(edges[0].Action.Action) {
@@ -139,13 +139,13 @@ func StartEngine(g execgraph.GraphX) {
 			}
 		} else { // two+ edges
 			chosen := 0
-			ChoiceX(&msg, &chosen, edges)
+			Choice(&msg, &chosen, edges)
 			node = edges[chosen].To
 		}
 	}
 }
 
-func ChoiceX(msg *message.Message, chosen *int, edges []execgraph.EdgeX) {
+func Choice(msg *message.Message, chosen *int, edges []execgraph.Edge) {
 	cases := make([]reflect.SelectCase, len(edges))
 	var value reflect.Value
 

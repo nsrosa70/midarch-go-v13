@@ -172,3 +172,41 @@ func Log(args...string){
 		fmt.Println(args[0]+":"+args[1]+":"+args[2]+":"+args[3])
 	}
 }
+
+func IsConnectorInAttachments(atts []string, t string) bool {
+	foundConnector := false
+
+	for a := range atts {
+		att := strings.Split(atts[a], ",")
+		if (strings.TrimSpace(att[1]) == t) {
+			foundConnector = true
+		}
+	}
+
+	return foundConnector
+}
+
+func IsComponentInAttachments(atts []string, c string) bool {
+	foundComponent := false
+
+	for a := range atts {
+		att := strings.Split(atts[a], ",")
+		if (strings.TrimSpace(att[0]) == c || strings.TrimSpace(att[2]) == c) {
+			foundComponent = true
+		}
+	}
+
+	return foundComponent
+}
+
+func IsInConnectors(conns map[string]string, t string) bool {
+	foundConnector := false
+
+	for i := range conns {
+		if t == i {
+			foundConnector = true
+			break
+		}
+	}
+	return foundConnector
+}

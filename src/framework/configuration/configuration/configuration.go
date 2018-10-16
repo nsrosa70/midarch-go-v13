@@ -3,6 +3,7 @@ package configuration
 import (
 	"framework/element"
 	"framework/configuration/attachments"
+	"framework/message"
 )
 
 type Configuration struct {
@@ -11,7 +12,8 @@ type Configuration struct {
 	Connectors  map[string] element.Element
 	Attachments [] attachments.Attachment
 	CSP string
-	FileName string
+	ADLFileName string
+	StructuralChannels map[string] message.Message
 	//StateMachine
 }
 

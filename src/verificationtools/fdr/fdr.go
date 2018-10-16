@@ -20,8 +20,8 @@ type FDR struct{}
 
 func (FDR) CheckBehaviour(conf configuration.Configuration, elemMaps map[string]string) bool {
 
-	csp := createCSP(conf, elemMaps)
-	saveCSP(conf, csp)
+	conf.CSP = createCSP(conf, elemMaps)
+	saveCSP(conf)
 	r := invokeFDR(conf)
 
 	return r
@@ -59,7 +59,7 @@ func (FDR) LoadFDRGraph(confFile string) fdrgraph.Graph {
 	return *graph
 }
 
-func saveCSP(conf configuration.Configuration, csp string) {
+func saveCSP(conf configuration.Configuration) {
 
 	// create file if not exists && truncate otherwise
 	fileName := conf.Id + ".csp"
@@ -71,7 +71,7 @@ func saveCSP(conf configuration.Configuration, csp string) {
 	defer file.Close()
 
 	// save data
-	_, err = file.WriteString(csp)
+	_, err = file.WriteString(conf.CSP)
 	if err != nil {
 		myError := errors.MyError{Source: "FDR", Message: "CSP Specification not saved"}
 		myError.ERROR()

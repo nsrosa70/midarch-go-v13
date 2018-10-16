@@ -15,14 +15,14 @@ import (
 	"shared/parameters"
 )
 
-func GenerateConf(fileName string) configuration.Configuration {
-	conf := configuration.Configuration{}
+func MapADLIntoGo(adlFileName string) configuration.Configuration {
+	conf := configuration.Configuration{ADLFileName:adlFileName}
 
-	fileName = parameters.DIR_CONF + "/" + fileName
+	fullPathAdlFileName := parameters.DIR_CONF + "/" + conf.ADLFileName
 
 	// read file
 	fileContent := []string{}
-	file, err := os.Open(fileName)
+	file, err := os.Open(fullPathAdlFileName)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -42,7 +42,7 @@ func GenerateConf(fileName string) configuration.Configuration {
 		}
 	}
 	if confName == "" {
-		fmt.Println("Something is Wrong in 'Configuration'")
+		fmt.Println("Something is Wrong in ADL '"+fullPathAdlFileName+"' ")
 		os.Exit(0)
 	}
 	conf.Id = confName

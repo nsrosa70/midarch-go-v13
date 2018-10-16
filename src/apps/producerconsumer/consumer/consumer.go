@@ -4,6 +4,7 @@ import (
 	EE "executionenvironment/executionenvironment"
 	"fmt"
 	"shared/factories"
+	"time"
 )
 
 func main() {
@@ -15,7 +16,8 @@ func main() {
 	queueingClientProxy := factories.FactoryQueueing()
 
 	for {
-		fmt.Println("Consumer:: Here")
-		fmt.Println(queueingClientProxy.Consume("Topic01"))
+		fmt.Print("Consumer:: ")
+		fmt.Println(queueingClientProxy.Consume("Topic01").PayLoad)
+		time.Sleep(120 * time.Millisecond)
 	}
 }

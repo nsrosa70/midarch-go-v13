@@ -9,6 +9,8 @@ import (
 
 type QueueingInvoker struct{}
 
+var QM queueing.Queueing
+
 func (QueueingInvoker) I_PosInvP(msg *message.Message) {
 	op := msg.Payload.(message.MIOP).Body.RequestHeader.Operation
 	switch op {
@@ -17,7 +19,8 @@ func (QueueingInvoker) I_PosInvP(msg *message.Message) {
 		_args := msg.Payload.(message.MIOP).Body.RequestBody.Args
 		_argsX := _args.([]interface{})
 		_p1 := _argsX[0].(string)
-		_p2 := _argsX[1].(string)
+		_p2Temp := _argsX[1].(map[string]interface{})
+		_p2 := queueing.MessageMOM{Header:_p2Temp["Header"].(string),PayLoad:_p2Temp["PayLoad"].(string)}
 		_r := queueing.Queueing{}.Publish(_p1, _p2) // dispatch
 
 		// Send Reply
@@ -40,7 +43,7 @@ func (QueueingInvoker) I_PosInvP(msg *message.Message) {
 		_miopBody := message.MIOPBody{ReplyHeader: _replyHeader, ReplyBody: _replyBody}
 		_miop := message.MIOP{Header: _miopHeader, Body: _miopBody}
 		*msg = message.Message{_miop}
-	case "subscribe":
+	case "Subscribe":
 	default:
 		fmt.Println("Queueing:: Operation " + op + " is not implemented by Queue Server")
 		os.Exit(0)

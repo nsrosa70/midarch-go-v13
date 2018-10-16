@@ -2,6 +2,7 @@ package queueingclientproxy
 
 import (
 	"framework/message"
+	"framework/components/queueing/queueing"
 )
 
 type QueueingClientProxy struct {
@@ -12,7 +13,7 @@ type QueueingClientProxy struct {
 var i_PreInvR = make(chan message.Message)
 var i_PosTerR = make(chan message.Message)
 
-func (n QueueingClientProxy) Publish(_p1 string, _p2 string) bool {
+func (n QueueingClientProxy) Publish(_p1 string, _p2 queueing.MessageMOM) bool {
 	_args := []interface{}{_p1, _p2}
 	_reqMsg := message.Message{message.Invocation{Host: n.Host, Port: n.Port, Op: "Publish", Args: _args}}
 
@@ -24,7 +25,7 @@ func (n QueueingClientProxy) Publish(_p1 string, _p2 string) bool {
 	return _reply
 }
 
-func (n QueueingClientProxy) Consume(_p1 string) string {
+func (n QueueingClientProxy) Consume(_p1 string) queueing.MessageMOM {
 	_args := []interface{}{_p1}
 	_reqMsg := message.Message{message.Invocation{Host: n.Host, Port: n.Port, Op: "Consume", Args: _args}}
 
@@ -32,7 +33,8 @@ func (n QueueingClientProxy) Consume(_p1 string) string {
 	_repMsg := <-i_PosTerR
 
 	_payload := _repMsg.Payload.(map[string]interface{})
-	_reply := _payload["Reply"].(string)
+	_replyTemp := _payload["Reply"].(map[string]interface{})
+	_reply := queueing.MessageMOM{Header:_replyTemp["Header"].(string),PayLoad:_replyTemp["PayLoad"].(string)}
 	return _reply
 }
 

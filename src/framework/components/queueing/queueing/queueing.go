@@ -5,13 +5,19 @@ import (
 )
 
 type Queueing struct {}
-var Queues = map[string]chan string{}
 
-func (Queueing) Publish(topic string, msg string) bool {
+type MessageMOM struct{
+	Header string
+	PayLoad string
+}
+
+var Queues = map[string]chan MessageMOM{}
+
+func (Queueing) Publish(topic string, msg MessageMOM) bool {
 	r := false
 
 	if _, ok := Queues[topic]; !ok {
-		Queues[topic] = make(chan string, parameters.QUEUE_SIZE)
+		Queues[topic] = make(chan MessageMOM, parameters.QUEUE_SIZE)
 	}
 
 	if len(Queues[topic]) < parameters.QUEUE_SIZE {
@@ -23,13 +29,13 @@ func (Queueing) Publish(topic string, msg string) bool {
 	return r
 }
 
-func (Queueing) Consume(topic string) string {
-	r := ""
+func (Queueing) Consume(topic string) MessageMOM {
+	r := MessageMOM{}
 	if _, ok := Queues[topic]; !ok {
-		Queues[topic] = make(chan string, parameters.QUEUE_SIZE)
+		Queues[topic] = make(chan MessageMOM, parameters.QUEUE_SIZE)
 	}
 	if len(Queues[topic]) == 0 {
-		r = "EMPTY QUEUE"
+		r = MessageMOM{Header:"header",PayLoad:"QUEUE EMPTY"}
 	} else {
 		r = <-Queues[topic]
 	}

@@ -1,7 +1,6 @@
 package adaptationmanager
 
 import (
-	"framework/message"
 	"reflect"
 	"framework/element"
 	"plugin"
@@ -15,20 +14,20 @@ import (
 
 type Planner struct{}
 
-func (Planner) Exec(conf configuration.Configuration, channs map[string]chan message.Message, elemMaps map[string]string, chanAP chan shared.AnalysisResult, chanPE chan commands.Plan) {
+func (Planner) Exec(conf configuration.Configuration, chanAP chan shared.AnalysisResult, chanPE chan commands.Plan) {
 
 	for {
 		analysisResult := <-chanAP // receive analysis from Analyser
 		switch analysisResult.Analysis {
 		case parameters.EVOLUTIVE_CHANGE:
-			plan := generateEvolutivePlan(conf, analysisResult, channs, elemMaps)
+			plan := generateEvolutivePlan(conf, analysisResult)
 			chanPE <- plan // send plan to Executor
 		default:
 		}
 	}
 }
 
-func generateEvolutivePlan(conf configuration.Configuration, analysisResult shared.AnalysisResult, channs map[string]chan message.Message, elemMaps map[string]string) commands.Plan {
+func generateEvolutivePlan(conf configuration.Configuration, analysisResult shared.AnalysisResult) commands.Plan {
 
 	// build new plan from analysis result
 	plan := commands.Plan{}
@@ -45,7 +44,7 @@ func generateEvolutivePlan(conf configuration.Configuration, analysisResult shar
 
 		idNewElement := defineOldElement(conf, getTypeElem()) // TODO This is critical and needs to be improved in the future
 		//newElem := element.Element{Id: idNewElement, Behaviour: element.Element{}.BehaviourExec, TypeElem: getTypeElem(), BehaviourExp: getBehaviourExp()}
-		newElem := element.Element{Id: idNewElement, TypeElem: getTypeElem(), BehaviourExp: getBehaviourExp()}
+		newElem := element.Element{Id: idNewElement, TypeElem: getTypeElem(), CSP: getBehaviourExp()}
 		cmd := commands.HighLevelCommand{commands.REPLACE_COMPONENT, newElem}
 		cmds = append(cmds, cmd)
 	}

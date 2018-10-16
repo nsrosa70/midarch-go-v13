@@ -18,19 +18,19 @@ import (
 
 type FDR struct{}
 
-func (FDR) CheckBehaviour(conf configuration.Configuration, elemMaps map[string]string) bool {
+func (FDR) CheckBehaviour(conf configuration.Configuration) bool {
 
-	conf.CSP = createCSP(conf, elemMaps)
+	conf.CSP = createCSP(conf)
 	saveCSP(conf)
 	r := invokeFDR(conf)
 
 	return r
 }
 
-func (FDR) LoadFDRGraph(confFile string) fdrgraph.Graph {
+func (FDR) LoadFDRGraph(conf *configuration.Configuration) {
 	graph := fdrgraph.NewGraph(100)
 
-	dotFileName := strings.Replace(confFile, ".conf", ".dot", 1)
+	dotFileName := strings.Replace(conf.ADLFileName, ".conf", ".dot", 1)
 	dotFileName = parameters.DIR_CSP + "/" + dotFileName
 
 	// read file
@@ -56,7 +56,7 @@ func (FDR) LoadFDRGraph(confFile string) fdrgraph.Graph {
 			graph.AddEdge(from, to, action)
 		}
 	}
-	return *graph
+	conf.FDRGraph = *graph
 }
 
 func saveCSP(conf configuration.Configuration) {
@@ -105,13 +105,13 @@ func invokeFDR(conf configuration.Configuration) bool {
 	}
 }
 
-func createCSP(conf configuration.Configuration, elemMaps map[string]string) string {
+func createCSP(conf configuration.Configuration) string {
 
 	// general behaviour
 	dataTypeExp := createDataTypeExp(conf)
 	internalChannelsExp, _ := createInternalChannelExp(conf)
 	externalChannelsExp, externalChannels := createExternalChannelExp(conf)
-	processesExp, componentProcesses, _ := createProcessExp(conf, elemMaps)
+	processesExp, componentProcesses, _ := createProcessExp(conf)
 	generalBehaviour := createGeneralBehaviourExp(conf, externalChannels, componentProcesses)
 
 	// assertion
@@ -145,7 +145,7 @@ func adjustPartnersConnectors(id string, behaviour string, elemMaps map[string]s
 
 func renamingPorts(elem element.Element) string {
 	id := elem.Id
-	behaviour := elem.BehaviourExp
+	behaviour := elem.CSP
 	tokens := strings.Split(behaviour," ")
 	renamingExp := strings.ToUpper(id) + "[["
 
@@ -192,7 +192,7 @@ func createInternalChannelExp(conf configuration.Configuration) (string, map[str
 	internalChannels := make(map[string]string)
 
 	for i := range conf.Components {
-		tokens := strings.Split(conf.Components[i].BehaviourExp, " ")
+		tokens := strings.Split(conf.Components[i].CSP, " ")
 		for i := range tokens {
 			if shared.IsInternal(tokens[i]) {
 				iAction := strings.TrimSpace(tokens[i])
@@ -202,7 +202,7 @@ func createInternalChannelExp(conf configuration.Configuration) (string, map[str
 	}
 
 	for i := range conf.Connectors {
-		tokens := strings.Split(conf.Connectors[i].BehaviourExp, " ")
+		tokens := strings.Split(conf.Connectors[i].CSP, " ")
 		for i := range tokens {
 			if shared.IsInternal(tokens[i]) {
 				iAction := strings.TrimSpace(tokens[i])
@@ -223,7 +223,7 @@ func createExternalChannelExp(conf configuration.Configuration) (string, map[str
 	externalChannels := make(map[string]string)
 
 	for i := range conf.Components {
-		b := conf.Components[i].BehaviourExp
+		b := conf.Components[i].CSP
 		if strings.Contains(b, shared.INVR) {
 			externalChannels[shared.INVR] = shared.INVR
 		}
@@ -238,7 +238,7 @@ func createExternalChannelExp(conf configuration.Configuration) (string, map[str
 		}
 	}
 	for i := range conf.Connectors {
-		b := conf.Connectors[i].BehaviourExp
+		b := conf.Connectors[i].CSP
 		if strings.Contains(b, shared.INVR) {
 			externalChannels[shared.INVR] = shared.INVR
 		}
@@ -262,13 +262,13 @@ func createExternalChannelExp(conf configuration.Configuration) (string, map[str
 	return externalChannelsExp, externalChannels
 }
 
-func createProcessExp(conf configuration.Configuration, elemMaps map[string]string) (string, map[string]string, map[string]string) {
+func createProcessExp(conf configuration.Configuration) (string, map[string]string, map[string]string) {
 
 	componentProcesses := make(map[string]string)
 	processesExp := ""
 	for i := range conf.Components {
 		id := conf.Components[i].Id
-		behaviour := strings.Replace(conf.Components[i].BehaviourExp, "B", strings.ToUpper(id), 99)
+		behaviour := strings.Replace(conf.Components[i].CSP, "B", strings.ToUpper(id), 99)
 		behaviour = adjustPartnersComponent(id, behaviour)
 		componentProcesses[strings.ToUpper(id)] = behaviour
 		processesExp += componentProcesses[strings.ToUpper(id)] + "\n"
@@ -276,8 +276,8 @@ func createProcessExp(conf configuration.Configuration, elemMaps map[string]stri
 	connectorProcesses := make(map[string]string)
 	for i := range conf.Connectors {
 		id := conf.Connectors[i].Id
-		behaviour := strings.Replace(conf.Connectors[i].BehaviourExp, "B", strings.ToUpper(id), 99)
-		behaviour = adjustPartnersConnectors(id, behaviour, elemMaps)
+		behaviour := strings.Replace(conf.Connectors[i].CSP, "B", strings.ToUpper(id), 99)
+		behaviour = adjustPartnersConnectors(id, behaviour, conf.Maps)
 		connectorProcesses[strings.ToUpper(id)] = behaviour
 		processesExp += connectorProcesses[strings.ToUpper(id)] + "\n"
 	}

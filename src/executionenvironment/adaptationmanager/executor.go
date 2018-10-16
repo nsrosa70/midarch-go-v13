@@ -1,14 +1,13 @@
 package adaptationmanager
 
 import (
-	"framework/message"
 	"framework/configuration/configuration"
 	"framework/configuration/commands"
 )
 
 type Executor struct{}
 
-func (Executor) Exec(conf configuration.Configuration, channs map[string]chan message.Message, elemMaps map[string]string, chanPE chan commands.Plan, channsUnit map[string]chan commands.LowLevelCommand) {
+func (Executor) Exec(conf configuration.Configuration, chanPE chan commands.Plan, channsUnit map[string]chan commands.LowLevelCommand) {
 
 	for {
 		plan := <-chanPE

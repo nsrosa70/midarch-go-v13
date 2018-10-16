@@ -4,6 +4,8 @@ import (
 	"framework/element"
 	"framework/configuration/attachments"
 	"framework/message"
+	"graph/fdrgraph"
+	"graph/execgraph"
 )
 
 type Configuration struct {
@@ -13,8 +15,10 @@ type Configuration struct {
 	Attachments [] attachments.Attachment
 	CSP string
 	ADLFileName string
-	StructuralChannels map[string] message.Message
-	//StateMachine
+	StructuralChannels map[string] chan message.Message
+	Maps map[string]string
+	FDRGraph fdrgraph.Graph
+	StateMachine execgraph.Graph
 }
 
 func (conf *Configuration) AddComp(comp element.Element) {

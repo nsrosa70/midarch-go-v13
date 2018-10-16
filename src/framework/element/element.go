@@ -5,12 +5,14 @@ import (
 	"strings"
 	"reflect"
 	"shared/shared"
+	"graph/execgraph"
 )
 
 type Element struct {
 	Id           string
 	TypeElem     interface{}
-	BehaviourExp string
+	CSP string
+	StateMachine execgraph.Graph
 }
 
 func (Element) Loop(elem interface{}, cases []reflect.SelectCase, auxCases []string){

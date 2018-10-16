@@ -1,7 +1,6 @@
 package adaptationmanager
 
 import (
-	"framework/message"
 	"framework/element"
 	"framework/configuration/configuration"
 	"shared/shared"
@@ -10,7 +9,7 @@ import (
 
 type AdaptationManager struct{}
 
-func (AdaptationManager) Exec(conf configuration.Configuration, channs map[string]chan message.Message, elemMaps map[string]string, channsUnit map[string] chan commands.LowLevelCommand) {
+func (AdaptationManager) Exec(conf configuration.Configuration, channsUnit map[string] chan commands.LowLevelCommand) {
 	chanMAReactive := make(chan shared.MonitoredCorrectiveData)
 	chanMAEvolutive := make(chan shared.MonitoredEvolutiveData)
 	chanAP := make(chan shared.AnalysisResult)
@@ -18,8 +17,8 @@ func (AdaptationManager) Exec(conf configuration.Configuration, channs map[strin
 
 	go new(Monitor).Exec(conf,chanMAReactive,chanMAEvolutive)
 	go new(Analyser).Exec(conf,chanMAReactive,chanMAEvolutive,chanAP)
-	go new(Planner).Exec(conf,channs, elemMaps, chanAP,chanPE)
-	go new(Executor).Exec(conf,channs, elemMaps,chanPE,channsUnit)
+	go new(Planner).Exec(conf, chanAP,chanPE)
+	go new(Executor).Exec(conf,chanPE,channsUnit)
 }
 
 type Request struct {

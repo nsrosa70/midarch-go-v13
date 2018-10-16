@@ -268,8 +268,7 @@ func createProcessExp(conf configuration.Configuration) (string, map[string]stri
 	processesExp := ""
 	for i := range conf.Components {
 		id := conf.Components[i].Id
-		behaviour := strings.Replace(conf.Components[i].CSP, "B", strings.ToUpper(id), 99)
-		behaviour = adjustPartnersComponent(id, behaviour)
+		behaviour := adjustPartnersComponent(id, conf.Components[i].CSP)
 		componentProcesses[strings.ToUpper(id)] = behaviour
 		processesExp += componentProcesses[strings.ToUpper(id)] + "\n"
 	}

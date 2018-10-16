@@ -27,6 +27,9 @@ func (ee ExecutionEnvironment) Deploy(adlFileName string) {
 	// Load execution parameters
 	shared.LoadParameters(os.Args[1:])
 
+	// Perform checks on library
+	libraries.CheckLibrary()
+
 	// Generate Go configuration
 	conf := configuration.MapADLIntoGo(adlFileName)
 
@@ -83,22 +86,16 @@ func InitializeManagementChannels(conf configuration.Configuration) map[string]c
 func ConfigureBehaviour(conf *configuration.Configuration) {
 
 	for i := range conf.Components {
-		b := libraries.Repository[reflect.TypeOf(conf.Components[i].TypeElem).String()].CSP
-		if b == "" {
-			myError := errors.MyError{Source: "Execution Environment", Message: "Component '" + conf.Components[i].Id + "' does not exist in the Library"}
-			myError.ERROR()
-		}
-		tempElem := element.Element{Id:conf.Components[i].Id, TypeElem:conf.Components[i].TypeElem, CSP:b}
-		conf.Components[i] = tempElem
+		standardBehaviour := libraries.Repository[reflect.TypeOf(conf.Components[i].TypeElem).String()].CSP
+		configuredBehaviour := strings.Replace(standardBehaviour,"B",strings.ToUpper(conf.Components[i].Id),99)
+		configuredBehaviour = shared.RenameInternalChannels(configuredBehaviour,conf.Components[i].Id)
+		conf.Components[i] = element.Element{Id:conf.Components[i].Id, TypeElem:conf.Components[i].TypeElem, CSP:configuredBehaviour}
 	}
 	for i := range conf.Connectors {
-		b := libraries.Repository[reflect.TypeOf(conf.Connectors[i].TypeElem).String()].CSP
-		if b == "" {
-			myError := errors.MyError{Source: "Execution Environment", Message: "Connector '" + conf.Connectors[i].Id + "'does not exist in the Library"}
-			myError.ERROR()
-		}
-		tempElem := element.Element{Id:conf.Connectors[i].Id,TypeElem:conf.Connectors[i].TypeElem, CSP:b}
-		conf.Connectors[i] = tempElem
+		standardBehaviour := libraries.Repository[reflect.TypeOf(conf.Connectors[i].TypeElem).String()].CSP
+		configuredBehaviour := strings.Replace(standardBehaviour,"B",strings.ToUpper(conf.Connectors[i].Id),99)
+		configuredBehaviour = shared.RenameInternalChannels(configuredBehaviour,conf.Connectors[i].Id)
+		conf.Connectors[i] = element.Element{Id:conf.Connectors[i].Id,TypeElem:conf.Connectors[i].TypeElem, CSP:configuredBehaviour}
 	}
 }
 

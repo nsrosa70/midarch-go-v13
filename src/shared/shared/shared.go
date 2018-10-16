@@ -210,3 +210,14 @@ func IsInConnectors(conns map[string]string, t string) bool {
 	}
 	return foundConnector
 }
+
+func RenameInternalChannels(b string,id string) string{
+	tokens := strings.Split(b," ")
+
+	for t := range tokens{
+		if IsInternal(tokens[t]){
+			b = strings.Replace(b,tokens[t],tokens[t]+"_"+id,99)
+		}
+	}
+	return b
+}

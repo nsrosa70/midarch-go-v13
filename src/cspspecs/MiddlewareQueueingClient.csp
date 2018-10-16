@@ -1,13 +1,13 @@
-datatype PROCNAMES = requestor | crh | queueingProxy | t2 | t1 
-channel I_PosInvP,I_PosTerR,I_PreTerP,I_PreInvR
-channel InvP,InvR,TerR,TerP : PROCNAMES
-REQUESTOR = InvP.requestor -> I_PosInvP -> InvR.requestor -> TerR.requestor -> I_PosTerR -> TerP.requestor -> REQUESTOR
-CRH = InvP.crh -> I_PosInvP -> I_PreTerP -> TerP.crh -> CRH
-QUEUEINGPROXY = I_PreInvR -> InvR.queueingProxy -> TerR.queueingProxy -> I_PosTerR -> QUEUEINGPROXY
-T2 = InvP.requestor -> InvR.crh -> TerR.crh -> TerP.requestor -> T2
+datatype PROCNAMES = crh | t1 | t2 | queueingProxy | requestor 
+channel I_PosTerR_requestor,I_PosInvP_crh,I_PreTerP_crh,I_PreInvR_queueingProxy,I_PosTerR_queueingProxy,I_PosInvP_requestor
+channel InvR,TerR,InvP,TerP : PROCNAMES
+QUEUEINGPROXY = I_PreInvR_queueingProxy -> InvR.queueingProxy -> TerR.queueingProxy -> I_PosTerR_queueingProxy -> QUEUEINGPROXY
+REQUESTOR = InvP.requestor -> I_PosInvP_requestor -> InvR.requestor -> TerR.requestor -> I_PosTerR_requestor -> TerP.requestor -> REQUESTOR
+CRH = InvP.crh -> I_PosInvP_crh -> I_PreTerP_crh -> TerP.crh -> CRH
 T1 = InvP.queueingProxy -> InvR.requestor -> TerR.requestor -> TerP.queueingProxy -> T1
+T2 = InvP.requestor -> InvR.crh -> TerR.crh -> TerP.requestor -> T2
 
-P1 = (REQUESTOR|||CRH|||QUEUEINGPROXY)
-[|{|TerP,InvP,InvR,TerR|}|]
+P1 = (QUEUEINGPROXY|||REQUESTOR|||CRH)
+[|{|InvR,TerR,InvP,TerP|}|]
 (T1[[InvP <- InvR,InvR <- InvP,TerR <- TerP,TerP <- TerR]]|||T2[[InvP <- InvR,InvR <- InvP,TerR <- TerP,TerP <- TerR]])
 assert P1 :[deadlock free]

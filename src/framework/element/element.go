@@ -2,7 +2,6 @@ package element
 
 import (
 	"framework/message"
-	"strings"
 	"reflect"
 	"shared/shared"
 	"graph/execgraph"
@@ -23,9 +22,8 @@ func (Element) Loop(elem interface{}, cases []reflect.SelectCase, auxCases []str
 		if cases[chosen].Dir == reflect.SelectRecv {
 			msg = value.Interface().(message.Message)
 		}
-		if auxCases[chosen][:2] == "I_" { // Update 'message' of sent actions
-			internalAction := auxCases[chosen][:strings.LastIndex(auxCases[chosen],"_")] // TODO improve
-			shared.Invoke(elem,internalAction,&msg)
+		if auxCases[chosen][:2] == shared.PREFIX_INTERNAL_ACTION { // Update 'message' of sent actions
+			shared.Invoke(elem,auxCases[chosen],&msg)
 			for c := range cases {
 				if cases[c].Dir == reflect.SelectSend {
 					cases[c].Send = reflect.ValueOf(msg)

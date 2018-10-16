@@ -194,7 +194,7 @@ func createInternalChannelExp(conf configuration.Configuration) (string, map[str
 	for i := range conf.Components {
 		tokens := strings.Split(conf.Components[i].BehaviourExp, " ")
 		for i := range tokens {
-			if strings.Contains(tokens[i], shared.PREFIX_INTERNAL_ACTION) {
+			if shared.IsInternal(tokens[i]) {
 				iAction := strings.TrimSpace(tokens[i])
 				internalChannels[iAction] = iAction
 			}
@@ -204,7 +204,7 @@ func createInternalChannelExp(conf configuration.Configuration) (string, map[str
 	for i := range conf.Connectors {
 		tokens := strings.Split(conf.Connectors[i].BehaviourExp, " ")
 		for i := range tokens {
-			if strings.Contains(tokens[i], shared.PREFIX_INTERNAL_ACTION) {
+			if shared.IsInternal(tokens[i]) {
 				iAction := strings.TrimSpace(tokens[i])
 				internalChannels[iAction] = iAction
 			}

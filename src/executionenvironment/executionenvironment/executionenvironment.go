@@ -92,7 +92,8 @@ func ConfigureBehaviour(conf *configuration.Configuration) {
 			myError := errors.MyError{Source: "Execution Engine", Message: "Component '" + conf.Components[i].Id + "' does not exist in the Library"}
 			myError.ERROR()
 		}
-		tempElem := element.Element{conf.Components[i].Id, element.Element{}.Behaviour, conf.Components[i].TypeElem, b}
+		//tempElem := element.Element{conf.Components[i].Id, element.Element{}.Behaviour, conf.Components[i].TypeElem, b}
+		tempElem := element.Element{conf.Components[i].Id, conf.Components[i].TypeElem, b}
 		conf.Components[i] = tempElem
 	}
 	for i := range conf.Connectors {
@@ -101,7 +102,8 @@ func ConfigureBehaviour(conf *configuration.Configuration) {
 			myError := errors.MyError{Source: "Execution Engine", Message: "Connector '" + conf.Connectors[i].Id + "'does not exist in the Library"}
 			myError.ERROR()
 		}
-		tempElem := element.Element{conf.Connectors[i].Id, element.Element{}.Behaviour, conf.Connectors[i].TypeElem, b}
+		//tempElem := element.Element{conf.Connectors[i].Id, element.Element{}.Behaviour, conf.Connectors[i].TypeElem, b}
+		tempElem := element.Element{conf.Connectors[i].Id,conf.Connectors[i].TypeElem, b}
 		conf.Connectors[i] = tempElem
 	}
 }

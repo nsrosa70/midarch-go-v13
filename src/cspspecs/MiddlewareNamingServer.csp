@@ -1,6 +1,6 @@
-datatype PROCNAMES = srh | t1 | naminginvoker 
-channel I_PosInvP_naminginvoker,I_PreInvR_srh,I_PosTerR_srh
-channel TerR,InvP,TerP,InvR : PROCNAMES
+datatype PROCNAMES = naminginvoker | t1 | srh 
+channel I_PreInvR_srh,I_PosTerR_srh,I_PosInvP_naminginvoker
+channel TerP,InvR,TerR,InvP : PROCNAMES
 NAMINGINVOKER = InvP.naminginvoker -> I_PosInvP_naminginvoker -> TerP.naminginvoker -> NAMINGINVOKER
 SRH = I_PreInvR_srh -> InvR.srh -> TerR.srh -> I_PosTerR_srh -> SRH
 T1 = InvP.srh -> InvR.naminginvoker -> TerR.naminginvoker -> TerP.srh -> T1

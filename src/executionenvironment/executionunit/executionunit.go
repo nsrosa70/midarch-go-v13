@@ -16,11 +16,13 @@ type ExecutionUnit struct{}
 func (ExecutionUnit) Exec(elem element.Element, execChannels map[string]chan message.Message, channs map[string]chan message.Message, elemMaps map[string]string, chanUnit chan commands.LowLevelCommand) {
 
 	// Define channels
-	elemChannels := DefineChannels(execChannels, elem.Id)
 	actions := map[string][]string{}
+	individualChannels := map[string]chan message.Message{}
+
+	elemChannels := DefineChannels(execChannels, elem.Id)
 	behaviour := libraries.Repository[reflect.TypeOf(elem.TypeElem).String()].CSP
 	actions[elem.Id] = FilterActions(strings.Split(behaviour, " "))
-	individualChannels := map[string]chan message.Message{}
+
 	for a := range actions[elem.Id] {
 		individualChannels[actions[elem.Id][a]] = DefineChannel(elemChannels, actions[elem.Id][a])
 	}

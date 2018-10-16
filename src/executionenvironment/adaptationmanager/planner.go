@@ -44,8 +44,8 @@ func generateEvolutivePlan(conf configuration.Configuration, analysisResult shar
 		getTypeElem := fz.(func() interface{})
 
 		idNewElement := defineOldElement(conf, getTypeElem()) // TODO This is critical and needs to be improved in the future
-		newElem := element.Element{Id: idNewElement, Behaviour: element.Element{}.BehaviourExec, TypeElem: getTypeElem(), BehaviourExp: getBehaviourExp()}
-
+		//newElem := element.Element{Id: idNewElement, Behaviour: element.Element{}.BehaviourExec, TypeElem: getTypeElem(), BehaviourExp: getBehaviourExp()}
+		newElem := element.Element{Id: idNewElement, TypeElem: getTypeElem(), BehaviourExp: getBehaviourExp()}
 		cmd := commands.HighLevelCommand{commands.REPLACE_COMPONENT, newElem}
 		cmds = append(cmds, cmd)
 	}

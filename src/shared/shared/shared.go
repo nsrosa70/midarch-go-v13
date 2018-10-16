@@ -167,3 +167,8 @@ func ShowExecutionParameters(s bool){
 	}
 }
 
+func Log(args...string){
+	if strings.Contains(args[1],"Proxy") || strings.Contains(args[1],"XXX"){
+		fmt.Println(args[0]+":"+args[1]+":"+args[2]+":"+args[3])
+	}
+}

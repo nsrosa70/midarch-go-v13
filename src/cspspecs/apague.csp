@@ -1,0 +1,4 @@
+channel I_PosInvP, InvP,TerP
+
+-- B = InvP -> (InvP -> B [] I_PosInvP -> TerP -> B)
+B = (InvP -> B [] (I_PosInvP -> TerP -> B [] TerP -> B)

@@ -1,0 +1,15 @@
+datatype PROCNAMES = srh | server | invoker | t1 | t2 
+channel I_PreInvR_srh,I_PosTerR_srh,I_PosInvP_server,I_PosInvP_invoker,I_PosTerR_invoker
+channel TerP,InvR,TerR,InvP : PROCNAMES
+
+SRH = I_PreInvR_srh -> InvR.t1 -> TerR.t1 -> I_PosTerR_srh -> SRH
+SERVER = InvP.t2 -> I_PosInvP_server -> TerP.t2 -> SERVER
+INVOKER = InvP.t1 -> I_PosInvP_invoker -> InvR.t2 -> TerR.t2 -> I_PosTerR_invoker -> TerP.t1 -> INVOKER 
+
+T1 = InvP.srh -> InvR.invoker -> TerR.invoker -> TerP.srh -> T1
+T2 = InvP.invoker -> InvR.server -> TerR.server -> TerP.invoker -> T2
+
+P1 = (SRH|||SERVER|||INVOKER)
+[|{|InvR,TerR,InvP,TerP|}|]
+(T1[[InvP.srh <- InvR.t1,InvR.invoker <- InvP.t1,TerR <- TerP,TerP <- TerR]]|||T2[[InvP <- InvR,InvR <- InvP,TerR <- TerP,TerP <- TerR]])
+assert P1 :[deadlock free]

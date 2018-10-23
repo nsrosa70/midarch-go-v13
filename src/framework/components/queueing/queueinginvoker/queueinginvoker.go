@@ -3,7 +3,6 @@ package queueinginvoker
 import (
 	"framework/message"
 	"framework/components/queueing/queueing"
-	"shared/shared"
 )
 
 type QueueingInvoker struct{}
@@ -14,11 +13,11 @@ func (QueueingInvoker) I_PosInvP(msg *message.Message) {
 	_op := msg.Payload.(message.MIOP).Body.RequestHeader.Operation
 	_args := msg.Payload.(message.MIOP).Body.RequestBody.Args
 	_argsX := _args.([]interface{})
-	_p1 := _argsX[0].(string)
-	_p2Temp := _argsX[1].(map[string]interface{})
-	_p2 := queueing.MessageMOM{Header: _p2Temp["Header"].(string), PayLoad: _p2Temp["PayLoad"].(string)}
-	_argsInv := []interface{}{_p1, _p2}
-	*msg = message.Message{Payload: shared.QueueingInvocation{Op: _op, Args: _argsInv}}
+//	_p1 := _argsX[0].(string)
+//	_p2Temp := _argsX[1].(map[string]interface{})
+//	_p2 := queueing.MessageMOM{Header: _p2Temp["Header"].(string), PayLoad: _p2Temp["PayLoad"].(string)}
+//	_argsInv := []interface{}{_p1, _p2}
+	*msg = message.Message{Payload: message.Invocation{Op: _op, Args: _argsX}}
 }
 
 func (QueueingInvoker) I_PosTerR(msg *message.Message) {

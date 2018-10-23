@@ -35,9 +35,10 @@ func (n QueueingClientProxy) Consume(_p1 string) queueing.MessageMOM {
 	_repMsg := <-i_PosTerR
 
 	_payload := _repMsg.Payload.(map[string]interface{})
-	_replyTemp := _payload["Reply"].(map[string]interface{})
-	_reply := queueing.MessageMOM{Header:_replyTemp["Header"].(string),PayLoad:_replyTemp["PayLoad"].(string)}
-	return _reply
+	_reply := _payload["Reply"].(map[string]interface{})
+	_rTemp := _reply["R"].(map[string]interface{})
+	_r := queueing.MessageMOM{Header:_rTemp["Header"].(string),PayLoad:_rTemp["PayLoad"].(string)}
+	return _r
 }
 
 func (QueueingClientProxy) I_PreInvR(msg *message.Message) {

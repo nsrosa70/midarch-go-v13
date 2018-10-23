@@ -18,18 +18,27 @@ type MessageMOM struct{
 var Queues = map[string]chan MessageMOM{}
 
 func (QS QueueingServer) I_PosInvP(msg *message.Message){
-	inv := msg.Payload.(shared.QueueingInvocation)
+	inv := msg.Payload.(message.Invocation)
 
 	switch inv.Op {
 	case "Publish":
-		_topic := inv.Args[0].(string)
-		_msg := inv.Args[1].(MessageMOM)
-		_r := QS.Publish(_topic,_msg)
+		_args := inv.Args.([]interface{})
+		_topic := _args[0].(string)
+		_msg := _args[1].(map[string]interface{})
+		_r := QS.Publish(_topic,MessageMOM{Header:_msg["Header"].(string),PayLoad:_msg["PayLoad"].(string)})
 
 		_ter := shared.QueueingTermination{_r}
 		*msg = message.Message{_ter}
+	case "Consume":
+		_args := inv.Args.([]interface{})
+		_topic := _args[0].(string)
+		_r := QS.Consume(_topic)
+
+		_ter := shared.QueueingTermination{_r}
+		*msg = message.Message{_ter}
+
 	default:
-		fmt.Println("NamingInvoker:: Operation " + inv.Op + " is not implemented by Naming Server")
+		fmt.Println("QueueingInvoker:: Operation " + inv.Op + " is not implemented by Queueing Server")
 		os.Exit(0)
 	}
 }

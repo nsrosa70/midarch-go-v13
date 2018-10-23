@@ -21,9 +21,11 @@ func (n QueueingClientProxy) Publish(_p1 string, _p2 queueing.MessageMOM) bool {
 	_repMsg := <-i_PosTerR
 
 	_payload := _repMsg.Payload.(map[string]interface{})
-	_reply := _payload["Reply"].(bool)
-	return _reply
-}
+	_reply := _payload["Reply"].(map[string]interface{})
+	_r := _reply["R"].(bool)
+
+	return _r
+	}
 
 func (n QueueingClientProxy) Consume(_p1 string) queueing.MessageMOM {
 	_args := []interface{}{_p1}

@@ -4,16 +4,16 @@ import (
 	"shared/parameters"
 )
 
-type Queueing struct {}
+type Queueing1 struct {}
 
-type MessageMOM struct{
+type MessageMOM1 struct{
 	Header string
 	PayLoad string
 }
 
-var Queues = map[string]chan MessageMOM{}
+var Queues1 = map[string]chan MessageMOM{}
 
-func (Queueing) Publish(topic string, msg MessageMOM) bool {
+func (Queueing1) Publish(topic string, msg MessageMOM) bool {
 	r := false
 
 	if _, ok := Queues[topic]; !ok {
@@ -29,7 +29,7 @@ func (Queueing) Publish(topic string, msg MessageMOM) bool {
 	return r
 }
 
-func (Queueing) Consume(topic string) MessageMOM {
+func (Queueing1) Consume(topic string) MessageMOM {
 	r := MessageMOM{}
 	if _, ok := Queues[topic]; !ok {
 		Queues[topic] = make(chan MessageMOM, parameters.QUEUE_SIZE)

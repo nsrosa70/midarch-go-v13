@@ -9,6 +9,7 @@ import (
 	"framework/configuration/commands"
 	"shared/shared"
 	"framework/libraries"
+	"os"
 )
 
 type ExecutionUnit struct{}
@@ -92,7 +93,8 @@ func DefineChannel(channels map[string]chan message.Message, a string) chan mess
 	}
 
 	if !found {
-		fmt.Println("Error: channel '" + a + "' not found")
+		fmt.Println("ExecutionUnit: channel '" + a + "' not found")
+		os.Exit(0)
 	}
 
 	return r

@@ -11,13 +11,17 @@ const DIR_SOURCE  = BASE_DIR
 const DIR_CONF    = BASE_DIR+"/src/apps/conf"
 const DIR_GO      = "/usr/local/go/bin"
 const DIR_FDR     = "/Volumes/Macintosh HD/Applications/FDR4-2.app/Contents/MacOS"
+const DIR_CSPARSER      = "/Users/nsr/Dropbox/go/software-architecture-v10/src/verificationtools/cspdot/csparser"
 
 // Ports
-
 const NAMING_PORT      = 4040
 const CALCULATOR_PORT  = 2020
 const FIBONACCI_PORT   = 2030
 const QUEUEING_PORT    = 2040
+
+//
+const JAVA_COMMAND = "java"
+const JAR_COMMAND = "-jar"
 
 var SetOfPorts = map[string]int{
 	"NAMING_PORT"     : NAMING_PORT,

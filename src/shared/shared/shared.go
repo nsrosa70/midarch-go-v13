@@ -221,3 +221,12 @@ func RenameInternalChannels(b string,id string) string{
 	}
 	return b
 }
+
+type QueueingInvocation struct {
+	Op   string
+	Args []interface{}
+}
+
+type QueueingTermination struct {
+	R interface{}
+}

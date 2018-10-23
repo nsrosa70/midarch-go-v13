@@ -13,7 +13,6 @@ import (
 	"framework/configuration/commands"
 	"strconv"
 	"shared/parameters"
-	"framework/element"
 	"executionenvironment/adaptationmanager"
 	"executionenvironment/versioninginjector"
 	"executionenvironment/executionunit"
@@ -32,9 +31,6 @@ func (ee ExecutionEnvironment) Deploy(adlFileName string) {
 
 	// Generate Go configuration
 	conf := configuration.MapADLIntoGo(adlFileName)
-
-	// Configure behaviour expressions of components and conncetores
-	ConfigureBehaviour(&conf)
 
 	// Configure management channels
 	managementChannels := InitializeManagementChannels(conf)
@@ -81,22 +77,6 @@ func InitializeManagementChannels(conf configuration.Configuration) map[string]c
 		managementChannels[id] = make(chan commands.LowLevelCommand)
 	}
 	return managementChannels
-}
-
-func ConfigureBehaviour(conf *configuration.Configuration) {
-
-	for i := range conf.Components {
-		standardBehaviour := libraries.Repository[reflect.TypeOf(conf.Components[i].TypeElem).String()].CSP
-		configuredBehaviour := strings.Replace(standardBehaviour,"B",strings.ToUpper(conf.Components[i].Id),99)
-		configuredBehaviour = shared.RenameInternalChannels(configuredBehaviour,conf.Components[i].Id)
-		conf.Components[i] = element.Element{Id:conf.Components[i].Id, TypeElem:conf.Components[i].TypeElem, CSP:configuredBehaviour}
-	}
-	for i := range conf.Connectors {
-		standardBehaviour := libraries.Repository[reflect.TypeOf(conf.Connectors[i].TypeElem).String()].CSP
-		configuredBehaviour := strings.Replace(standardBehaviour,"B",strings.ToUpper(conf.Connectors[i].Id),99)
-		configuredBehaviour = shared.RenameInternalChannels(configuredBehaviour,conf.Connectors[i].Id)
-		conf.Connectors[i] = element.Element{Id:conf.Connectors[i].Id,TypeElem:conf.Connectors[i].TypeElem, CSP:configuredBehaviour}
-	}
 }
 
 func CreateExecGraph(conf *configuration.Configuration) {

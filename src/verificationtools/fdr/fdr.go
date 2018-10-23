@@ -14,6 +14,8 @@ import (
 	"graph/fdrgraph"
 	"log"
 	"bufio"
+	"framework/libraries"
+	"reflect"
 )
 
 type FDR struct{}
@@ -107,12 +109,15 @@ func invokeFDR(conf configuration.Configuration) bool {
 
 func createCSP(conf configuration.Configuration) string {
 
+	// Configure behaviour expressions of components and conncetores
+	configureBehaviours(&conf)
+
 	// general behaviour
 	dataTypeExp := createDataTypeExp(conf)
 	internalChannelsExp, _ := createInternalChannelExp(conf)
 	externalChannelsExp, externalChannels := createExternalChannelExp(conf)
 	processesExp, componentProcesses, _ := createProcessExp(conf)
-	generalBehaviour := createGeneralBehaviourExp(conf, externalChannels, componentProcesses)
+	generalBehaviour := createGeneralBehaviourExp(&conf, externalChannels, componentProcesses)
 
 	// assertion
 	assertion := "assert P1 :[deadlock free]"
@@ -121,38 +126,50 @@ func createCSP(conf configuration.Configuration) string {
 	return csp
 }
 
-func adjustPartnersComponent(id string, behaviour string) string {
-	numPartners := strings.Count(behaviour, ".e")
+func configureBehaviours(conf *configuration.Configuration) {
 
-	for i := 1; i < numPartners+1; i++ {
-		behaviour = strings.Replace(behaviour, "e"+strconv.Itoa(i), id, numPartners+1)
-	}
-	return behaviour
-}
-
-func adjustPartnersConnectors(id string, behaviour string, elemMaps map[string]string) string {
-	numPartners := strings.Count(behaviour, ".e")
-
-	for i := 1; i < numPartners+1; i++ {
-		key := id + "." + "e" + strconv.Itoa(i)
-		value, ok := elemMaps[key]
-		if ok {
-			behaviour = strings.Replace(behaviour, "e"+strconv.Itoa(i), value, numPartners)
+	for i := range conf.Components {
+		standardBehaviour := libraries.Repository[reflect.TypeOf(conf.Components[i].TypeElem).String()].CSP
+		tokens := strings.Split(standardBehaviour, " ")
+		for j := range tokens {
+			if shared.IsAction(tokens[j]) && !shared.IsInternal(tokens[j]) {
+				eX := tokens[j][strings.Index(tokens[j], ".")+1:]
+				standardBehaviour = strings.Replace(standardBehaviour, eX, conf.Components[i].Id, 99)
+			}
 		}
+		configuredBehaviour := strings.Replace(standardBehaviour, "B", strings.ToUpper(conf.Components[i].Id), 99)
+		configuredBehaviour = shared.RenameInternalChannels(configuredBehaviour, conf.Components[i].Id)
+		conf.Components[i] = element.Element{Id: conf.Components[i].Id, TypeElem: conf.Components[i].TypeElem, CSP: configuredBehaviour}
 	}
-	return behaviour
+
+	for i := range conf.Connectors {
+		standardBehaviour := libraries.Repository[reflect.TypeOf(conf.Connectors[i].TypeElem).String()].CSP
+		tokens := strings.Split(standardBehaviour, " ")
+		for j := range tokens {
+			if shared.IsAction(tokens[j]) && !shared.IsInternal(tokens[j]) {
+				partner := tokens[j][strings.Index(tokens[j], ".")+1:]
+				key := conf.Connectors[i].Id + "." + partner
+				standardBehaviour = strings.Replace(standardBehaviour, partner, conf.Maps[key], 99)
+			}
+		}
+		configuredBehaviour := strings.Replace(standardBehaviour, "B", strings.ToUpper(conf.Connectors[i].Id), 99)
+		configuredBehaviour = shared.RenameInternalChannels(configuredBehaviour, conf.Connectors[i].Id)
+		conf.Connectors[i] = element.Element{Id: conf.Connectors[i].Id, TypeElem: conf.Connectors[i].TypeElem, CSP: configuredBehaviour}
+	}
 }
 
-func renamingPorts(elem element.Element) string {
+func renamingSyncPorts(conf *configuration.Configuration, elem element.Element) string {
 	id := elem.Id
-	behaviour := elem.CSP
-	tokens := strings.Split(behaviour," ")
+	standardBehaviour := libraries.Repository[reflect.TypeOf(conf.Connectors[id].TypeElem).String()].CSP
+	tokens := strings.Split(standardBehaviour, " ")
 	renamingExp := strings.ToUpper(id) + "[["
 
 	for i := range tokens {
 		token := strings.TrimSpace(tokens[i])
-		if !shared.IsInternal(token) && shared.IsAction(token){
+		if !shared.IsInternal(token) && shared.IsAction(token) {
 			action := token[0:strings.Index(token, ".")]
+			eX := token[strings.Index(token, ".")+1:]
+			key := id+"."+eX
 			switch action {
 			case shared.INVP:
 				renamingExp += shared.INVP + " <- " + shared.INVR + ","
@@ -163,6 +180,8 @@ func renamingPorts(elem element.Element) string {
 			case shared.TERR:
 				renamingExp += shared.TERR + " <- " + shared.TERP + ","
 			}
+			condiguredBehaviour := strings.Replace(standardBehaviour, eX, conf.Maps[key], 99)
+			conf.Connectors[id] = element.Element{Id: conf.Connectors[id].Id, TypeElem: conf.Connectors[id].TypeElem, CSP: condiguredBehaviour}
 		}
 	}
 	renamingExp = renamingExp[0:strings.LastIndex(renamingExp, ",")] + "]]"
@@ -268,22 +287,19 @@ func createProcessExp(conf configuration.Configuration) (string, map[string]stri
 	processesExp := ""
 	for i := range conf.Components {
 		id := conf.Components[i].Id
-		behaviour := adjustPartnersComponent(id, conf.Components[i].CSP)
-		componentProcesses[strings.ToUpper(id)] = behaviour
+		componentProcesses[strings.ToUpper(id)] = conf.Components[i].CSP
 		processesExp += componentProcesses[strings.ToUpper(id)] + "\n"
 	}
 	connectorProcesses := make(map[string]string)
 	for i := range conf.Connectors {
 		id := conf.Connectors[i].Id
-		behaviour := strings.Replace(conf.Connectors[i].CSP, "B", strings.ToUpper(id), 99)
-		behaviour = adjustPartnersConnectors(id, behaviour, conf.Maps)
-		connectorProcesses[strings.ToUpper(id)] = behaviour
+		connectorProcesses[strings.ToUpper(id)] = conf.Connectors[i].CSP
 		processesExp += connectorProcesses[strings.ToUpper(id)] + "\n"
 	}
 	return processesExp, componentProcesses, connectorProcesses
 }
 
-func createGeneralBehaviourExp(conf configuration.Configuration, externalChannels map[string]string, componentProcesses map[string]string) string {
+func createGeneralBehaviourExp(conf *configuration.Configuration, externalChannels map[string]string, componentProcesses map[string]string) string {
 
 	// (C1 ||| C2 ||| C3)
 	generalBehaviour := "P1 = ("
@@ -300,7 +316,7 @@ func createGeneralBehaviourExp(conf configuration.Configuration, externalChannel
 
 	generalBehaviour += "("
 	for i := range conf.Connectors {
-		generalBehaviour += renamingPorts(conf.Connectors[i]) + "|||"
+		generalBehaviour += renamingSyncPorts(conf, conf.Connectors[i]) + "|||"
 	}
 	generalBehaviour = generalBehaviour[0:strings.LastIndex(generalBehaviour, "|||")] + ")"
 

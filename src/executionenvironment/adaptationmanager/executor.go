@@ -3,6 +3,7 @@ package adaptationmanager
 import (
 	"framework/configuration/configuration"
 	"framework/configuration/commands"
+	"fmt"
 )
 
 type Executor struct{}
@@ -12,6 +13,7 @@ func (Executor) Exec(conf configuration.Configuration, chanPE chan commands.Plan
 	for {
 		plan := <-chanPE
 		for i := range plan.Cmds {
+			fmt.Println("Executor:: Here")
 			switch plan.Cmds[i].Cmd {
 			case commands.REPLACE_COMPONENT: // high level command
 				newElement := plan.Cmds[i].Args

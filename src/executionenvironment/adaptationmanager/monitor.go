@@ -6,34 +6,13 @@ import (
 	"os"
 	"io/ioutil"
 	"shared/shared"
-	"framework/configuration/configuration"
 	"shared/parameters"
 	"shared/errors"
+	"framework/configuration/configuration"
+	"fmt"
 )
 
 type Monitor struct{}
-
-func MonitorCorrective(chanInMonitoredCorrective chan shared.MonitoredCorrectiveData) {
-	// TODO
-}
-
-func MonitorProactive(chanInMonitoredCorrective chan shared.MonitoredProactiveData) {
-	// TODO
-}
-
-func MonitorEvolutive(chanInMonitoredEvolutive chan shared.MonitoredEvolutiveData) {
-
-	listOfOldPlugins := loadPlugins()
-	for {
-		listOfNewPlugins := loadPlugins()
-		newPlugins := checkNewPlugins(listOfOldPlugins, listOfNewPlugins)
-		if len(newPlugins) > 0 {
-			chanInMonitoredEvolutive <- newPlugins
-		}
-		listOfOldPlugins = listOfNewPlugins
-		time.Sleep(parameters.MONITOR_TIME * time.Second)
-	}
-}
 
 func (Monitor) Exec(conf configuration.Configuration, chanMACorrective chan shared.MonitoredCorrectiveData, chanMAEvolutive chan shared.MonitoredEvolutiveData, chanMAProactive chan shared.MonitoredProactiveData) {
 
@@ -58,10 +37,33 @@ func (Monitor) Exec(conf configuration.Configuration, chanMACorrective chan shar
 		case monitoredData := <-chanInMonitoredCorrective: // TODO
 			chanMACorrective <- monitoredData
 		case listOfPlugins := <-chanInMonitoredEvolutive:
+			fmt.Println("Monitor:: Here")
 			chanMAEvolutive <- listOfPlugins
 		case monitoredData := <-chanInMonitoredProactive: // TODO
 			chanMAProactive <- monitoredData
 		}
+	}
+}
+
+func MonitorCorrective(chanInMonitoredCorrective chan shared.MonitoredCorrectiveData) {
+	// TODO
+}
+
+func MonitorProactive(chanInMonitoredCorrective chan shared.MonitoredProactiveData) {
+	// TODO
+}
+
+func MonitorEvolutive(chanInMonitoredEvolutive chan shared.MonitoredEvolutiveData) {
+
+	listOfOldPlugins := loadPlugins()
+	for {
+		listOfNewPlugins := loadPlugins()
+		newPlugins := checkNewPlugins(listOfOldPlugins, listOfNewPlugins)
+		if len(newPlugins) > 0 {
+			chanInMonitoredEvolutive <- newPlugins
+		}
+		listOfOldPlugins = listOfNewPlugins
+		time.Sleep(parameters.MONITOR_TIME * time.Second)
 	}
 }
 

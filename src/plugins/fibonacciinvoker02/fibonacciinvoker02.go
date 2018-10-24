@@ -24,7 +24,7 @@ func (n FibonacciInvoker) Loop(channels map[string]chan message.Message) {
 	for {
 		select {
 		case <-channels["InvP"]:
-		case msgPosInvP = <-channels["I_PosInvP_fibonacciinvoker"]:
+		case msgPosInvP = <-channels["I_PosInvP"]:
 			n.I_PosInvP(&msgPosInvP)
 		case channels["TerP"] <- msgPosInvP:
 			return
@@ -43,7 +43,7 @@ func (FibonacciInvoker) I_PosInvP(msg *message.Message) {
 		_p1 := int(_argsX[0].(float64))
 		_r := fibonacci.Fibonacci{}.Fibo(_p1) // dispatch
 
-		//fmt.Println("Plugin 02")
+		fmt.Println("Plugin 02")
 
 		// send reply
 		_replyHeader := message.ReplyHeader{Status: 1} // 1 - Success

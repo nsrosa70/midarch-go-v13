@@ -315,7 +315,7 @@ func isAdaptationType(line string) bool {
 	r := false
 
 	line = strings.TrimSpace(strings.ToUpper(line))
-	if strings.Contains(line, shared.EVOLUTIVE) || strings.Contains(line, shared.PROACTIVE) || strings.Contains(line, shared.CORRECTIVE) {
+	if line == shared.CORRECTIVE || line == shared.EVOLUTIVE || line == shared.PROACTIVE || line == shared.NONE {
 		r = true
 	}
 	return r

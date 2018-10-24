@@ -11,11 +11,11 @@ func (e Requestor) Loop(channels map[string] chan message.Message) {
 	for {
 		select {
 		case msgInvP = <-channels["InvP"]:
-		case <-channels["I_PosInvP_requestor"]:
+		case <-channels["I_PosInvP"]:
 			e.I_PosInvP(&msgInvP)
 		case channels["InvR"] <- msgInvP:
 		case <-channels["TerR"]:
-		case msgPosTerR = <-channels["I_PosTerR_requestor"]:
+		case msgPosTerR = <-channels["I_PosTerR"]:
 			e.I_PosTerR(&msgPosTerR)
 		case channels["TerP"] <- msgPosTerR:
 		}

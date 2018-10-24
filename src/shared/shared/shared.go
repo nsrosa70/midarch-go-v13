@@ -21,6 +21,7 @@ const TERR = "TerR"
 const EVOLUTIVE = "EVOLUTIVE"
 const CORRECTIVE = "REACTIVE"
 const PROACTIVE = "PROACTIVE"
+const NONE = "NONE"
 
 type Invocation struct {
 	Method  reflect.Value
@@ -159,10 +160,10 @@ func ShowExecutionParameters(s bool){
 		fmt.Println("Plugin Base Name: " + parameters.PLUGIN_BASE_NAME)
 		fmt.Println("Max Graph Size  : " + strconv.Itoa(parameters.GRAPH_SIZE))
 		fmt.Println("------------------------------------------")
-		fmt.Println("Adaptability      : " )
-		fmt.Println("Corrective       : "+strconv.FormatBool(parameters.IS_CORRECTIVE))
-		fmt.Println("Evolutive      : "+strconv.FormatBool(parameters.IS_EVOLUTIVE))
-		fmt.Println("Proactive      : "+strconv.FormatBool(parameters.IS_PROACTIVE))
+		fmt.Println("Adaptability  " )
+		fmt.Println("Corrective        : "+strconv.FormatBool(parameters.IS_CORRECTIVE))
+		fmt.Println("Evolutive         : "+strconv.FormatBool(parameters.IS_EVOLUTIVE))
+		fmt.Println("Proactive         : "+strconv.FormatBool(parameters.IS_PROACTIVE))
 		fmt.Println("Monitor Time (s)  : " + (parameters.MONITOR_TIME*time.Second).String())
 		fmt.Println("Injection Time (s): " + (parameters.INJECTION_TIME*time.Second).String())
 		fmt.Println("Request Time (ms) : " + parameters.REQUEST_TIME.String())

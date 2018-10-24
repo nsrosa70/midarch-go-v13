@@ -13,7 +13,7 @@ func (n FibonacciInvoker) Loop(channels map[string]chan message.Message) {
 	for {
 		select {
 		case <-channels["InvP"]:
-		case msgPosInvP = <-channels["I_PosInvP_fibonacciinvoker"]:
+		case msgPosInvP = <-channels["I_PosInvP"]:
 			n.I_PosInvP(&msgPosInvP)
 		case channels["TerP"] <- msgPosInvP:
 			return

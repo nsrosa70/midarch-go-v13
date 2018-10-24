@@ -24,9 +24,9 @@ func (e CRH) Loop(channels map[string] chan message.Message) {
 	for {
 		select {
 		case <-channels["InvP"]:
-		case msgPosInvP = <-channels["I_PosInvP_crh"]:
+		case msgPosInvP = <-channels["I_PosInvP"]:
 			e.I_PosInvP(&msgPosInvP)
-		case msgPreTerP = <-channels["I_PreTerP_crh"]:
+		case msgPreTerP = <-channels["I_PreTerP"]:
 			e.I_PreTerP(&msgPreTerP)
 		case channels["TerP"] <- msgPreTerP:
 		}

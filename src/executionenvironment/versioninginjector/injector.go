@@ -53,6 +53,7 @@ func InjectAdaptiveEvolution(elementName string) {
 			time.Sleep(parameters.INJECTION_TIME * time.Second)
 		}
 	case 4: // alternate plugins
+		fmt.Println("Injector:: Here")
 		currentPlugin := 1
 		for {
 			switch currentPlugin {

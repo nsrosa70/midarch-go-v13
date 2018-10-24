@@ -17,11 +17,11 @@ func (e FibonacciClientProxy) Loop(channels map[string] chan message.Message) {
 	var msgTerR, msgPreInvR message.Message
 	for {
 		select {
-		case msgPreInvR = <-channels["I_PreInvR_fibonacciproxy"]:
+		case msgPreInvR = <-channels["I_PreInvR"]:
 			e.I_PreInvR(&msgPreInvR)
 		case channels["InvR"] <- msgPreInvR:
 		case msgTerR = <-channels["TerR"]:
-		case <-channels["I_PosTerR_fibonacciproxy"]:
+		case <-channels["I_PosTerR"]:
 			e.I_PosTerR(&msgTerR)
 		}
 	}

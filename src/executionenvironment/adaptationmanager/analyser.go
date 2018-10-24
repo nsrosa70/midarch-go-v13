@@ -1,10 +1,10 @@
 package adaptationmanager
 
 import (
-	"time"
 	"framework/configuration/configuration"
 	"shared/shared"
 	"shared/parameters"
+	"fmt"
 )
 
 type Analyser struct{}
@@ -31,6 +31,7 @@ func (Analyser) Exec(conf configuration.Configuration, chanMACorrective chan sha
 		case analysisResult := <-chanCorrective:
 			chanAP <- analysisResult
 		case analysisResult := <-chanEvolutive:
+			fmt.Println("Analyser:: Evolutive")
 			chanAP <- analysisResult
 		case analysisResult := <-chanProactive:
 			chanAP <- analysisResult
@@ -38,24 +39,24 @@ func (Analyser) Exec(conf configuration.Configuration, chanMACorrective chan sha
 	}
 }
 
-func correctiveAnalysis(chanMa chan shared.MonitoredCorrectiveData, chanReactive chan shared.AnalysisResult) {
+func correctiveAnalysis(chanMa chan shared.MonitoredCorrectiveData, chanCorrective chan shared.AnalysisResult) {
 
 	for {
 		monitoredData := <-chanMa
 		r := invokePROM(monitoredData)
 		if r {
-			chanReactive <- shared.AnalysisResult{Analysis: parameters.NO_CHANGE} // TODO
+			chanCorrective <- shared.AnalysisResult{Analysis: parameters.NO_CHANGE} // TODO
 		}
 	}
 }
 
 func proactiveAnalysis(chanMa chan shared.MonitoredProactiveData, chanProactive chan shared.AnalysisResult) { // TODO
 	for {
-		r := invokePRISM()
+		monitoredData := <-chanMa
+		r := invokePRISM(monitoredData)
 		if r {
 			chanProactive <- shared.AnalysisResult{Analysis: parameters.NO_CHANGE}
 		}
-		time.Sleep(10 * time.Minute)
 	}
 }
 
@@ -75,7 +76,7 @@ func invokePROM(data shared.MonitoredCorrectiveData) bool {
 	return false
 }
 
-func invokePRISM() bool {
+func invokePRISM(data shared.MonitoredProactiveData) bool {
 	// TODO
 	return false
 }

@@ -59,7 +59,7 @@ func (ee ExecutionEnvironment) Deploy(adlFileName string) {
 	go StartEngine(conf.StateMachine)
 
 	// Start adaptation manager
-	if parameters.IS_ADAPTIVE {
+	if parameters.IS_CORRECTIVE || parameters.IS_EVOLUTIVE || parameters.IS_PROACTIVE {
 		go adaptationmanager.AdaptationManager{}.Exec(conf, managementChannels)
 		go versioninginjector.InjectAdaptiveEvolution(parameters.PLUGIN_BASE_NAME)
 	}

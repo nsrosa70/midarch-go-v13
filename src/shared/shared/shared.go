@@ -18,6 +18,9 @@ const INVP = "InvP"
 const TERP = "TerP"
 const INVR = "InvR"
 const TERR = "TerR"
+const EVOLUTIVE = "EVOLUTIVE"
+const CORRECTIVE = "REACTIVE"
+const PROACTIVE = "PROACTIVE"
 
 type Invocation struct {
 	Method  reflect.Value
@@ -27,6 +30,7 @@ type Invocation struct {
 
 type MonitoredCorrectiveData string  // used in channel Monitor -> Analyser (Corrective)
 type MonitoredEvolutiveData []string // used in channel Monitor -> Analyser (Evolutive)
+type MonitoredProactiveData [] string // used in channel Monitor -> Analyser (Proactive)
 
 type AnalysisResult struct {
 	// used in channel Analyser -> Planner
@@ -124,8 +128,6 @@ func LoadParameters(args []string){
 			parameters.MONITOR_TIME = temp2
 		case "STRATEGY":
 			parameters.STRATEGY,_ = strconv.Atoi(variable[1])
-		case "IS_ADAPTIVE":
-			parameters.IS_ADAPTIVE,_ = strconv.ParseBool(variable[1])
 		case "NAMING_HOST":
 			parameters.NAMING_HOST = variable[1]
 		case "QUEUEING_HOST":
@@ -157,8 +159,10 @@ func ShowExecutionParameters(s bool){
 		fmt.Println("Plugin Base Name: " + parameters.PLUGIN_BASE_NAME)
 		fmt.Println("Max Graph Size  : " + strconv.Itoa(parameters.GRAPH_SIZE))
 		fmt.Println("------------------------------------------")
-		fmt.Println("Adaptive          : " + strconv.FormatBool(parameters.IS_ADAPTIVE))
-		//fmt.Println("Injection enabled : " + strconv.FormatBool(parameters.INJECTION_ENABLED))
+		fmt.Println("Adaptability      : " )
+		fmt.Println("Corrective       : "+strconv.FormatBool(parameters.IS_CORRECTIVE))
+		fmt.Println("Evolutive      : "+strconv.FormatBool(parameters.IS_EVOLUTIVE))
+		fmt.Println("Proactive      : "+strconv.FormatBool(parameters.IS_PROACTIVE))
 		fmt.Println("Monitor Time (s)  : " + (parameters.MONITOR_TIME*time.Second).String())
 		fmt.Println("Injection Time (s): " + (parameters.INJECTION_TIME*time.Second).String())
 		fmt.Println("Request Time (ms) : " + parameters.REQUEST_TIME.String())

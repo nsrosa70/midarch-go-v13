@@ -17,6 +17,10 @@ func MonitorCorrective(chanInMonitoredCorrective chan shared.MonitoredCorrective
 	// TODO
 }
 
+func MonitorProactive(chanInMonitoredCorrective chan shared.MonitoredProactiveData) {
+	// TODO
+}
+
 func MonitorEvolutive(chanInMonitoredEvolutive chan shared.MonitoredEvolutiveData) {
 
 	listOfOldPlugins := loadPlugins()
@@ -31,20 +35,32 @@ func MonitorEvolutive(chanInMonitoredEvolutive chan shared.MonitoredEvolutiveDat
 	}
 }
 
-func (Monitor) Exec(conf configuration.Configuration, chanMACorrective chan shared.MonitoredCorrectiveData, chanMAEvolutive chan shared.MonitoredEvolutiveData) {
+func (Monitor) Exec(conf configuration.Configuration, chanMACorrective chan shared.MonitoredCorrectiveData, chanMAEvolutive chan shared.MonitoredEvolutiveData, chanMAProactive chan shared.MonitoredProactiveData) {
 
 	chanInMonitoredCorrective := make(chan shared.MonitoredCorrectiveData)
 	chanInMonitoredEvolutive := make(chan shared.MonitoredEvolutiveData)
+	chanInMonitoredProactive := make(chan shared.MonitoredProactiveData)
 
-	//go MonitorCorrective(chanInMonitoredCorrective)
-	go MonitorEvolutive(chanInMonitoredEvolutive)
+	if parameters.IS_CORRECTIVE {
+		go MonitorCorrective(chanInMonitoredCorrective)
+	}
+
+	if parameters.IS_EVOLUTIVE {
+		go MonitorEvolutive(chanInMonitoredEvolutive)
+	}
+
+	if parameters.IS_PROACTIVE {
+		go MonitorProactive(chanMAProactive)
+	}
 
 	for {
 		select {
-		case monitoredData := <-chanInMonitoredCorrective:
+		case monitoredData := <-chanInMonitoredCorrective: // TODO
 			chanMACorrective <- monitoredData
 		case listOfPlugins := <-chanInMonitoredEvolutive:
 			chanMAEvolutive <- listOfPlugins
+		case monitoredData := <-chanInMonitoredProactive: // TODO
+			chanMAProactive <- monitoredData
 		}
 	}
 }

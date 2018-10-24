@@ -9,17 +9,22 @@ import (
 
 type Analyser struct{}
 
-func (Analyser) Exec(conf configuration.Configuration, chanMACorrective chan shared.MonitoredCorrectiveData, chanMAEvolutive chan shared.MonitoredEvolutiveData, chanAP chan shared.AnalysisResult) {
+func (Analyser) Exec(conf configuration.Configuration, chanMACorrective chan shared.MonitoredCorrectiveData, chanMAEvolutive chan shared.MonitoredEvolutiveData, chanMAProactive chan shared.MonitoredProactiveData, chanAP chan shared.AnalysisResult) {
 
 	// prepapre channels
-	//chanCorrective := make(chan shared.AnalysisResult)  TODO
 	chanCorrective := make(chan shared.AnalysisResult)
 	chanEvolutive := make(chan shared.AnalysisResult)
 	chanProactive := make(chan shared.AnalysisResult)
 
-	//go correctiveAnalysis(chanMACorrective, chanCorrective)
-	go evolutiveAnalysis(chanMAEvolutive, chanEvolutive)
-	//go proactiveAnalysis(chanMAProactive,chanProactive) // TODO
+	if parameters.IS_CORRECTIVE {
+		go correctiveAnalysis(chanMACorrective, chanCorrective)
+	}
+	if parameters.IS_EVOLUTIVE {
+		go evolutiveAnalysis(chanMAEvolutive, chanEvolutive)
+	}
+	if parameters.IS_PROACTIVE {
+		go proactiveAnalysis(chanMAProactive, chanProactive)
+	}
 
 	for {
 		select {
@@ -44,7 +49,7 @@ func correctiveAnalysis(chanMa chan shared.MonitoredCorrectiveData, chanReactive
 	}
 }
 
-func proactiveAnalysis(chanMa chan shared.MonitoredEvolutiveData, chanProactive chan shared.AnalysisResult) { // TODO
+func proactiveAnalysis(chanMa chan shared.MonitoredProactiveData, chanProactive chan shared.AnalysisResult) { // TODO
 	for {
 		r := invokePRISM()
 		if r {

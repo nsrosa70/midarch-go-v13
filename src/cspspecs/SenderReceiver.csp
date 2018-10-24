@@ -1,11 +1,11 @@
-datatype PROCNAMES = t1 | receiver | sender 
+datatype PROCNAMES = receiver | t1 | sender 
 channel I_PosInvP_receiver,I_PreInvR_sender
 channel InvR,InvP : PROCNAMES
-RECEIVER = InvP.receiver -> I_PosInvP_receiver -> RECEIVER
 SENDER = I_PreInvR_sender -> InvR.sender -> SENDER
+RECEIVER = InvP.receiver -> I_PosInvP_receiver -> RECEIVER
 T1 = InvP.sender -> InvR.receiver -> T1
 
-P1 = (RECEIVER|||SENDER)
+P1 = (SENDER|||RECEIVER)
 [|{|InvR,InvP|}|]
 (T1[[InvP <- InvR,InvR <- InvP]])
 assert P1 :[deadlock free]

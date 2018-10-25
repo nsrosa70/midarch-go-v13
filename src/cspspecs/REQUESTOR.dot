@@ -1,0 +1,8 @@
+digraph G {
+  0 -> 1 [ label="InvP.requestor" ];
+  1 -> 2 [ label="I_PosInvP_requestor" ];
+  2 -> 3 [ label="InvR.requestor" ];
+  3 -> 4 [ label="TerR.requestor" ];
+  4 -> 5 [ label="I_PosTerR_requestor" ];
+  5 -> 0 [ label="TerP.requestor" ];
+}

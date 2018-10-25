@@ -9,7 +9,6 @@ import (
 	"shared/parameters"
 	"shared/errors"
 	"framework/configuration/configuration"
-	"fmt"
 )
 
 type Monitor struct{}
@@ -37,7 +36,6 @@ func (Monitor) Exec(conf configuration.Configuration, chanMACorrective chan shar
 		case monitoredData := <-chanInMonitoredCorrective: // TODO
 			chanMACorrective <- monitoredData
 		case listOfPlugins := <-chanInMonitoredEvolutive:
-			fmt.Println("Monitor:: Here")
 			chanMAEvolutive <- listOfPlugins
 		case monitoredData := <-chanInMonitoredProactive: // TODO
 			chanMAProactive <- monitoredData

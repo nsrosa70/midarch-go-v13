@@ -169,7 +169,7 @@ func renamingSyncPorts(conf *configuration.Configuration, elem element.Element) 
 		if !shared.IsInternal(token) && shared.IsAction(token) {
 			action := token[0:strings.Index(token, ".")]
 			eX := token[strings.Index(token, ".")+1:]
-			key := id+"."+eX
+			key := id + "." + eX
 			switch action {
 			case shared.INVP:
 				renamingExp += shared.INVP + " <- " + shared.INVR + ","
@@ -321,4 +321,49 @@ func createGeneralBehaviourExp(conf *configuration.Configuration, externalChanne
 	generalBehaviour = generalBehaviour[0:strings.LastIndex(generalBehaviour, "|||")] + ")"
 
 	return generalBehaviour
+}
+
+func IdentifyExitPoints(conf *configuration.Configuration) {
+
+	// Read individual files and set exit points
+	for c := range conf.Components {
+		dotFileName := strings.ToUpper(conf.Components[c].Id) + ".dot"
+		dotFileName = parameters.DIR_CSP + "/" + dotFileName
+
+		// read file
+		fileContent := []string{}
+		file, err := os.Open(dotFileName)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer file.Close()
+
+		scanner := bufio.NewScanner(file)
+		for scanner.Scan() {
+			fileContent = append(fileContent, scanner.Text())
+		}
+
+		// Find exit points
+		exitPoints := []string{}
+		for l := range fileContent {
+			tempLine := fileContent[l]
+			if strings.Contains(tempLine, "-> 0") {
+				point := tempLine[strings.Index(tempLine, "label=")+7 : strings.LastIndex(tempLine, "];")-2]
+				if shared.IsInternal(point){
+					point = point[:strings.LastIndex(point,"_")]
+				} else {
+					if shared.IsAction(point){
+						point = point[:strings.Index(point,".")]
+					}
+				}
+				exitPoints = append(exitPoints, point)
+			}
+		}
+		// Configure exit points in the element belonging to configuration
+		cTemp := element.Element{}
+		cTemp = conf.Components[c]
+		cTemp.SetExitPoints(exitPoints)
+		conf.Components[c] = cTemp
+	}
+	return
 }

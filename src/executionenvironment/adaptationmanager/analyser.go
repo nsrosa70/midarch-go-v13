@@ -4,7 +4,6 @@ import (
 	"framework/configuration/configuration"
 	"shared/shared"
 	"shared/parameters"
-	"fmt"
 )
 
 type Analyser struct{}
@@ -31,7 +30,6 @@ func (Analyser) Exec(conf configuration.Configuration, chanMACorrective chan sha
 		case analysisResult := <-chanCorrective:
 			chanAP <- analysisResult
 		case analysisResult := <-chanEvolutive:
-			fmt.Println("Analyser:: Evolutive")
 			chanAP <- analysisResult
 		case analysisResult := <-chanProactive:
 			chanAP <- analysisResult

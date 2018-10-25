@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"shared/shared"
 	"graph/execgraph"
+	"fmt"
 )
 
 type Element struct {
@@ -12,6 +13,11 @@ type Element struct {
 	TypeElem     interface{}
 	CSP string
 	StateMachine execgraph.Graph
+	ExitPoints []string
+}
+
+func (e *Element) SetExitPoints(points []string){
+	e.ExitPoints = points
 }
 
 func (Element) Loop(elem interface{}, cases []reflect.SelectCase, auxCases []string){
@@ -30,5 +36,23 @@ func (Element) Loop(elem interface{}, cases []reflect.SelectCase, auxCases []str
 				}
 			}
 		}
+		//if IsExitPoint(elem,auxCases[chosen]){
+		//	return
+		//}
 	}
+}
+
+func IsExitPoint(elem interface{},action string)bool{
+	r := false
+
+	val := reflect.ValueOf(elem)
+
+	fmt.Println(val.String())
+	fmt.Println(val.NumField())
+	/*	for i:= range elemTemp.ExitPoints{
+			if action == elemTemp.ExitPoints[i]{
+				return true
+			}
+		}*/
+	return r
 }

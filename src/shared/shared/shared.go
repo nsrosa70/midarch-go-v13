@@ -80,18 +80,6 @@ type ParMapActions struct {
 	P4 string
 }
 
-func Invoke(any interface{}, name string, args ... interface{}) {
-	inputs := make([]reflect.Value, len(args))
-
-	for i, _ := range args {
-		inputs[i] = reflect.ValueOf(args[i])
-	}
-	reflect.ValueOf(any).MethodByName(name).Call(inputs)
-
-	inputs = nil
-	return
-}
-
 type Args struct {
 	A, B int
 }
@@ -234,4 +222,16 @@ type QueueingInvocation struct {
 
 type QueueingTermination struct {
 	R interface{}
+}
+
+func Invoke(any interface{}, name string, args ... interface{}) {
+	inputs := make([]reflect.Value, len(args))
+
+	for i, _ := range args {
+		inputs[i] = reflect.ValueOf(args[i])
+	}
+	reflect.ValueOf(any).MethodByName(name).Call(inputs)
+
+	inputs = nil
+	return
 }

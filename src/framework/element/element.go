@@ -5,22 +5,21 @@ import (
 	"reflect"
 	"shared/shared"
 	"graph/execgraph"
-	"fmt"
 )
 
 type Element struct {
 	Id           string
 	TypeElem     interface{}
-	CSP string
+	CSP          string
 	StateMachine execgraph.Graph
-	ExitPoints []string
+	ExitPoints   []string
 }
 
-func (e *Element) SetExitPoints(points []string){
+func (e *Element) SetExitPoints(points []string) {
 	e.ExitPoints = points
 }
 
-func (Element) Loop(elem interface{}, cases []reflect.SelectCase, auxCases []string){
+func (Element) Loop(elem interface{}, cases []reflect.SelectCase, auxCases []string, points []string) {
 	var msg message.Message
 
 	for {
@@ -29,30 +28,26 @@ func (Element) Loop(elem interface{}, cases []reflect.SelectCase, auxCases []str
 			msg = value.Interface().(message.Message)
 		}
 		if auxCases[chosen][:2] == shared.PREFIX_INTERNAL_ACTION { // Update 'message' of sent actions
-			shared.Invoke(elem,auxCases[chosen],&msg)
+			shared.Invoke(elem, auxCases[chosen], &msg)
 			for c := range cases {
 				if cases[c].Dir == reflect.SelectSend {
 					cases[c].Send = reflect.ValueOf(msg)
 				}
 			}
 		}
-		//if IsExitPoint(elem,auxCases[chosen]){
-		//	return
-		//}
+		if IsExitPoint(points, auxCases[chosen]) {
+			return
+		}
 	}
 }
 
-func IsExitPoint(elem interface{},action string)bool{
+func IsExitPoint(points []string, action string) bool {
 	r := false
 
-	val := reflect.ValueOf(elem)
-
-	fmt.Println(val.String())
-	fmt.Println(val.NumField())
-	/*	for i:= range elemTemp.ExitPoints{
-			if action == elemTemp.ExitPoints[i]{
-				return true
-			}
-		}*/
+	for i := range points {
+		if action == points[i] {
+			return true
+		}
+	}
 	return r
 }

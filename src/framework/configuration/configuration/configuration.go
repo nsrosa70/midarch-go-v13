@@ -285,8 +285,8 @@ func MapADLIntoGo(adlFileName string) Configuration {
 			srhElem := srh.SRH{comps[c].Param}
 			compsTemp[c] = element.Element{Id: c, TypeElem: srhElem}
 		} else if strings.Contains(comps[c].ElemType, "CRH") {
-			srhElem := crh.CRH{comps[c].Param}
-			compsTemp[c] = element.Element{Id: c, TypeElem: srhElem}
+			crhElem := crh.CRH{Port:comps[c].Param}
+			compsTemp[c] = element.Element{Id: c, TypeElem: crhElem}
 		} else {
 			compsTemp[c] = element.Element{Id: c, TypeElem: libraries.Repository[confToGoType(comps[c].ElemType)].Go}
 		}

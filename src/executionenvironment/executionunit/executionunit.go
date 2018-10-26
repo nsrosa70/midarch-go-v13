@@ -5,51 +5,29 @@ import (
 	"framework/element"
 	"fmt"
 	"strings"
-	"reflect"
 	"framework/configuration/commands"
 	"shared/shared"
-	"framework/libraries"
 	"os"
 )
 
 type ExecutionUnit struct{}
 
-func (ExecutionUnit) Exec(elem element.Element, strcuturalChannels map[string]chan message.Message, chanUnit chan commands.LowLevelCommand) {
+var msg message.Message
 
-	// Define channels
-	actions := map[string][]string{}
-	individualChannels := map[string]chan message.Message{}
+func (ExecutionUnit) Exec(elem element.Element, managementChann chan commands.LowLevelCommand) {
 
-	elemChannels := DefineChannels(strcuturalChannels, elem.Id)
-	behaviour := libraries.Repository[reflect.TypeOf(elem.TypeElem).String()].CSP
-	actions[elem.Id] = FilterActions(strings.Split(behaviour, " "))
-
-	for a := range actions[elem.Id] {
-		individualChannels[actions[elem.Id][a]] = DefineChannel(elemChannels, actions[elem.Id][a])
-	}
-
-	// Assembly cases
-	var msg message.Message
-	cases := make([]reflect.SelectCase, len(individualChannels))
-	auxCases := []string{}
-	idx := 0
-
-	for c := range individualChannels {
-		if !shared.IsToElement(c) {
-			cases[idx] = reflect.SelectCase{Dir: reflect.SelectSend, Chan: reflect.ValueOf(individualChannels[c]), Send: reflect.ValueOf(msg)}
-		} else {
-			cases[idx] = reflect.SelectCase{Dir: reflect.SelectRecv, Chan: reflect.ValueOf(individualChannels[c]), Send: reflect.Value{}}
+	// Configure Message, i.e., to set the address of 'msg' used in the unit
+	for e1 := range elem.ExecGraph.Edges {
+		for e2 := range elem.ExecGraph.Edges[e1] {
+			elem.ExecGraph.Edges[e1][e2].Action.Message = &msg
 		}
-		auxCases = append(auxCases, c)
-		idx++
 	}
 
 	// Execute the loop of the element
 	for {
-		//shared.Invoke(elem.TypeElem, "Loop", individualChannels) // Individual loop
-		shared.Invoke(element.Element{}, "Loop", elem.TypeElem, cases, auxCases,elem.ExitPoints) // Generic Loop
+		shared.Invoke(elem, "Loop", elem, elem.ExecGraph)
 		select {
-		case cmd := <-chanUnit: // a new management action is received
+		case cmd := <-managementChann: // a new management action is received
 			switch cmd.Cmd {
 			case commands.REPLACE_COMPONENT:
 				elem = cmd.Args

@@ -12,6 +12,7 @@ import (
 )
 
 const PREFIX_ACTION = "->"
+
 //const CHOICE = "[]"
 const PREFIX_INTERNAL_ACTION = "I_"
 const INVP = "InvP"
@@ -29,8 +30,8 @@ type Invocation struct {
 	OutArgs [] reflect.Value
 }
 
-type MonitoredCorrectiveData string  // used in channel Monitor -> Analyser (Corrective)
-type MonitoredEvolutiveData []string // used in channel Monitor -> Analyser (Evolutive)
+type MonitoredCorrectiveData string   // used in channel Monitor -> Analyser (Corrective)
+type MonitoredEvolutiveData []string  // used in channel Monitor -> Analyser (Evolutive)
 type MonitoredProactiveData [] string // used in channel Monitor -> Analyser (Proactive)
 
 type AnalysisResult struct {
@@ -57,12 +58,32 @@ func IsInternal(action string) bool {
 	return r
 }
 
+func IsExternal(action string) bool {
+	r := false
+
+	if len(action) >= 2 {
+		action := strings.TrimSpace(action)
+		if strings.Contains(action,"."){
+			action = action[:strings.Index(action,".")]
+		}
+
+		if action == INVP || action == TERP || action == INVR || action == TERR {
+			r = true
+		} else {
+			r = false
+		}
+	} else {
+		r = false
+	}
+	return r
+}
+
 func IsAction(action string) bool {
 	r := false
 
 	action = strings.TrimSpace(action)
-	if len(action) > 2{
-		if strings.Contains(action,INVP) || strings.Contains(action,TERP) || strings.Contains(action, INVR) || strings.Contains(action,TERR){
+	if len(action) > 2 {
+		if strings.Contains(action, INVP) || strings.Contains(action, TERP) || strings.Contains(action, INVR) || strings.Contains(action, TERR) {
 			r = true
 		} else {
 			r = false
@@ -96,39 +117,38 @@ func IsToElement(action string) bool {
 	}
 }
 
-
-func LoadParameters(args []string){
-	for i:= range args{
-		variable := strings.Split(args[i],"=")
+func LoadParameters(args []string) {
+	for i := range args {
+		variable := strings.Split(args[i], "=")
 		switch strings.TrimSpace(variable[0]) {
 		case "SAMPLE_SIZE":
-			parameters.SAMPLE_SIZE,_ = strconv.Atoi(variable[1])
+			parameters.SAMPLE_SIZE, _ = strconv.Atoi(variable[1])
 		case "REQUEST_TIME":
-			temp1,_ := strconv.Atoi(variable[1])
-			temp2   := time.Duration(temp1)
+			temp1, _ := strconv.Atoi(variable[1])
+			temp2 := time.Duration(temp1)
 			parameters.REQUEST_TIME = temp2
 		case "INJECTION_TIME":
-			temp1,_ := strconv.Atoi(variable[1])
-			temp2   := time.Duration(temp1)
+			temp1, _ := strconv.Atoi(variable[1])
+			temp2 := time.Duration(temp1)
 			parameters.INJECTION_TIME = temp2
 		case "MONITOR_TIME":
-			temp1,_ := strconv.Atoi(variable[1])
-			temp2   := time.Duration(temp1)
+			temp1, _ := strconv.Atoi(variable[1])
+			temp2 := time.Duration(temp1)
 			parameters.MONITOR_TIME = temp2
 		case "STRATEGY":
-			parameters.STRATEGY,_ = strconv.Atoi(variable[1])
+			parameters.STRATEGY, _ = strconv.Atoi(variable[1])
 		case "NAMING_HOST":
 			parameters.NAMING_HOST = variable[1]
 		case "QUEUEING_HOST":
 			parameters.QUEUEING_HOST = variable[1]
 		default:
-			fmt.Println("Shared:: Parameter '"+variable[0]+"' does not exist")
+			fmt.Println("Shared:: Parameter '" + variable[0] + "' does not exist")
 			os.Exit(0)
 		}
 	}
 }
 
-func ShowExecutionParameters(s bool){
+func ShowExecutionParameters(s bool) {
 	if s {
 		fmt.Println("******************************************")
 		fmt.Println("Sample size                : " + strconv.Itoa(parameters.SAMPLE_SIZE))
@@ -148,21 +168,21 @@ func ShowExecutionParameters(s bool){
 		fmt.Println("Plugin Base Name: " + parameters.PLUGIN_BASE_NAME)
 		fmt.Println("Max Graph Size  : " + strconv.Itoa(parameters.GRAPH_SIZE))
 		fmt.Println("------------------------------------------")
-		fmt.Println("Adaptability  " )
-		fmt.Println("Corrective        : "+strconv.FormatBool(parameters.IS_CORRECTIVE))
-		fmt.Println("Evolutive         : "+strconv.FormatBool(parameters.IS_EVOLUTIVE))
-		fmt.Println("Proactive         : "+strconv.FormatBool(parameters.IS_PROACTIVE))
-		fmt.Println("Monitor Time (s)  : " + (parameters.MONITOR_TIME*time.Second).String())
-		fmt.Println("Injection Time (s): " + (parameters.INJECTION_TIME*time.Second).String())
+		fmt.Println("Adaptability  ")
+		fmt.Println("Corrective        : " + strconv.FormatBool(parameters.IS_CORRECTIVE))
+		fmt.Println("Evolutive         : " + strconv.FormatBool(parameters.IS_EVOLUTIVE))
+		fmt.Println("Proactive         : " + strconv.FormatBool(parameters.IS_PROACTIVE))
+		fmt.Println("Monitor Time (s)  : " + (parameters.MONITOR_TIME * time.Second).String())
+		fmt.Println("Injection Time (s): " + (parameters.INJECTION_TIME * time.Second).String())
 		fmt.Println("Request Time (ms) : " + parameters.REQUEST_TIME.String())
-		fmt.Println("Strategy (0-NOT DEFINED 1-No change 2-Change once 3-change same plugin 4-alternate plugins): "+strconv.Itoa(parameters.STRATEGY))
+		fmt.Println("Strategy (0-NOT DEFINED 1-No change 2-Change once 3-change same plugin 4-alternate plugins): " + strconv.Itoa(parameters.STRATEGY))
 		fmt.Println("******************************************")
 	}
 }
 
-func Log(args...string){
-	if strings.Contains(args[1],"Proxy") || strings.Contains(args[1],"XXX"){
-		fmt.Println(args[0]+":"+args[1]+":"+args[2]+":"+args[3])
+func Log(args ...string) {
+	if strings.Contains(args[1], "Proxy") || strings.Contains(args[1], "XXX") {
+		fmt.Println(args[0] + ":" + args[1] + ":" + args[2] + ":" + args[3])
 	}
 }
 
@@ -204,17 +224,17 @@ func IsInConnectors(conns map[string]string, t string) bool {
 	return foundConnector
 }
 
-func RenameInternalChannels(b string,id string) string{
-	tokens := strings.Split(b," ")
+/*func RenameInternalChannels(b string, id string) string {
+	tokens := strings.Split(b, " ")
 
-	for t := range tokens{
-		if IsInternal(tokens[t]){
-			b = strings.Replace(b,tokens[t],tokens[t]+"_"+id,99)
+	for t := range tokens {
+		if IsInternal(tokens[t]) {
+			b = strings.Replace(b, tokens[t], tokens[t]+"_"+id, 99)
 		}
 	}
 	return b
 }
-
+*/
 type QueueingInvocation struct {
 	Op   string
 	Args []interface{}

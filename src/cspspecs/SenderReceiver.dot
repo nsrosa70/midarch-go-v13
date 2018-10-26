@@ -1,14 +1,14 @@
 digraph G {
-  0 -> 1 [ label="I_PreInvR_sender" ];
+  0 -> 1 [ label="I_PreInvR" ];
   1 -> 2 [ label="InvR.sender" ];
-  2 -> 3 [ label="InvP.receiver" ];
-  2 -> 4 [ label="I_PreInvR_sender" ];
-  3 -> 0 [ label="I_PosInvP_receiver" ];
-  3 -> 5 [ label="I_PreInvR_sender" ];
-  4 -> 5 [ label="InvP.receiver" ];
+  2 -> 3 [ label="I_PreInvR" ];
+  2 -> 4 [ label="InvP.receiver" ];
+  3 -> 5 [ label="InvP.receiver" ];
+  4 -> 5 [ label="I_PreInvR" ];
+  4 -> 0 [ label="I_PosInvP" ];
   5 -> 6 [ label="InvR.sender" ];
-  5 -> 1 [ label="I_PosInvP_receiver" ];
-  6 -> 2 [ label="I_PosInvP_receiver" ];
-  6 -> 7 [ label="I_PreInvR_sender" ];
-  7 -> 4 [ label="I_PosInvP_receiver" ];
+  5 -> 1 [ label="I_PosInvP" ];
+  6 -> 7 [ label="I_PreInvR" ];
+  6 -> 2 [ label="I_PosInvP" ];
+  7 -> 3 [ label="I_PosInvP" ];
 }

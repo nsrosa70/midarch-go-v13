@@ -8,8 +8,11 @@ type Graph struct {
 }
 
 type Action struct{
-	Action string
-	Channel chan message.Message
+	ActionName string
+	ActionChannel *chan message.Message
+	Message *message.Message
+	ExternalAction func(*chan message.Message, *message.Message)             // External action
+	InternalAction func(elem interface{}, name string, args ... interface{}) // Internal action
 }
 
 type Edge struct {
@@ -25,7 +28,7 @@ func NewGraph(n int) *Graph {
 	}
 }
 
-func (g *Graph) AddEdgeX(u, v int, a Action) {
+func (g *Graph) AddEdge(u, v int, a Action) {
 	g.Edges[u] = append(g.Edges[u], Edge{From: u, To: v, Action: a})
 }
 

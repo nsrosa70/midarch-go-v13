@@ -26,7 +26,7 @@ type Configuration struct {
 	Attachments        [] attachments.Attachment
 	CSP                string
 	FDRGraph           fdrgraph.Graph
-	StateMachine       execgraph.Graph
+	ExecGraph          execgraph.Graph
 	StructuralChannels map[string]chan message.Message
 	Maps               map[string]string
 }

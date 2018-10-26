@@ -29,11 +29,48 @@ func (FDR) CheckBehaviour(conf configuration.Configuration) bool {
 	return r
 }
 
-func (FDR) LoadFDRGraph(conf *configuration.Configuration) {
+func (FDR) LoadFDRGraphs(conf *configuration.Configuration) {
+
+	// Load component
+	for c := range conf.Components {
+		dotFileName := strings.ToUpper(conf.Components[c].Id) + ".dot"
+		dotFileName = parameters.DIR_CSP + "/" + dotFileName
+		fileContent := loadDotFile(dotFileName)
+		graph := createFDRGraph(fileContent)
+		tempComp := conf.Components[c]
+		tempComp.SetFDRGraph(*graph)
+		conf.Components[c] = tempComp
+	}
+
+	// Load connectors
+	for t := range conf.Connectors {
+		dotFileName := strings.ToUpper(conf.Connectors[t].Id) + ".dot"
+		dotFileName = parameters.DIR_CSP + "/" + dotFileName
+		fileContent := loadDotFile(dotFileName)
+		graph := createFDRGraph(fileContent)
+		tempConn := conf.Connectors[t]
+		tempConn.SetFDRGraph(*graph)
+		conf.Connectors[t] = tempConn
+	}
+}
+
+func createFDRGraph(fileContent []string) *fdrgraph.Graph {
 	graph := fdrgraph.NewGraph(100)
 
-	dotFileName := strings.Replace(conf.ADLFileName, ".conf", ".dot", 1)
-	dotFileName = parameters.DIR_CSP + "/" + dotFileName
+	for l := range fileContent {
+		line := fileContent[l]
+		if strings.Contains(line, "->") {
+			from, _ := strconv.Atoi(strings.TrimSpace(line[:strings.Index(line, "->")]))
+			to, _ := strconv.Atoi(strings.TrimSpace(line[strings.Index(line, "->")+2 : strings.Index(line, "[")]))
+			action := line[strings.Index(line, "=")+2 : strings.LastIndex(line, "]")-2]
+			graph.AddEdge(from, to, action)
+		}
+	}
+
+	return graph
+}
+
+func loadDotFile(dotFileName string) []string {
 
 	// read file
 	fileContent := []string{}
@@ -48,17 +85,7 @@ func (FDR) LoadFDRGraph(conf *configuration.Configuration) {
 		fileContent = append(fileContent, scanner.Text())
 	}
 
-	// Generate Configuration
-	for l := range fileContent {
-		line := fileContent[l]
-		if strings.Contains(line, "->") {
-			from, _ := strconv.Atoi(strings.TrimSpace(line[:strings.Index(line, "->")]))
-			to, _ := strconv.Atoi(strings.TrimSpace(line[strings.Index(line, "->")+2 : strings.Index(line, "[")]))
-			action := line[strings.Index(line, "=")+2 : strings.LastIndex(line, "]")-2]
-			graph.AddEdge(from, to, action)
-		}
-	}
-	conf.FDRGraph = *graph
+	return fileContent
 }
 
 func saveCSP(conf configuration.Configuration) {
@@ -128,60 +155,58 @@ func createCSP(conf configuration.Configuration) string {
 
 func configureBehaviours(conf *configuration.Configuration) {
 
-	for i := range conf.Components {
-		standardBehaviour := libraries.Repository[reflect.TypeOf(conf.Components[i].TypeElem).String()].CSP
+	// Configure components
+	for c := range conf.Components {
+		standardBehaviour := libraries.Repository[reflect.TypeOf(conf.Components[c].TypeElem).String()].CSP
 		tokens := strings.Split(standardBehaviour, " ")
 		for j := range tokens {
-			if shared.IsAction(tokens[j]) && !shared.IsInternal(tokens[j]) {
+			if shared.IsExternal(tokens[j]) {
 				eX := tokens[j][strings.Index(tokens[j], ".")+1:]
-				standardBehaviour = strings.Replace(standardBehaviour, eX, conf.Components[i].Id, 99)
+				key := conf.Components[c].Id + "." + eX
+				partner := conf.Maps[key]
+				standardBehaviour = strings.Replace(standardBehaviour, eX, partner, 99)
 			}
 		}
-		configuredBehaviour := strings.Replace(standardBehaviour, "B", strings.ToUpper(conf.Components[i].Id), 99)
-		configuredBehaviour = shared.RenameInternalChannels(configuredBehaviour, conf.Components[i].Id)
-		conf.Components[i] = element.Element{Id: conf.Components[i].Id, TypeElem: conf.Components[i].TypeElem, CSP: configuredBehaviour}
+		configuredBehaviour := strings.Replace(standardBehaviour, "B", strings.ToUpper(conf.Components[c].Id), 99)
+		conf.Components[c] = element.Element{Id: conf.Components[c].Id, TypeElem: conf.Components[c].TypeElem, CSP: configuredBehaviour}
 	}
 
-	for i := range conf.Connectors {
-		standardBehaviour := libraries.Repository[reflect.TypeOf(conf.Connectors[i].TypeElem).String()].CSP
+	// Configure connectors
+	for t := range conf.Connectors {
+		standardBehaviour := libraries.Repository[reflect.TypeOf(conf.Connectors[t].TypeElem).String()].CSP
 		tokens := strings.Split(standardBehaviour, " ")
 		for j := range tokens {
-			if shared.IsAction(tokens[j]) && !shared.IsInternal(tokens[j]) {
-				partner := tokens[j][strings.Index(tokens[j], ".")+1:]
-				key := conf.Connectors[i].Id + "." + partner
-				standardBehaviour = strings.Replace(standardBehaviour, partner, conf.Maps[key], 99)
+			if shared.IsExternal(tokens[j]) {
+				eX := tokens[j][strings.Index(tokens[j], ".")+1:]
+				key := conf.Connectors[t].Id + "." + eX
+				partner := conf.Maps[key]
+				standardBehaviour = strings.Replace(standardBehaviour, eX, partner, 99)
 			}
 		}
-		configuredBehaviour := strings.Replace(standardBehaviour, "B", strings.ToUpper(conf.Connectors[i].Id), 99)
-		configuredBehaviour = shared.RenameInternalChannels(configuredBehaviour, conf.Connectors[i].Id)
-		conf.Connectors[i] = element.Element{Id: conf.Connectors[i].Id, TypeElem: conf.Connectors[i].TypeElem, CSP: configuredBehaviour}
+		configuredBehaviour := strings.Replace(standardBehaviour, "B", strings.ToUpper(conf.Connectors[t].Id), 99)
+		conf.Connectors[t] = element.Element{Id: conf.Connectors[t].Id, TypeElem: conf.Connectors[t].TypeElem, CSP: configuredBehaviour}
 	}
 }
 
-func renamingSyncPorts(conf *configuration.Configuration, elem element.Element) string {
+func renameSyncPorts(conf *configuration.Configuration, elem element.Element) string {
 	id := elem.Id
-	standardBehaviour := libraries.Repository[reflect.TypeOf(conf.Connectors[id].TypeElem).String()].CSP
-	tokens := strings.Split(standardBehaviour, " ")
+	tokens := strings.Split(elem.CSP, " ")
 	renamingExp := strings.ToUpper(id) + "[["
 
 	for i := range tokens {
 		token := strings.TrimSpace(tokens[i])
-		if !shared.IsInternal(token) && shared.IsAction(token) {
+		if shared.IsExternal(token) {
 			action := token[0:strings.Index(token, ".")]
-			eX := token[strings.Index(token, ".")+1:]
-			key := id + "." + eX
 			switch action {
 			case shared.INVP:
-				renamingExp += shared.INVP + " <- " + shared.INVR + ","
+				renamingExp += token + " <- " + shared.INVR +"."+id + ","
 			case shared.TERP:
-				renamingExp += shared.TERP + " <- " + shared.TERR + ","
+				renamingExp += token + " <- " + shared.TERR +"."+id+ ","
 			case shared.INVR:
-				renamingExp += shared.INVR + " <- " + shared.INVP + ","
+				renamingExp += token + " <- " + shared.INVP +"."+id+ ","
 			case shared.TERR:
-				renamingExp += shared.TERR + " <- " + shared.TERP + ","
+				renamingExp += token + " <- " + shared.TERP +"."+id+ ","
 			}
-			condiguredBehaviour := strings.Replace(standardBehaviour, eX, conf.Maps[key], 99)
-			conf.Connectors[id] = element.Element{Id: conf.Connectors[id].Id, TypeElem: conf.Connectors[id].TypeElem, CSP: condiguredBehaviour}
 		}
 	}
 	renamingExp = renamingExp[0:strings.LastIndex(renamingExp, ",")] + "]]"
@@ -316,54 +341,9 @@ func createGeneralBehaviourExp(conf *configuration.Configuration, externalChanne
 
 	generalBehaviour += "("
 	for i := range conf.Connectors {
-		generalBehaviour += renamingSyncPorts(conf, conf.Connectors[i]) + "|||"
+		generalBehaviour += renameSyncPorts(conf, conf.Connectors[i]) + "|||"
 	}
 	generalBehaviour = generalBehaviour[0:strings.LastIndex(generalBehaviour, "|||")] + ")"
 
 	return generalBehaviour
-}
-
-func IdentifyExitPoints(conf *configuration.Configuration) {
-
-	// Read individual files and set exit points
-	for c := range conf.Components {
-		dotFileName := strings.ToUpper(conf.Components[c].Id) + ".dot"
-		dotFileName = parameters.DIR_CSP + "/" + dotFileName
-
-		// read file
-		fileContent := []string{}
-		file, err := os.Open(dotFileName)
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer file.Close()
-
-		scanner := bufio.NewScanner(file)
-		for scanner.Scan() {
-			fileContent = append(fileContent, scanner.Text())
-		}
-
-		// Find exit points
-		exitPoints := []string{}
-		for l := range fileContent {
-			tempLine := fileContent[l]
-			if strings.Contains(tempLine, "-> 0") {
-				point := tempLine[strings.Index(tempLine, "label=")+7 : strings.LastIndex(tempLine, "];")-2]
-				if shared.IsInternal(point){
-					point = point[:strings.LastIndex(point,"_")]
-				} else {
-					if shared.IsAction(point){
-						point = point[:strings.Index(point,".")]
-					}
-				}
-				exitPoints = append(exitPoints, point)
-			}
-		}
-		// Configure exit points in the element belonging to configuration
-		cTemp := element.Element{}
-		cTemp = conf.Components[c]
-		cTemp.SetExitPoints(exitPoints)
-		conf.Components[c] = cTemp
-	}
-	return
 }

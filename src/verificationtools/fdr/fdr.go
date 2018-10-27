@@ -32,9 +32,11 @@ func (FDR) CheckBehaviour(conf configuration.Configuration) bool {
 func (FDR) LoadFDRGraphs(conf *configuration.Configuration) {
 
 	// Load component
+	dotDir := parameters.DIR_CSP+"/"+strings.Replace(conf.Id,".conf","",99)
 	for c := range conf.Components {
 		dotFileName := strings.ToUpper(conf.Components[c].Id) + ".dot"
-		dotFileName = parameters.DIR_CSP + "/" + dotFileName
+		dotFileName = dotDir + "/" + dotFileName
+
 		fileContent := loadDotFile(dotFileName)
 		graph := createFDRGraph(fileContent)
 		tempComp := conf.Components[c]
@@ -45,7 +47,8 @@ func (FDR) LoadFDRGraphs(conf *configuration.Configuration) {
 	// Load connectors
 	for t := range conf.Connectors {
 		dotFileName := strings.ToUpper(conf.Connectors[t].Id) + ".dot"
-		dotFileName = parameters.DIR_CSP + "/" + dotFileName
+		dotFileName = dotDir + "/" + dotFileName
+
 		fileContent := loadDotFile(dotFileName)
 		graph := createFDRGraph(fileContent)
 		tempConn := conf.Connectors[t]
@@ -90,9 +93,15 @@ func loadDotFile(dotFileName string) []string {
 
 func saveCSP(conf configuration.Configuration) {
 
-	// create file if not exists && truncate otherwise
+	// create diretcory if it does not exist
+	confDir := parameters.DIR_CSP+"/"+strings.Replace(conf.Id,".conf","",99)
+	if _, err := os.Stat(confDir); os.IsNotExist(err) {
+		os.MkdirAll(confDir, os.ModePerm);
+	}
+
+	// create file if it does not exist && truncate otherwise
 	fileName := conf.Id + ".csp"
-	file, err := os.Create(parameters.DIR_CSP + "/" + fileName)
+	file, err := os.Create(confDir + "/" + fileName)
 	if err != nil {
 		myError := errors.MyError{Source: "FDR", Message: "CSP File not created"}
 		myError.ERROR()
@@ -199,13 +208,13 @@ func renameSyncPorts(conf *configuration.Configuration, elem element.Element) st
 			action := token[0:strings.Index(token, ".")]
 			switch action {
 			case shared.INVP:
-				renamingExp += token + " <- " + shared.INVR +"."+id + ","
+				renamingExp += token + " <- " + shared.INVR + "." + id + ","
 			case shared.TERP:
-				renamingExp += token + " <- " + shared.TERR +"."+id+ ","
+				renamingExp += token + " <- " + shared.TERR + "." + id + ","
 			case shared.INVR:
-				renamingExp += token + " <- " + shared.INVP +"."+id+ ","
+				renamingExp += token + " <- " + shared.INVP + "." + id + ","
 			case shared.TERR:
-				renamingExp += token + " <- " + shared.TERP +"."+id+ ","
+				renamingExp += token + " <- " + shared.TERP + "." + id + ","
 			}
 		}
 	}

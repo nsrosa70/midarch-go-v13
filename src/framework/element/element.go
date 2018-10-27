@@ -56,7 +56,7 @@ func choice(msg *message.Message, chosen *int, edges []execgraph.Edge) {
 
 	var value reflect.Value
 	for i := 0; i < len(edges); i++ {
-		cases[i] = reflect.SelectCase{Dir: reflect.SelectRecv, Chan: reflect.ValueOf(*edges[i].Action.Message)}
+		cases[i] = reflect.SelectCase{Dir: reflect.SelectRecv, Chan: reflect.ValueOf(*edges[i].Action.ActionChannel)}
 	}
 	*chosen, value, _ = reflect.Select(cases)
 	*msg = value.Interface().(message.Message)

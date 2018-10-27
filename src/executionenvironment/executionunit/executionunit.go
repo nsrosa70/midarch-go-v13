@@ -30,7 +30,9 @@ func (ExecutionUnit) Exec(elem element.Element, managementChann chan commands.Lo
 		case cmd := <-managementChann: // a new management action is received
 			switch cmd.Cmd {
 			case commands.REPLACE_COMPONENT:
+				oldElem := elem  // TODO -> Generate *.dot of the new element
 				elem = cmd.Args
+				elem.ExecGraph = oldElem.ExecGraph
 			case commands.STOP:
 				fmt.Println("Unit:: STOP [TODO]")
 			}

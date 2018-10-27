@@ -1,6 +1,0 @@
-digraph G {
-  0 -> 1 [ label="I_PreInvR_fibonacciproxy" ];
-  1 -> 2 [ label="InvR.fibonacciproxy" ];
-  2 -> 3 [ label="TerR.fibonacciproxy" ];
-  3 -> 0 [ label="I_PosTerR_fibonacciproxy" ];
-}

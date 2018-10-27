@@ -1,5 +1,0 @@
-digraph G {
-  0 -> 1 [ label="InvP.fibonacciinvoker" ];
-  1 -> 2 [ label="I_PosInvP_fibonacciinvoker" ];
-  2 -> 0 [ label="TerP.fibonacciinvoker" ];
-}

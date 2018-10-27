@@ -6,22 +6,6 @@ import (
 
 type Requestor struct{}
 
-func (e Requestor) Loop(channels map[string] chan message.Message) {
-	var msgInvP, msgPosTerR message.Message
-	for {
-		select {
-		case msgInvP = <-channels["InvP"]:
-		case <-channels["I_PosInvP"]:
-			e.I_PosInvP(&msgInvP)
-		case channels["InvR"] <- msgInvP:
-		case <-channels["TerR"]:
-		case msgPosTerR = <-channels["I_PosTerR"]:
-			e.I_PosTerR(&msgPosTerR)
-		case channels["TerP"] <- msgPosTerR:
-		}
-	}
-}
-
 func (Requestor) I_PosInvP(msg *message.Message) {
 	requestHeader := message.RequestHeader{Operation: msg.Payload.(message.Invocation).Op}
 	requestBody := message.RequestBody{Args: msg.Payload.(message.Invocation).Args}

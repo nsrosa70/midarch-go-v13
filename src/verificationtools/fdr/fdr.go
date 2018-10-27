@@ -125,7 +125,8 @@ func saveCSP(conf configuration.Configuration) {
 func invokeFDR(conf configuration.Configuration) bool {
 	cmdExp := parameters.DIR_FDR + "/" + commands.FDR_COMMAND
 	fileName := conf.Id + ".csp"
-	inputFile := parameters.DIR_CSP + "/" + fileName
+	dirFile := parameters.DIR_CSP+"/"+strings.Replace(conf.Id,".conf","",99)
+	inputFile := dirFile + "/" + fileName
 
 	out, err := exec.Command(cmdExp, inputFile).Output()
 	if err != nil {

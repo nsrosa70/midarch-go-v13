@@ -12,6 +12,7 @@ import (
 
 func main(){
 
+	// Parameters: NAMING_HOST, STRATEGY, MONITOR_TIME, INJECTION_TIME
 	// start configuration
 	executionenvironment.ExecutionEnvironment{}.Deploy("MiddlewareFibonacciServer.conf")
 

@@ -11,6 +11,7 @@ import (
 
 func main() {
 
+	// QUEUEING_HOST
 	// start configuration
 	EE.ExecutionEnvironment{}.Deploy("MiddlewareQueueingClient.conf")
 

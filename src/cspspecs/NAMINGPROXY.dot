@@ -1,6 +1,0 @@
-digraph G {
-  0 -> 1 [ label="I_PreInvR_namingproxy" ];
-  1 -> 2 [ label="InvR.namingproxy" ];
-  2 -> 3 [ label="TerR.namingproxy" ];
-  3 -> 0 [ label="I_PosTerR_namingproxy" ];
-}

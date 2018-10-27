@@ -19,19 +19,6 @@ func GetBehaviourExp() string {
 	return "B = InvP.e1 -> I_PosInvP -> TerP.e1 -> B"
 }
 
-func (n FibonacciInvoker) Loop(channels map[string]chan message.Message) {
-	var msgPosInvP message.Message
-	for {
-		select {
-		case <-channels["InvP"]:
-		case msgPosInvP = <-channels["I_PosInvP"]:
-			n.I_PosInvP(&msgPosInvP)
-		case channels["TerP"] <- msgPosInvP:
-			return
-		}
-	}
-}
-
 func (FibonacciInvoker) I_PosInvP(msg *message.Message) {
 	op := msg.Payload.(message.MIOP).Body.RequestHeader.Operation
 

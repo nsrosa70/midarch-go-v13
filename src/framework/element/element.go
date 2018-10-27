@@ -26,7 +26,7 @@ func (e *Element) SetExecGraph(g *execgraph.Graph) {
 
 func (Element) Loop(elem Element, graph execgraph.Graph) {
 
-	// execute graph
+	// Execute graph
 	node := 0
 	for {
 		edges := graph.AdjacentEdges(node)

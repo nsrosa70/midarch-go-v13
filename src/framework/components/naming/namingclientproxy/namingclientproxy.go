@@ -16,20 +16,6 @@ type NamingClientProxy struct {
 var i_PreInvR = make(chan message.Message)
 var i_PosTerR = make(chan message.Message)
 
-func (e NamingClientProxy) Loop(channels map[string] chan message.Message) {
-	var msgTerR, msgPreInvR message.Message
-	for {
-		select {
-		case msgPreInvR = <-channels["I_PreInvR"]:
-			e.I_PreInvR(&msgPreInvR)
-		case channels["InvR"] <- msgPreInvR:
-		case msgTerR = <-channels["TerR"]:
-		case <-channels["I_PosTerR"]:
-			e.I_PosTerR(&msgTerR)
-		}
-	}
-}
-
 func (n NamingClientProxy) Register(_p1 string, _p2 interface{}) bool {
 	_p3 := reflect.ValueOf(_p2).FieldByName("Host").String()
 	_p4 := int(reflect.ValueOf(_p2).FieldByName("Port").Int())

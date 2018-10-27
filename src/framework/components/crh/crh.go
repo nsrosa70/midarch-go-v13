@@ -19,20 +19,6 @@ var err error
 
 var portTmp int
 
-func (e CRH) Loop(channels map[string] chan message.Message) {
-	var msgPosInvP, msgPreTerP message.Message
-	for {
-		select {
-		case <-channels["InvP"]:
-		case msgPosInvP = <-channels["I_PosInvP"]:
-			e.I_PosInvP(&msgPosInvP)
-		case msgPreTerP = <-channels["I_PreTerP"]:
-			e.I_PreTerP(&msgPreTerP)
-		case channels["TerP"] <- msgPreTerP:
-		}
-	}
-}
-
 func (c CRH) I_PosInvP(msg *message.Message) {
 
 	host := msg.Payload.(message.ToCRH).Host

@@ -11,7 +11,7 @@ import (
 func main(){
 
 	// start configuration
-	EE.ExecutionEnvironment{}.Deploy("MiddlewareQueueServer.conf")
+	EE.ExecutionEnvironment{}.Deploy("QueueServer.confs")
 
 	fmt.Println("Queue server started at "+netshared.ResolveHostIp()+" Port= "+strconv.Itoa(parameters.QUEUEING_PORT))
 	fmt.Scanln()

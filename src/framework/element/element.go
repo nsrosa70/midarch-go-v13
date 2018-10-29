@@ -1,7 +1,7 @@
 package element
 
 import (
-	"framework/message"
+	"framework/messages"
 	"shared/shared"
 	"graph/execgraph"
 	"graph/fdrgraph"
@@ -38,7 +38,7 @@ func (Element) Loop(elem Element, graph execgraph.Graph) {
 			}
 			node = edges[0].To
 		} else {
-			msg := message.Message{}
+			msg := messages.SAMessage{}
 			chosen := 0
 			choice(&msg, &chosen, edges)
 			*edges[chosen].Action.Message = msg
@@ -51,7 +51,7 @@ func (Element) Loop(elem Element, graph execgraph.Graph) {
 	return
 }
 
-func choice(msg *message.Message, chosen *int, edges []execgraph.Edge) {
+func choice(msg *messages.SAMessage, chosen *int, edges []execgraph.Edge) {
 	cases := make([]reflect.SelectCase, len(edges))
 
 	var value reflect.Value
@@ -59,24 +59,24 @@ func choice(msg *message.Message, chosen *int, edges []execgraph.Edge) {
 		cases[i] = reflect.SelectCase{Dir: reflect.SelectRecv, Chan: reflect.ValueOf(*edges[i].Action.ActionChannel)}
 	}
 	*chosen, value, _ = reflect.Select(cases)
-	*msg = value.Interface().(message.Message)
+	*msg = value.Interface().(messages.SAMessage)
 
 	cases = nil
 }
 
 // external actions common to all components and connectors
-func (Element) InvP(invP *chan message.Message, msg *message.Message) {
+func (Element) InvP(invP *chan messages.SAMessage, msg *messages.SAMessage) {
 	*msg = <-*invP
 }
 
-func (Element) InvR(invR *chan message.Message, msg *message.Message) {
+func (Element) InvR(invR *chan messages.SAMessage, msg *messages.SAMessage) {
 	*invR <- *msg
 }
 
-func (Element) TerR(terR *chan message.Message, msg *message.Message) {
+func (Element) TerR(terR *chan messages.SAMessage, msg *messages.SAMessage) {
 	*msg = <-*terR
 }
 
-func (Element) TerP(terP *chan message.Message, msg *message.Message) {
+func (Element) TerP(terP *chan messages.SAMessage, msg *messages.SAMessage) {
 	*terP <- *msg
 }

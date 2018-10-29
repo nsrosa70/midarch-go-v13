@@ -1,6 +1,6 @@
 package execgraph
 
-import "framework/message"
+import "framework/messages"
 
 type Graph struct {
 	NumNodes int
@@ -9,9 +9,9 @@ type Graph struct {
 
 type Action struct{
 	ActionName string
-	ActionChannel *chan message.Message
-	Message *message.Message
-	ExternalAction func(*chan message.Message, *message.Message)             // External action
+	ActionChannel *chan messages.SAMessage
+	Message *messages.SAMessage
+	ExternalAction func(*chan messages.SAMessage, *messages.SAMessage)        // External action
 	InternalAction func(elem interface{}, name string, args ... interface{}) // Internal action
 }
 

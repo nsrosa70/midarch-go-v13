@@ -10,9 +10,9 @@ import (
 func main() {
 
 	// start configuration
-	EE.ExecutionEnvironment{}.Deploy("MiddlewareQueueingClient.conf")
+	EE.ExecutionEnvironment{}.Deploy("MiddlewareQueueingClient.confs")
 
-	// proxy to queueing service
+	// proxy to engine service
 	queueingClientProxy := factories.FactoryQueueing()
 
 	for {

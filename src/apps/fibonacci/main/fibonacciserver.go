@@ -14,7 +14,7 @@ func main(){
 
 	// Parameters: NAMING_HOST, STRATEGY, MONITOR_TIME, INJECTION_TIME
 	// start configuration
-	executionenvironment.ExecutionEnvironment{}.Deploy("MiddlewareFibonacciServer.conf")
+	executionenvironment.ExecutionEnvironment{}.Deploy("MiddlewareFibonacciServer.confs")
 
 	// proxy to naming service
 	namingClientProxy := factories.LocateNaming()

@@ -14,7 +14,7 @@ func main(){
 
 	// start configuration
 	EE := executionenvironment.ExecutionEnvironment{}
-	EE.Exec(conf.GenerateConf(parameters.DIR_CONF + "/MiddlewareCalculatorClient.conf"),!parameters.IS_ADAPTIVE)
+	EE.Exec(conf.GenerateConf(parameters.DIR_CONF + "/MiddlewareCalculatorClient.confs"),!parameters.IS_ADAPTIVE)
 
 	// proxy to naming service
 	namingClientProxy := naming.LocateNaming("localhost",parameters.NAMING_PORT)

@@ -8,7 +8,7 @@ import (
 func main() {
 
 	// start configuration
-	executionenvironment.ExecutionEnvironment{}.Deploy("SenderReceiver.conf")
+	executionenvironment.ExecutionEnvironment{}.Deploy("SenderReceiver.confs")
 
 	fmt.Scanln()
 }

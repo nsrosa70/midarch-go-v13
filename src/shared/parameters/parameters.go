@@ -8,10 +8,12 @@ const BASE_DIR = "/Users/nsr/Dropbox/go/midarch-go-v11"
 const DIR_PLUGINS = BASE_DIR + "/src/plugins"
 const DIR_CSP = BASE_DIR + "/src/cspspecs"
 const DIR_SOURCE = BASE_DIR
-const DIR_CONF = BASE_DIR + "/src/apps/conf"
+const DIR_CONF = BASE_DIR + "/src/apps/confs"
 const DIR_GO = "/usr/local/go/bin"
 const DIR_FDR = "/Volumes/Macintosh HD/Applications/FDR4-2.app/Contents/MacOS"
-const DIR_CSPARSER = "/Users/nsr/Dropbox/go/software-architecture-v10/src/verificationtools/cspdot/csparser"
+const DIR_CSPARSER = BASE_DIR+"/src/verificationtools/cspdot/csparser"
+
+const ADL_COMMENT = "//"
 
 // Ports
 const NAMING_PORT = 4040

@@ -2,10 +2,9 @@ package proxy
 
 import (
 	"reflect"
-	"apps/calculator/calculatorclientproxy"
-	"apps/fibonacci/fibonacciclientproxy"
+	"framework/components"
 )
 
 var ProxyLibrary = map[string] reflect.Type {
-	"calculatorclientproxy.CalculatorClientProxy": reflect.TypeOf(calculatorclientproxy.CalculatorClientProxy{}),
-	"fibonacciclientproxy.FibonacciClientProxy": reflect.TypeOf(fibonacciclientproxy.FibonacciClientProxy{})}
+	"calculatorclientproxy.CalculatorClientProxy": reflect.TypeOf(components.CalculatorClientProxy{}),
+	"fibonacciclientproxy.FibonacciClientProxy": reflect.TypeOf(components.FibonacciClientProxy{})}

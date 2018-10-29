@@ -12,7 +12,7 @@ import (
 func main(){
 
 	// start configuration
-	EE.ExecutionEnvironment{}.Deploy("MiddlewareFibonacciClient.conf")
+	EE.ExecutionEnvironment{}.Deploy("MiddlewareFibonacciClient.confs")
 
 	// proxy to naming service
 	namingClientProxy := factories.LocateNaming()

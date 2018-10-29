@@ -1,14 +1,14 @@
 package main
 
 import (
-	"framework/message"
+	"framework/messages"
 	"apps/fibonacci/fibonacci"
 	"fmt"
 )
 
 type FibonacciInvoker struct{}
 
-var msg message.Message
+var msg messages.Message
 
 func GetTypeElem() interface{}{
 	return FibonacciInvoker{}
@@ -19,8 +19,8 @@ func GetBehaviourExp() string {
 	return "B = InvP.e1 -> I_PosInvP -> TerP.e1 -> B"
 }
 
-func (n FibonacciInvoker) Loop(channels map[string]chan message.Message) {
-	var msgPosInvP message.Message
+func (n FibonacciInvoker) Loop(channels map[string]chan messages.Message) {
+	var msgPosInvP messages.Message
 	for {
 		select {
 		case <-channels["InvP"]:
@@ -32,13 +32,13 @@ func (n FibonacciInvoker) Loop(channels map[string]chan message.Message) {
 	}
 }
 
-func (FibonacciInvoker) I_PosInvP(msg *message.Message) {
-	op := msg.Payload.(message.MIOP).Body.RequestHeader.Operation
+func (FibonacciInvoker) I_PosInvP(msg *messages.Message) {
+	op := msg.Payload.(messages.MIOP).Body.RequestHeader.Operation
 
 	switch op {
 	case "Fibo":
 		// process request
-		_args := msg.Payload.(message.MIOP).Body.RequestBody.Args
+		_args := msg.Payload.(messages.MIOP).Body.RequestBody.Args
 		_argsX := _args.([]interface{})
 		_p1 := int(_argsX[0].(float64))
 		_r := fibonacci.Fibonacci{}.Fibo(_p1) // dispatch
@@ -46,12 +46,12 @@ func (FibonacciInvoker) I_PosInvP(msg *message.Message) {
 		fmt.Println("Plugin 02")
 
 		// send reply
-		_replyHeader := message.ReplyHeader{Status: 1} // 1 - Success
-		_replyBody := message.ReplyBody{Reply: _r}
-		_miopHeader := message.MIOPHeader{Magic: "MIOP"}
-		_miopBody := message.MIOPBody{ReplyHeader: _replyHeader, ReplyBody: _replyBody}
-		_miop := message.MIOP{Header: _miopHeader, Body: _miopBody}
-		*msg = message.Message{_miop}
+		_replyHeader := messages.ReplyHeader{Status: 1} // 1 - Success
+		_replyBody := messages.ReplyBody{Reply: _r}
+		_miopHeader := messages.MIOPHeader{Magic: "MIOP"}
+		_miopBody := messages.MIOPBody{ReplyHeader: _replyHeader, ReplyBody: _replyBody}
+		_miop := messages.MIOP{Header: _miopHeader, Body: _miopBody}
+		*msg = messages.Message{_miop}
 	default:
 		fmt.Println("FIBONACCIINVOKER:: Operation " + op + " not supported")
 	}

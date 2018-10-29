@@ -13,9 +13,7 @@ import (
 	"shared/parameters"
 	"log"
 	"bufio"
-	"framework/components/srh"
-	"framework/components/crh"
-	"framework/message"
+	"framework/messages"
 )
 
 type Configuration struct {
@@ -27,7 +25,7 @@ type Configuration struct {
 	CSP                string
 	FDRGraph           fdrgraph.Graph
 	ExecGraph          execgraph.Graph
-	StructuralChannels map[string]chan message.Message
+	StructuralChannels map[string]chan messages.SAMessage
 	Maps               map[string]string
 }
 
@@ -61,6 +59,8 @@ func confToGoType(tConf string) string {
 
 	for t := range libraries.Repository {
 		if strings.Contains(t, tConf) {
+			fmt.Print("Configuration:: ")
+			fmt.Println(tConf)
 			tGo = t
 			foundType = true
 		}
@@ -165,10 +165,10 @@ func MapADLIntoGo(adlFileName string) Configuration {
 		if strings.Contains(strings.ToUpper(tempLine), "ADAPTABILITY") {
 			foundAdaptability = true
 		} else {
-			if foundAdaptability && tempLine != "" && isAdaptationType(tempLine) {
+			if foundAdaptability && !skipLine(tempLine) && isAdaptationType(tempLine) {
 				requiredAdaptations = append(requiredAdaptations, strings.ToUpper(strings.TrimSpace(tempLine)))
 			} else {
-				if foundAdaptability && tempLine != "" && !isAdaptationType(tempLine) {
+				if foundAdaptability && !skipLine(tempLine) && !isAdaptationType(tempLine) {
 					break
 				}
 			}
@@ -199,7 +199,7 @@ func MapADLIntoGo(adlFileName string) Configuration {
 		if strings.Contains(strings.ToUpper(tempLine), "COMPONENTS") {
 			foundComponents = true
 		} else {
-			if foundComponents && tempLine != "" && strings.Contains(tempLine, ":") {
+			if foundComponents && !skipLine(tempLine) && strings.Contains(tempLine, ":") {
 				temp := strings.Split(fileContent[l], ":")
 				compName := strings.TrimSpace(temp[0])
 				compType := ""
@@ -213,7 +213,7 @@ func MapADLIntoGo(adlFileName string) Configuration {
 					comps [compName] = ElemInfo{ElemType: compType}
 				}
 			} else {
-				if foundComponents && tempLine != "" && !strings.Contains(tempLine, ":") {
+				if foundComponents && !skipLine(tempLine) && !strings.Contains(tempLine, ":") {
 					break
 				}
 			}
@@ -233,7 +233,7 @@ func MapADLIntoGo(adlFileName string) Configuration {
 		if strings.Contains(strings.ToUpper(tempLine), "CONNECTORS") {
 			foundConnectors = true
 		} else {
-			if foundConnectors && tempLine != "" && strings.Contains(tempLine, ":") {
+			if foundConnectors && !skipLine(tempLine) && strings.Contains(tempLine, ":") {
 				temp := strings.Split(fileContent[l], ":")
 				connName := strings.TrimSpace(temp[0])
 				connType := strings.TrimSpace(temp[1])
@@ -259,7 +259,7 @@ func MapADLIntoGo(adlFileName string) Configuration {
 		if strings.Contains(strings.ToUpper(tempLine), "ATTACHMENTS") {
 			foundAttachments = true
 		} else {
-			if foundAttachments && tempLine != "" && strings.Contains(tempLine, ",") {
+			if foundAttachments && !skipLine(tempLine) && strings.Contains(tempLine, ",") {
 				att := strings.TrimSpace(fileContent[l])
 				atts = append(atts, att)
 			} else {
@@ -319,4 +319,13 @@ func isAdaptationType(line string) bool {
 		r = true
 	}
 	return r
+}
+
+func skipLine(line string) bool {
+
+	if line == "" || line[:2] == parameters.ADL_COMMENT {
+		return true
+	} else {
+		return false
+	}
 }

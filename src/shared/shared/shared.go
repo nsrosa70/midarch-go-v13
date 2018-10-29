@@ -2,7 +2,7 @@ package shared
 
 import (
 	"reflect"
-	"framework/message"
+	"framework/messages"
 	"strings"
 	"shared/parameters"
 	"strconv"
@@ -93,10 +93,10 @@ func IsAction(action string) bool {
 }
 
 type ParMapActions struct {
-	F1 func(*chan message.Message, *message.Message)            // External action
+	F1 func(*chan messages.SAMessage, *messages.SAMessage)      // External action
 	F2 func(any interface{}, name string, args ... interface{}) // Internal action
-	P1 *message.Message
-	P2 *chan message.Message
+	P1 *messages.SAMessage
+	P2 *chan messages.SAMessage
 	P3 interface{}
 	P4 string
 }

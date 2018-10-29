@@ -5,7 +5,7 @@ import (
 	"os"
 	"verificationtools/fdr"
 	"framework/configuration/configuration"
-	"framework/message"
+	"framework/messages"
 	"graph/execgraph"
 	"strings"
 	"shared/errors"
@@ -87,7 +87,7 @@ func CreateExecGraphs(conf *configuration.Configuration) {
 	for c := range conf.Components {
 		graph := execgraph.NewGraph(conf.Components[c].FDRGraph.NumNodes)
 		eActions := execgraph.Action{}
-		var msg message.Message
+		var msg messages.SAMessage
 		for e1 := range conf.Components[c].FDRGraph.Edges {
 			for e2 := range conf.Components[c].FDRGraph.Edges[e1] {
 				edgeTemp := conf.Components[c].FDRGraph.Edges[e1][e2]
@@ -120,7 +120,7 @@ func CreateExecGraphs(conf *configuration.Configuration) {
 				}
 
 				if shared.IsInternal(actionNameFDR) {
-					msg := message.Message{}
+					msg := messages.SAMessage{}
 					params := execgraph.Action{InternalAction: shared.Invoke, ActionName: actionNameFDR, Message: &msg}
 					mapType := params
 					eActions = mapType
@@ -137,7 +137,7 @@ func CreateExecGraphs(conf *configuration.Configuration) {
 	for t := range conf.Connectors {
 		graph := execgraph.NewGraph(conf.Connectors[t].FDRGraph.NumNodes)
 		eActions := execgraph.Action{}
-		var msg message.Message
+		var msg messages.SAMessage
 		for e1 := range conf.Connectors[t].FDRGraph.Edges {
 			for e2 := range conf.Connectors[t].FDRGraph.Edges[e1] {
 				edgeTemp := conf.Connectors[t].FDRGraph.Edges[e1][e2]
@@ -170,7 +170,7 @@ func CreateExecGraphs(conf *configuration.Configuration) {
 				}
 
 				if shared.IsInternal(actionNameFDR) {
-					msg := message.Message{}
+					msg := messages.SAMessage{}
 					params := execgraph.Action{InternalAction: shared.Invoke, ActionName: actionNameFDR, Message: &msg}
 					mapType := params
 					eActions = mapType
@@ -185,7 +185,7 @@ func CreateExecGraphs(conf *configuration.Configuration) {
 }
 
 func (ExecutionEnvironment) ConfigureStructuralChannelsAndMaps(conf *configuration.Configuration) {
-	structuralChannels := make(map[string]chan message.Message)
+	structuralChannels := make(map[string]chan messages.SAMessage)
 
 	// Configure structural channels
 	for i := range conf.Attachments {
@@ -198,9 +198,9 @@ func (ExecutionEnvironment) ConfigureStructuralChannelsAndMaps(conf *configurati
 		key02 := tId + "." + shared.INVP + "." + c1Id
 		key03 := tId + "." + shared.TERP + "." + c1Id
 		key04 := c1Id + "." + shared.TERR + "." + tId
-		structuralChannels[key01] = make(chan message.Message, parameters.CHAN_BUFFER_SIZE)
+		structuralChannels[key01] = make(chan messages.SAMessage, parameters.CHAN_BUFFER_SIZE)
 		structuralChannels[key02] = structuralChannels[key01]
-		structuralChannels[key03] = make(chan message.Message, parameters.CHAN_BUFFER_SIZE)
+		structuralChannels[key03] = make(chan messages.SAMessage, parameters.CHAN_BUFFER_SIZE)
 		structuralChannels[key04] = structuralChannels[key03]
 
 		// t -> c2
@@ -208,9 +208,9 @@ func (ExecutionEnvironment) ConfigureStructuralChannelsAndMaps(conf *configurati
 		key02 = c2Id + "." + shared.INVP + "." + tId
 		key03 = c2Id + "." + shared.TERP + "." + tId
 		key04 = tId + "." + shared.TERR + "." + c2Id
-		structuralChannels[key01] = make(chan message.Message, parameters.CHAN_BUFFER_SIZE)
+		structuralChannels[key01] = make(chan messages.SAMessage, parameters.CHAN_BUFFER_SIZE)
 		structuralChannels[key02] = structuralChannels[key01]
-		structuralChannels[key03] = make(chan message.Message, parameters.CHAN_BUFFER_SIZE)
+		structuralChannels[key03] = make(chan messages.SAMessage, parameters.CHAN_BUFFER_SIZE)
 		structuralChannels[key04] = structuralChannels[key03]
 	}
 	conf.StructuralChannels = structuralChannels

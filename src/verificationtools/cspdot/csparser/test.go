@@ -3,13 +3,14 @@ package main
 import (
 	"os/exec"
 	"shared/parameters"
+	"shared/errors"
 )
 
 func main() {
 
-	// createDot("conf.csp", "")
+	// createDot("confs.csp", "")
 
-	createDot("conf.csp", "requestor")
+	createDot("confs.csp", "requestor")
 
 }
 
@@ -20,11 +21,11 @@ func createDot(cspfile string, process string) {
 	inputFile := parameters.DIR_CSPARSER + "/" + cspfile
 
 	exec.Command("/usr/bin/java", parameters.JAR_COMMAND, parser, inputFile, process)
-	//out, err := exec.Command("java").Output()
-	//if err != nil {
-	//	myError := errors.MyError{Source: "CSParser", Message: "Problem in creating .dot file"}
-	//	myError.ERROR()
-	//}
+	out, err := exec.Command("java").Output()
+	if err != nil {
+		myError := errors.MyError{Source: "CSParser", Message: "Problem in creating .dot file"}
+		myError.ERROR()
+	}
 
-	//println(out)
+	println(out)
 }

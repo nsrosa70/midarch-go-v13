@@ -32,7 +32,7 @@ func (FDR) CheckBehaviour(conf configuration.Configuration) bool {
 func (FDR) LoadFDRGraphs(conf *configuration.Configuration) {
 
 	// Load component
-	dotDir := parameters.DIR_CSP+"/"+strings.Replace(conf.Id,".conf","",99)
+	dotDir := parameters.DIR_CSP+"/"+strings.Replace(conf.Id,".confs","",99)
 	for c := range conf.Components {
 		dotFileName := strings.ToUpper(conf.Components[c].Id) + ".dot"
 		dotFileName = dotDir + "/" + dotFileName
@@ -94,7 +94,7 @@ func loadDotFile(dotFileName string) []string {
 func saveCSP(conf configuration.Configuration) {
 
 	// create diretcory if it does not exist
-	confDir := parameters.DIR_CSP+"/"+strings.Replace(conf.Id,".conf","",99)
+	confDir := parameters.DIR_CSP+"/"+strings.Replace(conf.Id,".confs","",99)
 	if _, err := os.Stat(confDir); os.IsNotExist(err) {
 		os.MkdirAll(confDir, os.ModePerm);
 	}
@@ -125,7 +125,7 @@ func saveCSP(conf configuration.Configuration) {
 func invokeFDR(conf configuration.Configuration) bool {
 	cmdExp := parameters.DIR_FDR + "/" + commands.FDR_COMMAND
 	fileName := conf.Id + ".csp"
-	dirFile := parameters.DIR_CSP+"/"+strings.Replace(conf.Id,".conf","",99)
+	dirFile := parameters.DIR_CSP+"/"+strings.Replace(conf.Id,".confs","",99)
 	inputFile := dirFile + "/" + fileName
 
 	out, err := exec.Command(cmdExp, inputFile).Output()

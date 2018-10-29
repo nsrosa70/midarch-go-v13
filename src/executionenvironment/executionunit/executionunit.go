@@ -1,7 +1,7 @@
 package executionunit
 
 import (
-	"framework/message"
+	"framework/messages"
 	"framework/element"
 	"fmt"
 	"strings"
@@ -12,7 +12,7 @@ import (
 
 type ExecutionUnit struct{}
 
-var msg message.Message
+var msg messages.SAMessage
 
 func (ExecutionUnit) Exec(elem element.Element, managementChann chan commands.LowLevelCommand) {
 
@@ -41,8 +41,8 @@ func (ExecutionUnit) Exec(elem element.Element, managementChann chan commands.Lo
 	}
 }
 
-func DefineChannels(channels map[string]chan message.Message, elem string) map[string]chan message.Message {
-	r := map[string]chan message.Message{}
+func DefineChannels(channels map[string]chan messages.SAMessage, elem string) map[string]chan messages.SAMessage {
+	r := map[string]chan messages.SAMessage{}
 
 	for c := range channels {
 		if strings.Contains(c, elem) {
@@ -52,8 +52,8 @@ func DefineChannels(channels map[string]chan message.Message, elem string) map[s
 	return r
 }
 
-func DefineChannel(channels map[string]chan message.Message, a string) chan message.Message {
-	var r chan message.Message
+func DefineChannel(channels map[string]chan messages.SAMessage, a string) chan messages.SAMessage {
+	var r chan messages.SAMessage
 	found := false
 
 	for c := range channels {

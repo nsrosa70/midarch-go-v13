@@ -1,0 +1,6 @@
+digraph G {
+  0 -> 1 [ label="InvP.invoker" ];
+  1 -> 2 [ label="InvR.queueserver" ];
+  2 -> 3 [ label="TerR.queueserver" ];
+  3 -> 0 [ label="TerP.invoker" ];
+}

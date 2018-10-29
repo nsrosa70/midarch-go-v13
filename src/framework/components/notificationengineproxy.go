@@ -2,6 +2,7 @@ package components
 
 import (
 	"framework/messages"
+	"shared/net"
 )
 
 type NotificationEngineClientProxy struct {
@@ -13,8 +14,9 @@ var i_PreInvRNotificationEngineClientProxy = make(chan messages.SAMessage)
 var i_PosTerRNotificationEngineClientProxy = make(chan messages.SAMessage)
 
 func (p NotificationEngineClientProxy) Subscribe(_p1 string) bool {
-	_args := []interface{}{_p1}
-	_reqMsg := messages.SAMessage{messages.Invocation{Host: p.Host, Port: p.Port, Op: "Publish", Args: _args}}
+	_p2 := netshared.ResolveHostIp()
+	_args := []interface{}{_p1,_p2}
+	_reqMsg := messages.SAMessage{messages.Invocation{Host: p.Host, Port: p.Port, Op: "Subscribe", Args: _args}}
 
 	i_PreInvRNotificationEngineClientProxy <- _reqMsg
 	_repMsg := <-i_PosTerRNotificationEngineClientProxy
@@ -40,9 +42,9 @@ func (n NotificationEngineClientProxy) Publish(_p1 string, _p2 messages.MessageM
 	return _r
 	}
 
-func (n NotificationEngineClientProxy) Consume(_p1 string) messages.MessageMOM {
+func (NE NotificationEngineClientProxy) Consume(_p1 string) messages.MessageMOM {
 	_args := []interface{}{_p1}
-	_reqMsg := messages.SAMessage{messages.Invocation{Host: n.Host, Port: n.Port, Op: "Consume", Args: _args}}
+	_reqMsg := messages.SAMessage{messages.Invocation{Host: NE.Host, Port: NE.Port, Op: "Consume", Args: _args}}
 
 	i_PreInvRNotificationEngineClientProxy <- _reqMsg
 	_repMsg := <-i_PosTerRNotificationEngineClientProxy
@@ -50,7 +52,11 @@ func (n NotificationEngineClientProxy) Consume(_p1 string) messages.MessageMOM {
 	_payload := _repMsg.Payload.(map[string]interface{})
 	_reply := _payload["Reply"].(map[string]interface{})
 	_rTemp := _reply["R"].(map[string]interface{})
-	_r := messages.MessageMOM{Header:_rTemp["Header"].(messages.Header),PayLoad:_rTemp["PayLoad"].(string)}
+	_msgHeader := _rTemp["Header"].(map[string]interface{})
+	_headerDestination := _msgHeader["Destination"].(string)
+	_msgPayload := _rTemp["PayLoad"].(string)
+	_r := messages.MessageMOM{Header:messages.Header{Destination:_headerDestination},PayLoad:_msgPayload}
+
 	return _r
 }
 

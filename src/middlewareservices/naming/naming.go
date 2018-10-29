@@ -1,18 +1,18 @@
-package components
+package naming
 
 import (
 	"framework/element"
 )
 
-type Naming struct{}
+type NamingService struct{}
 
 var Repo = map[string]element.IOR{}
 
-func (Naming) Lookup(s string) element.IOR {
+func (NamingService) Lookup(s string) element.IOR {
 	return Repo[s]
 }
 
-func (Naming) List() []string{
+func (NamingService) List() []string{
 	keys := make([]string, 0, len(Repo))
 	for k := range Repo {
 		keys = append(keys, k)
@@ -20,7 +20,7 @@ func (Naming) List() []string{
 	return keys
 }
 
-func (Naming) Register(serviceName string, ior ior.IOR) bool{
+func (NamingService) Register(serviceName string, ior element.IOR) bool{
 	if _, ok := Repo[serviceName]; ok {
 		return false
 	} else {

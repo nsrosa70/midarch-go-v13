@@ -1,13 +1,13 @@
 package factories
 
 import (
-	"framework/components/queueing/queueingclientproxy"
 	"shared/parameters"
-	"framework/components/naming/namingclientproxy"
+	"framework/components"
+	"framework/components/namingclientproxy"
 )
 
-func FactoryQueueing() queueingclientproxy.QueueingClientProxy {
-	p := queueingclientproxy.QueueingClientProxy{Host: parameters.QUEUEING_HOST, Port: parameters.QUEUEING_PORT}
+func FactoryQueueing() components.NotificationEngineClientProxy {
+	p := components.NotificationEngineClientProxy{Host: parameters.QUEUEING_HOST, Port: parameters.QUEUEING_PORT}
 	return p
 }
 

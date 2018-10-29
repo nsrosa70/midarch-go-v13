@@ -10,14 +10,15 @@ import (
 func main() {
 
 	// start configuration
-	EE.ExecutionEnvironment{}.Deploy("MiddlewareQueueingClient.confs")
+	// QUEUEING_HOST
+	EE.ExecutionEnvironment{}.Deploy("MiddlewareQueueingClient.conf")
 
 	// proxy to engine service
-	queueingClientProxy := factories.FactoryQueueing()
+	queueingroxy := factories.FactoryQueueing()
 
 	for {
 		fmt.Print("Consumer:: ")
-		fmt.Println(queueingClientProxy.Consume("Topic01").PayLoad)
+		fmt.Println(queueingroxy.Consume("Topic01").PayLoad)
 		time.Sleep(120 * time.Millisecond)
 	}
 }

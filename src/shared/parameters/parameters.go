@@ -12,6 +12,9 @@ const DIR_CONF = BASE_DIR + "/src/apps/confs"
 const DIR_GO = "/usr/local/go/bin"
 const DIR_FDR = "/Volumes/Macintosh HD/Applications/FDR4-2.app/Contents/MacOS"
 const DIR_CSPARSER = BASE_DIR+"/src/verificationtools/cspdot/csparser"
+const COMPONENTS_PATH = "components"
+const CONNECTORS_PATH = "connectors"
+const NAMINGCLIENTPROXY_PATH = "namingclientproxy"
 
 const ADL_COMMENT = "//"
 

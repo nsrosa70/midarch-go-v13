@@ -9,7 +9,7 @@ import (
 func main(){
 
 	// Start configuration
-	executionenvironment.ExecutionEnvironment{}.Deploy("Subscriber.confs")
+	executionenvironment.ExecutionEnvironment{}.Deploy("MiddlewareQueueingClient.conf")
 
 	// Obtaing proxy to queueing service
 	queueing := factories.FactoryQueueing()

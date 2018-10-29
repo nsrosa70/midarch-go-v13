@@ -14,6 +14,7 @@ import (
 	"log"
 	"bufio"
 	"framework/messages"
+	"framework/components"
 )
 
 type Configuration struct {
@@ -53,24 +54,22 @@ func (conf *Configuration) AddAtt(a attachments.Attachment) {
 	conf.Attachments = append(conf.Attachments, a)
 }
 
-func confToGoType(tConf string) string {
+func confToGoType(confType string) string {
 	foundType := false
-	tGo := ""
+	goType := ""
 
 	for t := range libraries.Repository {
-		if strings.Contains(t, tConf) {
-			fmt.Print("Configuration:: ")
-			fmt.Println(tConf)
-			tGo = t
+		if t == parameters.COMPONENTS_PATH+"."+confType || t == parameters.CONNECTORS_PATH+"."+confType || t == parameters.NAMINGCLIENTPROXY_PATH+"."+confType{
+			goType = t
 			foundType = true
 		}
 	}
 
 	if !foundType {
-		fmt.Println("GenerateConf:: Type '" + tConf + "' NOT FOUND in Behaviour Library")
+		fmt.Println("GenerateConf:: Type '" + goType + "' NOT FOUND in Behaviour Library")
 		os.Exit(0)
 	}
-	return tGo
+	return goType
 }
 
 func checkAttachments(comps map[string]ElemInfo, conns map[string]string, atts []string) {
@@ -282,10 +281,10 @@ func MapADLIntoGo(adlFileName string) Configuration {
 	compsTemp := make(map[string]element.Element)
 	for c := range comps {
 		if strings.Contains(comps[c].ElemType, "SRH") {
-			srhElem := srh.SRH{comps[c].Param}
+			srhElem := components.SRH{comps[c].Param}
 			compsTemp[c] = element.Element{Id: c, TypeElem: srhElem}
 		} else if strings.Contains(comps[c].ElemType, "CRH") {
-			crhElem := crh.CRH{Port:comps[c].Param}
+			crhElem := components.CRH{Port:comps[c].Param}
 			compsTemp[c] = element.Element{Id: c, TypeElem: crhElem}
 		} else {
 			compsTemp[c] = element.Element{Id: c, TypeElem: libraries.Repository[confToGoType(comps[c].ElemType)].Go}

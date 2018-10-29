@@ -11,6 +11,7 @@ import (
 type NotificationEngine struct {}
 
 var Queues = map[string]chan messages.MessageMOM{}
+var Subscribers = map[string][]string{}   // TODO
 
 func (NE NotificationEngine) I_PosInvP(msg *messages.SAMessage){
 	inv := msg.Payload.(messages.Invocation)
@@ -19,7 +20,8 @@ func (NE NotificationEngine) I_PosInvP(msg *messages.SAMessage){
 	case "Subscribe":
 		_args := inv.Args.([]interface{})
 		_topic := _args[0].(string)
-		_r := NE.Subscribe(_topic)
+		_ip    := _args[1].(string)
+		_r := NE.Subscribe(_topic,_ip)
 
 		_ter := shared.QueueingTermination{_r}
 		*msg = messages.SAMessage{_ter}
@@ -29,7 +31,10 @@ func (NE NotificationEngine) I_PosInvP(msg *messages.SAMessage){
 		_args := inv.Args.([]interface{})
 		_topic := _args[0].(string)
 		_msg := _args[1].(map[string]interface{})
-		_r := NE.Publish(_topic,messages.MessageMOM{Header:_msg["Header"].(messages.Header),PayLoad:_msg["PayLoad"].(string)})
+		_msgHeader := _msg["Header"].(map[string]interface{})
+		_headerDestination := _msgHeader["Destination"].(string)
+		_msgPayload := _msg["PayLoad"].(string)
+		_r := NE.Publish(_topic,messages.MessageMOM{Header:messages.Header{Destination:_headerDestination},PayLoad:_msgPayload})
 
 		_ter := shared.QueueingTermination{_r}
 		*msg = messages.SAMessage{_ter}
@@ -48,12 +53,17 @@ func (NE NotificationEngine) I_PosInvP(msg *messages.SAMessage){
 }
 
 
-func (NotificationEngine) Subscribe(topic string) bool {
+func (NotificationEngine) Subscribe(topic string, ip string) bool {
 	r := false
 
-	 // TODO
+	if _, ok := Subscribers[topic]; !ok {
+		Subscribers[topic] = []string{}
+	}
 
-	 fmt.Println("NotificationEngine:: TODO")
+	Subscribers[topic] = append(Subscribers[topic], ip)
+
+	fmt.Println(Subscribers)
+
 	return r
 }
 

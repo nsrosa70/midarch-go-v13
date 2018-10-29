@@ -5,6 +5,7 @@ import (
 	"os"
 	"framework/components"
 	"framework/connectors"
+	"framework/components/namingclientproxy"
 )
 
 type Record struct {
@@ -25,9 +26,9 @@ var Repository = map[string]Record{
 	"components.Sender":                        Record{RBD: "TODO", PRISM: "TODO", Go: components.Sender{}, CSP: "B = I_PreInvR -> InvR.e1 -> B"},
 	"components.Receiver":                      Record{RBD: "TODO", PRISM: "TODO", Go: components.Receiver{}, CSP: "B = InvP.e1 -> I_PosInvP -> B"},
 	"components.NamingInvoker":                 Record{RBD: "TODO", PRISM: "TODO", Go: components.NamingInvoker{}, CSP: "B = InvP.e1 -> I_PosInvP -> TerP.e1 -> B"},
-	"components.NotificationEngine{}":          Record{RBD: "TODO", PRISM: "TODO", Go: components.NotificationEngine{}, CSP: "B = InvP.e1 -> I_PosInvP -> TerP.e1 -> B"},
+	"components.NotificationEngine":          Record{RBD: "TODO", PRISM: "TODO", Go: components.NotificationEngine{}, CSP: "B = InvP.e1 -> I_PosInvP -> TerP.e1 -> B"},
 	"components.NotificationEngineInvoker":     Record{RBD: "TODO", PRISM: "TODO", Go: components.NotificationEngineInvoker{}, CSP: "B = InvP.e1 -> I_PosInvP -> InvR.e2 -> TerR.e2 -> I_PosTerR -> TerP.e1 -> B "},
-	"components.NamingClientProxy":             Record{RBD: "TODO", PRISM: "TODO", Go: components.NamingClientProxy{}, CSP: "B = I_PreInvR -> InvR.e1 -> TerR.e1 -> I_PosTerR -> B"},
+	"namingclientproxy.NamingClientProxy":      Record{RBD: "TODO", PRISM: "TODO", Go: namingclientproxy.NamingClientProxy{}, CSP: "B = I_PreInvR -> InvR.e1 -> TerR.e1 -> I_PosTerR -> B"},
 	"components.NotificationEngineClientProxy": Record{RBD: "TODO", PRISM: "TODO", Go: components.NotificationEngineClientProxy{}, CSP: "B = I_PreInvR -> InvR.e1 -> TerR.e1 -> I_PosTerR -> B"},
 	"components.SRH":                           Record{RBD: "TODO", PRISM: "TODO", Go: components.SRH{}, CSP: "B = I_PreInvR -> InvR.e1 -> TerR.e1 -> I_PosTerR -> B"},
 	"components.CRH":                           Record{RBD: "TODO", PRISM: "TODO", Go: components.CRH{}, CSP: "B = InvP.e1 -> I_PosInvP -> I_PreTerP -> TerP.e1 -> B"},

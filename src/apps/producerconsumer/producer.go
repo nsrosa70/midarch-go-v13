@@ -6,21 +6,21 @@ import (
 	"shared/factories"
 	"strconv"
 	"time"
-	"framework/components/queueing/queueing"
+	"framework/messages"
 )
 
 func main() {
 
 	// QUEUEING_HOST
 	// start configuration
-	EE.ExecutionEnvironment{}.Deploy("MiddlewareQueueingClient.confs")
+	EE.ExecutionEnvironment{}.Deploy("MiddlewareQueueingClient.conf")
 
 	// proxy to naming service
-	queueingClientProxy := factories.FactoryQueueing()
+	queueingroxy := factories.FactoryQueueing()
 	idx := 0
 	for {
-		msg := queueing.MessageMOM{Header:"Header",PayLoad:"msg ["+strconv.Itoa(idx)+"]"}
-		r:= queueingClientProxy.Publish("Topic01",msg)
+		msg := messages.MessageMOM{Header:messages.Header{"Header"},PayLoad:"msg ["+strconv.Itoa(idx)+"]"}
+		r:= queueingroxy.Publish("Topic01",msg)
 		fmt.Println("Producer:: "+msg.PayLoad+" "+strconv.FormatBool(r))
 		time.Sleep(100 * time.Millisecond)
 		idx++

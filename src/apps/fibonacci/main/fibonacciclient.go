@@ -3,22 +3,23 @@ package main
 import (
 	"fmt"
 	"time"
-	"apps/fibonacci/fibonacciclientproxy"
 	"shared/parameters"
 	EE "executionenvironment/executionenvironment"
 	"shared/factories"
+	"framework/components"
 )
 
 func main(){
 
+	// HOST_NAMING, SAMPLE_SIZE
 	// start configuration
-	EE.ExecutionEnvironment{}.Deploy("MiddlewareFibonacciClient.confs")
+	EE.ExecutionEnvironment{}.Deploy("MiddlewareFibonacciClient.conf")
 
 	// proxy to naming service
 	namingClientProxy := factories.LocateNaming()
 
 	// obtain proxy
-	fibo := namingClientProxy.Lookup("Fibonacci").(fibonacciclientproxy.FibonacciClientProxy)
+	fibo := namingClientProxy.Lookup("Fibonacci").(components.FibonacciClientProxy)
 
 	// invoke remote method
 	for i:= 0; i< parameters.SAMPLE_SIZE; i++ {

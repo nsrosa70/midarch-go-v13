@@ -62,8 +62,6 @@ func (NotificationEngine) Subscribe(topic string, ip string) bool {
 
 	Subscribers[topic] = append(Subscribers[topic], ip)
 
-	fmt.Println(Subscribers)
-
 	return r
 }
 

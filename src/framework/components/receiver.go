@@ -1,13 +1,12 @@
 package components
 
 import (
-	"fmt"
 	"framework/messages"
+	"fmt"
 )
 
 type Receiver struct{}
 
-func (Receiver) I_PosInvP(m *messages.SAMessage) {
-	fmt.Print("Receiver::::::::::::::::::::::: ")
-	fmt.Println(m.Payload)
+func (Receiver) I_PosInvP(msg *messages.SAMessage) {
+	fmt.Println("Receiver:: "+msg.Payload.(string))
 }

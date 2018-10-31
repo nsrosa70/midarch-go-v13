@@ -121,7 +121,8 @@ func CreateExecGraphs(conf *configuration.Configuration) {
 
 				if shared.IsInternal(actionNameFDR) {
 					msg := messages.SAMessage{}
-					params := execgraph.Action{InternalAction: shared.Invoke, ActionName: actionNameFDR, Message: &msg}
+					channel := make(chan messages.SAMessage)
+					params := execgraph.Action{InternalAction: shared.Invoke, ActionName: actionNameFDR, Message: &msg, ActionChannel:&channel}
 					mapType := params
 					eActions = mapType
 				}

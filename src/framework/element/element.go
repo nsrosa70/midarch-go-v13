@@ -59,13 +59,15 @@ func choice(elem Element, msg *messages.SAMessage, chosen *int, edges []execgrap
 		if shared.IsInternal(edges[i].Action.ActionName) {
 			// Execute internal action
 			r := false
-			msgTemp := messages.SAMessage{}
+			//msgTemp := messages.SAMessage{}
+			//msgTemp := *msg
+			msgTemp := *edges[i].Action.Message
 			edges[i].Action.InternalAction(elem.TypeElem, edges[i].Action.ActionName, &msgTemp, &r)
 
 			// Update internal channel
 			if r {
 				//go send(edges[i].Action.ActionChannel, edges[i].Action.Message)
-				go send(edges[i].Action.ActionChannel, &msgTemp)
+				go send(*edges[i].Action.ActionChannel, msgTemp)
 			}
 		}
 	}
@@ -83,19 +85,19 @@ func choice(elem Element, msg *messages.SAMessage, chosen *int, edges []execgrap
 	for i := 0; i < len(edges); i++ {
 		if shared.IsInternal(edges[i].Action.ActionName) && i != *chosen {
 			// Update internal channel
-			go receive(edges[i].Action.ActionChannel)
+			go receive(*edges[i].Action.ActionChannel)
 		}
 	}
 	*edges[*chosen].Action.Message = value.Interface().(messages.SAMessage)
 	cases = nil
 }
 
-func send(channel *chan messages.SAMessage, msg *messages.SAMessage) {
-	*channel <- *msg
+func send(channel chan messages.SAMessage, msg messages.SAMessage) {
+	channel <- msg
 }
 
-func receive(channel *chan messages.SAMessage) {
-	<-*channel
+func receive(channel chan messages.SAMessage) {
+	<-channel
 }
 
 // external actions common to all components and connectors

@@ -61,10 +61,10 @@ func (NE NotificationEngineClientProxy) Consume(_p1 string) messages.MessageMOM 
 	return _r
 }
 
-func (NotificationEngineClientProxy) I_PreInvR(msg *messages.SAMessage) {
+func (NotificationEngineClientProxy) I_PreInvR(msg *messages.SAMessage,r *bool) {
 	*msg = <-i_PreInvRNotificationEngineClientProxy
 }
 
-func (NotificationEngineClientProxy) I_PosTerR(msg *messages.SAMessage) {
+func (NotificationEngineClientProxy) I_PosTerR(msg *messages.SAMessage,r *bool) {
 	i_PosTerRNotificationEngineClientProxy <- *msg
 }

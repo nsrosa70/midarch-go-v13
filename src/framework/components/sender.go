@@ -16,7 +16,9 @@ func (Sender) I_PreInvR1(msg *messages.SAMessage, r *bool) {
 	time.Sleep(100 * time.Millisecond)
 	*msg = messages.SAMessage{Payload:"Message 01 ["+strconv.Itoa(idx1)+"]"}
 	idx1++
+
 	*r = true
+	return
 }
 
 func (Sender) I_PreInvR2(msg *messages.SAMessage, r *bool) {
@@ -25,4 +27,5 @@ func (Sender) I_PreInvR2(msg *messages.SAMessage, r *bool) {
 	idx2++
 
 	*r = true
+	return
 }

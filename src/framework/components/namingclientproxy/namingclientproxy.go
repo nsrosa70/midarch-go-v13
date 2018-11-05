@@ -62,10 +62,10 @@ func (n NamingClientProxy) Lookup(_p1 string) interface{} {
 	return proxyInterface
 }
 
-func (NamingClientProxy) I_PreInvR(msg *messages.SAMessage) {
+func (NamingClientProxy) I_PreInvR(msg *messages.SAMessage,r *bool) {
 	*msg = <-i_PreInvRNamingClientProxy
 }
 
-func (NamingClientProxy) I_PosTerR(msg *messages.SAMessage) {
+func (NamingClientProxy) I_PosTerR(msg *messages.SAMessage,r *bool) {
 	i_PosTerRNamingClientProxy <- *msg
 }

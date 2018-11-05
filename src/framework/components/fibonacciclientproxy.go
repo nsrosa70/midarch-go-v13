@@ -27,10 +27,10 @@ func (c FibonacciClientProxy) Fibo(_p1 int) int {
 	return reply
 }
 
-func (FibonacciClientProxy) I_PreInvR(msg *messages.SAMessage) {
+func (FibonacciClientProxy) I_PreInvR(msg *messages.SAMessage, r *bool) {
 	*msg = <-i_PreInvRFibonacciClientProxy
 }
 
-func (FibonacciClientProxy) I_PosTerR(msg *messages.SAMessage) {
+func (FibonacciClientProxy) I_PosTerR(msg *messages.SAMessage, r *bool) {
 	i_PosTerTFibonacciClientProxy <- *msg
 }

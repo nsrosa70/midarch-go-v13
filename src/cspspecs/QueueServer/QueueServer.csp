@@ -1,13 +1,17 @@
-datatype PROCNAMES = engine | invoker | t2 | t1 | srh 
-channel I_PosInvP,I_PosTerR,I_PreInvR
-channel InvP,TerP,InvR,TerR : PROCNAMES
-ENGINE = InvP.t2 -> I_PosInvP -> TerP.t2 -> ENGINE
+datatype PROCNAMES = invoker | manager | engine | t3 | t1 | srh | notifier | t4 | t2 
+channel I_PosInvP,I_PreInvR2,I_PreInvR3,I_PosTerR,I_PreInvR
+channel TerR,InvP,TerP,InvR : PROCNAMES
 INVOKER = InvP.t1 -> I_PosInvP -> InvR.t2 -> TerR.t2 -> I_PosTerR -> TerP.t1 -> INVOKER 
 SRH = I_PreInvR -> InvR.t1 -> TerR.t1 -> I_PosTerR -> SRH
+MANAGER = InvP.t3 -> I_PosInvP -> TerP.t3 -> MANAGER
+NOTIFIER = InvP.t4 -> I_PosInvP -> TerP.t4 -> NOTIFIER
+ENGINE = InvP.t2 -> I_PosInvP -> ( I_PreInvR2 -> InvR.t3 -> TerR.t3 -> TerP.t2 -> ENGINE [] I_PreInvR3 -> InvR.t4 -> TerR.t4 -> TerP.t2-> ENGINE )
 T2 = InvP.invoker -> InvR.engine -> TerR.engine -> TerP.invoker -> T2
+T3 = InvP.engine -> InvR.manager -> TerR.manager -> TerP.engine -> T3
+T4 = InvP.engine -> InvR.notifier -> TerR.notifier -> TerP.engine -> T4
 T1 = InvP.srh -> InvR.invoker -> TerR.invoker -> TerP.srh -> T1
 
-P1 = (ENGINE|||INVOKER|||SRH)
-[|{|TerR,InvP,TerP,InvR|}|]
-(T1[[InvP.srh <- InvR.t1,InvR.invoker <- InvP.t1,TerR.invoker <- TerP.t1,TerP.srh <- TerR.t1]]|||T2[[InvP.invoker <- InvR.t2,InvR.engine <- InvP.t2,TerR.engine <- TerP.t2,TerP.invoker <- TerR.t2]])
+P1 = (ENGINE|||INVOKER|||SRH|||MANAGER|||NOTIFIER)
+[|{|InvR,TerR,InvP,TerP|}|]
+(T1[[InvP.srh <- InvR.t1,InvR.invoker <- InvP.t1,TerR.invoker <- TerP.t1,TerP.srh <- TerR.t1]]|||T2[[InvP.invoker <- InvR.t2,InvR.engine <- InvP.t2,TerR.engine <- TerP.t2,TerP.invoker <- TerR.t2]]|||T3[[InvP.engine <- InvR.t3,InvR.manager <- InvP.t3,TerR.manager <- TerP.t3,TerP.engine <- TerR.t3]]|||T4[[InvP.engine <- InvR.t4,InvR.notifier <- InvP.t4,TerR.notifier <- TerP.t4,TerP.engine <- TerR.t4]])
 assert P1 :[deadlock free]

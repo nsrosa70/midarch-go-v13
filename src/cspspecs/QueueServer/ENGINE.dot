@@ -1,5 +1,12 @@
 digraph G {
   0 -> 1 [ label="InvP.t2" ];
   1 -> 2 [ label="I_PosInvP" ];
-  2 -> 0 [ label="TerP.t2" ];
+  2 -> 3 [ label="I_PreInvR2" ];
+  2 -> 4 [ label="I_PreInvR3" ];
+  3 -> 7 [ label="InvR.t3" ];
+  4 -> 5 [ label="InvR.t4" ];
+  5 -> 6 [ label="TerR.t4" ];
+  6 -> 0 [ label="TerP.t2" ];
+  7 -> 8 [ label="TerR.t3" ];
+  8 -> 0 [ label="TerP.t2" ];
 }

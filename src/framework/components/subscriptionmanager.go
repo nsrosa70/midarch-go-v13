@@ -10,7 +10,7 @@ import (
 type SubscriptionManager struct {}
 
 
-func (c SubscriptionManager) I_PosInvP(msg *messages.SAMessage){
+func (c SubscriptionManager) I_PosInvP(msg *messages.SAMessage,r *bool){
 	inv := msg.Payload.(messages.Invocation)
 
 	switch inv.Op {

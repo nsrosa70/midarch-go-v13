@@ -7,7 +7,7 @@ import (
 
 type CalculatorInvoker struct{}
 
-func (CalculatorInvoker) I_PosInvP(msg *messages.SAMessage) {
+func (CalculatorInvoker) I_PosInvP(msg *messages.SAMessage,r *bool) {
 	op := msg.Payload.(messages.MIOP).Body.RequestHeader.Operation
 	args := msg.Payload.(messages.MIOP).Body.RequestBody.Args
 

@@ -25,10 +25,10 @@ func (c CalculatorClientProxy) Add(p1, p2 int) int {
 	return reply
 }
 
-func (CalculatorClientProxy) I_PreInvR(msg *messages.SAMessage) {
+func (CalculatorClientProxy) I_PreInvR(msg *messages.SAMessage,r *bool) {
 	*msg = <-I_PreInvRCalculatorClientProxy
 }
 
-func (CalculatorClientProxy) I_PosTerR(msg *messages.SAMessage) {
+func (CalculatorClientProxy) I_PosTerR(msg *messages.SAMessage,r *bool) {
 	I_PosTerRCalculatorClientProxy <- *msg
 }

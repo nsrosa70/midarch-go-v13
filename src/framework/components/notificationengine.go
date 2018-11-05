@@ -3,9 +3,9 @@ package components
 import (
 	"shared/parameters"
 	"fmt"
-	"shared/shared"
 	"os"
 	"framework/messages"
+	"shared/shared"
 )
 
 type NotificationEngine struct {}
@@ -22,9 +22,9 @@ func (NE NotificationEngine) I_PosInvP(msg *messages.SAMessage){
 		_topic := _args[0].(string)
 		_ip    := _args[1].(string)
 		_r := NE.Subscribe(_topic,_ip)
-
 		_ter := shared.QueueingTermination{_r}
 		*msg = messages.SAMessage{_ter}
+
 	case "Unsubscribe":
 
 	case "Publish":
@@ -52,9 +52,16 @@ func (NE NotificationEngine) I_PosInvP(msg *messages.SAMessage){
 	}
 }
 
+func I_PreInvR2(msg *messages.SAMessage){
+
+}
+
+func I_PreInvR3(msg *messages.SAMessage){
+
+}
 
 func (NotificationEngine) Subscribe(topic string, ip string) bool {
-	r := false
+	r := true
 
 	if _, ok := Subscribers[topic]; !ok {
 		Subscribers[topic] = []string{}

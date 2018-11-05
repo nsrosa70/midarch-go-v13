@@ -11,7 +11,7 @@ func main() {
 
 	// start configuration
 	// QUEUEING_HOST
-	EE.ExecutionEnvironment{}.Deploy("MiddlewareQueueingClient.conf")
+	EE.ExecutionEnvironment{}.Deploy("QueueClient.conf")
 
 	// proxy to engine service
 	queueingroxy := factories.FactoryQueueing()

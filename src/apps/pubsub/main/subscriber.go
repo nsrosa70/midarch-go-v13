@@ -9,12 +9,12 @@ import (
 func main(){
 
 	// Start configuration
-	executionenvironment.ExecutionEnvironment{}.Deploy("MiddlewareQueueingClient.conf")
+	executionenvironment.ExecutionEnvironment{}.Deploy("QueueClient.conf")
 
 	// Obtaing proxy to queueing service
 	queueing := factories.FactoryQueueing()
 
-	queueing.Subscribe("topic")
+	fmt.Println(queueing.Subscribe("topic"))
 
 	fmt.Scanln()
 }

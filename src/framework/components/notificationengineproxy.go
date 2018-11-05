@@ -28,8 +28,9 @@ func (p NotificationEngineClientProxy) Subscribe(_p1 string) bool {
 	return _r
 }
 
-func (n NotificationEngineClientProxy) Publish(_p1 string, _p2 messages.MessageMOM) bool {
-	_args := []interface{}{_p1, _p2}
+func (n NotificationEngineClientProxy) Publish(_p1 string, _p2 interface{}) bool {
+	_tempP2 := messages.MessageMOM{Header:messages.Header{"Header"},PayLoad:_p2.(string)}
+	_args := []interface{}{_p1, _tempP2}
 	_reqMsg := messages.SAMessage{messages.Invocation{Host: n.Host, Port: n.Port, Op: "Publish", Args: _args}}
 
 	i_PreInvRNotificationEngineClientProxy <- _reqMsg

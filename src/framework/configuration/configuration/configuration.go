@@ -66,7 +66,7 @@ func confToGoType(confType string) string {
 	}
 
 	if !foundType {
-		fmt.Println("GenerateConf:: Type '" + goType + "' NOT FOUND in Behaviour Library")
+		fmt.Println("Configuration:: Type '" + confType + "' NOT FOUND in Library")
 		os.Exit(0)
 	}
 	return goType

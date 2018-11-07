@@ -43,6 +43,9 @@ func (Element) Loop(elem Element, graph execgraph.Graph) {
 			chosen := 0
 			choice(elem, &msg, &chosen, edges)
 			node = edges[chosen].To
+			//if elem.Id == "engine"{
+			//	fmt.Println("Engine:: "+edges[chosen].Action.ActionName)
+			//}
 		}
 		if node == 0 {
 			break
@@ -54,50 +57,35 @@ func (Element) Loop(elem Element, graph execgraph.Graph) {
 func choice(elem Element, msg *messages.SAMessage, chosen *int, edges []execgraph.Edge) {
 	cases := make([]reflect.SelectCase, len(edges))
 
-	// Pre-processing of internal channels (actions)
+	// Assembly cases
 	for i := 0; i < len(edges); i++ {
+		cases[i] = reflect.SelectCase{Dir: reflect.SelectRecv, Chan: reflect.ValueOf(*edges[i].Action.ActionChannel)}
 		if shared.IsInternal(edges[i].Action.ActionName) {
-			// Execute internal action
+
+			// Execute Internal action
 			r := false
-			//msgTemp := messages.SAMessage{}
-			//msgTemp := *msg
 			msgTemp := *edges[i].Action.Message
 			edges[i].Action.InternalAction(elem.TypeElem, edges[i].Action.ActionName, &msgTemp, &r)
 
 			// Update internal channel
 			if r {
-				//go send(edges[i].Action.ActionChannel, edges[i].Action.Message)
-				go send(*edges[i].Action.ActionChannel, msgTemp)
+				go send(edges[i].Action.ActionChannel, msgTemp)
 			}
 		}
-	}
-
-	// Assemble cases
-	for i := 0; i < len(edges); i++ {
-		cases[i] = reflect.SelectCase{Dir: reflect.SelectRecv, Chan: reflect.ValueOf(*edges[i].Action.ActionChannel)}
 	}
 
 	// Select channel (action)
 	var value reflect.Value
 	*chosen, value, _ = reflect.Select(cases)
-
-	// Pos-processing of not selected internal channels (actions)
-	for i := 0; i < len(edges); i++ {
-		if shared.IsInternal(edges[i].Action.ActionName) && i != *chosen {
-			// Update internal channel
-			go receive(*edges[i].Action.ActionChannel)
-		}
-	}
 	*edges[*chosen].Action.Message = value.Interface().(messages.SAMessage)
-	cases = nil
 }
 
-func send(channel chan messages.SAMessage, msg messages.SAMessage) {
-	channel <- msg
+func send(channel *chan messages.SAMessage, msg messages.SAMessage) {
+	*channel <- msg
 }
 
-func receive(channel chan messages.SAMessage) {
-	<-channel
+func receive(channel *chan messages.SAMessage) {
+	<-*channel
 }
 
 // external actions common to all components and connectors

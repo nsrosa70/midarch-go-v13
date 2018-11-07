@@ -8,9 +8,6 @@ import (
 
 type NotificationEngine struct{}
 
-var Queues = map[string]chan messages.MessageMOM{}
-var Subscribers = map[string][]string{} // TODO
-
 func (NotificationEngine) I_PosInvP(msg *messages.SAMessage, r *bool) {
 
 	switch msg.Payload.(messages.Invocation).Op {

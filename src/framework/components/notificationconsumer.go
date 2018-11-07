@@ -6,9 +6,16 @@ import (
 	"fmt"
 	"os"
 	"shared/parameters"
+	"strings"
+	"strconv"
+	"net"
+	"shared/errors"
+	"encoding/json"
 )
 
 type NotificationConsumer struct{}
+
+var Queues = map[string]chan messages.MessageMOM{}
 
 func (NC NotificationConsumer) I_PosInvP(msg *messages.SAMessage, r *bool) {
 	inv := msg.Payload.(messages.Invocation)
@@ -21,7 +28,10 @@ func (NC NotificationConsumer) I_PosInvP(msg *messages.SAMessage, r *bool) {
 		_msgHeader := _msg["Header"].(map[string]interface{})
 		_headerDestination := _msgHeader["Destination"].(string)
 		_msgPayload := _msg["PayLoad"].(string)
-		_r := NC.Publish(_topic, messages.MessageMOM{Header: messages.Header{Destination: _headerDestination}, PayLoad: _msgPayload})
+		_msgPub := messages.MessageMOM{Header: messages.Header{Destination: _headerDestination}, PayLoad: _msgPayload}
+		_r := NC.Publish(_topic, _msgPub)
+
+		go NC.NotifySubscribers(_msgPub)
 
 		_ter := shared.QueueingTermination{_r}
 		*msg = messages.SAMessage{_ter}
@@ -39,7 +49,7 @@ func (NC NotificationConsumer) I_PosInvP(msg *messages.SAMessage, r *bool) {
 	}
 }
 
-func (NotificationConsumer) Publish(topic string, msg messages.MessageMOM) bool {
+func (NC NotificationConsumer) Publish(topic string, msg messages.MessageMOM) bool {
 	r := false
 
 	if _, ok := Queues[topic]; !ok {
@@ -52,6 +62,7 @@ func (NotificationConsumer) Publish(topic string, msg messages.MessageMOM) bool 
 	} else {
 		r = false
 	}
+
 	return r
 }
 
@@ -66,4 +77,31 @@ func (NotificationConsumer) Consume(topic string) messages.MessageMOM {
 		r = <-Queues[topic]
 	}
 	return r
+}
+
+func (NotificationConsumer) NotifySubscribers(msg messages.MessageMOM){
+
+	// Notify Subscribers
+	host := "192.168.0.15"
+	port := 1313
+	addr := strings.Join([]string{host, strconv.Itoa(port)}, ":")
+	conn, err = net.Dial("tcp", addr)
+
+	//defer conn.Close()
+
+	portTmp = port
+	if err != nil {
+		fmt.Println(err)
+		myError := errors.MyError{Source: "Notification Consumer", Message: "Unable to open connection to " + host + " : " + strconv.Itoa(port)}
+		myError.ERROR()
+	}
+
+	encoder := json.NewEncoder(conn)
+	err = encoder.Encode(msg)
+	if err != nil {
+		fmt.Println(err)
+		myError := errors.MyError{Source: "Notification Consumer", Message: "Unable to send data to " + host + ":" + strconv.Itoa(port)}
+		myError.ERROR()
+	}
+	return
 }

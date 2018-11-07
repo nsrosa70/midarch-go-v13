@@ -9,6 +9,7 @@ import (
 
 type SubscriptionManager struct {}
 
+var Subscribers = map[string][]string{} // TODO
 
 func (c SubscriptionManager) I_PosInvP(msg *messages.SAMessage,r *bool){
 	inv := msg.Payload.(messages.Invocation)

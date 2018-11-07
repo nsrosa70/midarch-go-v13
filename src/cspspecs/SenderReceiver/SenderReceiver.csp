@@ -1,5 +1,5 @@
-datatype PROCNAMES = sender | receiver | t1 
-channel I_PreInvR2,I_PosInvP,I_PreInvR1
+datatype PROCNAMES = receiver | t1 | sender 
+channel I_PreInvR1,I_PreInvR2,I_PosInvP
 channel InvR,InvP : PROCNAMES
 SENDER = I_PreInvR1 -> InvR.t1 -> SENDER [] I_PreInvR2 -> InvR.t1 -> SENDER
 RECEIVER = InvP.t1 -> I_PosInvP -> RECEIVER

@@ -2,59 +2,66 @@ package Handlers
 
 import (
 	"net"
-	"shared/net"
-	"strings"
 	"strconv"
 	"fmt"
 	"shared/errors"
 	"encoding/json"
 	"framework/messages"
+	"shared/net"
+	"strings"
 )
 
-func Handle(chn chan interface{}){
+type HandlerNotify struct {
+	Host   string
+	Port int
+}
+
+var handlerChan = make(chan interface{})
+
+func (HN HandlerNotify) Start() {
 	var conn net.Conn
 	var err error
 	var ln net.Listener
 
-	port := 1313
-	addr := netshared.ResolveHostIp() + ":" + strings.TrimSpace(strconv.Itoa(port)) // TODO
+	addr := netshared.ResolveHostIp() + ":" + strings.TrimSpace(strconv.Itoa(HN.Port))
 	ln, err = net.Listen("tcp", addr)
 	if err != nil {
 		fmt.Println(err)
-		myError := errors.MyError{Source: "Subscriber", Message: "Unable to listen on port " + strconv.Itoa(port)}
+		myError := errors.MyError{Source: "HandlerNotify", Message: "Unable to listen on port " + strconv.Itoa(HN.Port)}
 		myError.ERROR()
+	}
+
+	if ln != nil {
+		conn, err = ln.Accept()
+		if err != nil {
+			fmt.Println(err)
+			myError := errors.MyError{Source: "HandlerNotify", Message: "Unable to accept connections at port " + strconv.Itoa(HN.Port)}
+			myError.ERROR()
+		}
 	}
 
 	// receive data
 	for {
-		if ln != nil {
-			conn, err = ln.Accept()
-			if err != nil {
-				fmt.Println(err)
-				myError := errors.MyError{Source: "Subscriber", Message: "Unable to accept connections at port " + strconv.Itoa(port)}
-				myError.ERROR()
-			}
-		}
 		jsonDecoder := json.NewDecoder(conn)
 		msgMOM := messages.MessageMOM{}
 		err = jsonDecoder.Decode(&msgMOM)
 
 		if err != nil {
 			fmt.Println(err)
-			myError := errors.MyError{Source: "SRH", Message: "Unable to read data"}
+			myError := errors.MyError{Source: "HandlerNotify", Message: "Unable to read data"}
 			myError.ERROR()
 		}
-		chn <-msgMOM.PayLoad
+		handlerChan <- msgMOM.PayLoad
 	}
 	return
 
 }
 
-func Handler(chn chan interface{}) {
-	go Handle(chn)
+func (HN HandlerNotify) StartHandler() {
+	go HN.Start()
 }
 
-func GetResult(chn chan interface{}) interface{}{
+func (HandlerNotify) GetResult() interface{} {
 
-	return <- chn
+	return <-handlerChan
 }

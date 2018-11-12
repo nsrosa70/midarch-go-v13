@@ -31,6 +31,9 @@ func (Element) Loop(elem Element, graph execgraph.Graph) {
 	for {
 		edges := graph.AdjacentEdges(node)
 		if len(edges) == 1 {
+			//if elem.Id == "engine"{
+			//	fmt.Println("Element:: "+elem.Id+" "+edges[0].Action.ActionName)
+			//}
 			if shared.IsInternal(edges[0].Action.ActionName) {
 				r := false
 				edges[0].Action.InternalAction(elem.TypeElem, edges[0].Action.ActionName, edges[0].Action.Message,&r)
@@ -44,8 +47,8 @@ func (Element) Loop(elem Element, graph execgraph.Graph) {
 			choice(elem, &msg, &chosen, edges)
 			node = edges[chosen].To
 			//if elem.Id == "engine"{
-			//	fmt.Println("Engine:: "+edges[chosen].Action.ActionName)
-			//}
+			//fmt.Println("Element:: "+elem.Id+" "+edges[chosen].Action.ActionName)
+		//	}
 		}
 		if node == 0 {
 			break

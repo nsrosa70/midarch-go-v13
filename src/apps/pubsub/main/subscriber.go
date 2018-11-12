@@ -4,7 +4,6 @@ import (
 	"executionenvironment/executionenvironment"
 	"shared/factories"
 	"fmt"
-	"shared/Handlers"
 )
 
 func main() {
@@ -14,17 +13,18 @@ func main() {
 
 	// Obtaing proxy to queueing service
 	queueing := factories.FactoryQueueing()
+	topic01 := "Topic01"
+	topic02 := "Topic02"
 
-	fmt.Println(queueing.Subscribe("Topic01"))
+	handler1,_ := queueing.Subscribe(topic01)
+	handler2,_ := queueing.Subscribe(topic02)
 
-	chn := make(chan interface{})
-	Handlers.Handler(chn)
+    queueing.Unsubscribe("Topic01")
 
 	for {
-		//x := result(chn)
-		x := Handlers.GetResult(chn)
-		fmt.Println(x)
+		fmt.Println(handler1.GetResult())
+		//handler1.GetResult()
+		fmt.Println(handler2.GetResult())
 	}
-
 	fmt.Scanln()
 }

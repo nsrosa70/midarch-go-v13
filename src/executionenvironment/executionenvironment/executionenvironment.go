@@ -17,6 +17,8 @@ import (
 	"executionenvironment/executionunit"
 	"framework/libraries"
 	"framework/element"
+	"fmt"
+	"reflect"
 )
 
 type ExecutionEnvironment struct{}
@@ -53,6 +55,9 @@ func (ee ExecutionEnvironment) Deploy(adlFileName string) {
 	// Generate executable graph
 	CreateExecGraphs(&conf)
 
+	// Check actions and if their respective implementations exist
+	CheckActionsAndImplementations(conf)
+
 	// Show execution parameters
 	shared.ShowExecutionParameters(false)
 
@@ -69,6 +74,64 @@ func (ee ExecutionEnvironment) Deploy(adlFileName string) {
 
 	for t := range conf.Connectors {
 		go executionunit.ExecutionUnit{}.Exec(conf.Connectors[t], managementChannels[conf.Connectors[t].Id])
+	}
+}
+
+func CheckActionsAndImplementations(conf configuration.Configuration){
+
+	// Check components
+	for c := range conf.Components {
+		for e1 := range conf.Components[c].ExecGraph.Edges {
+			for e2 := range conf.Components[c].ExecGraph.Edges[e1] {
+				action := conf.Components[c].ExecGraph.Edges[e1][e2].Action.ActionName
+				if shared.IsExternal(action){
+					if action != shared.INVP && action != shared.TERP && action != shared.INVR && action != shared.TERR{
+						fmt.Println("EE:: Component '"+conf.Components[c].Id+"' has an invalid action: '"+action)
+						os.Exit(0)
+					}
+				} else {
+					if shared.IsInternal(action){
+						st := reflect.TypeOf(conf.Components[c].TypeElem)
+						_, ok := st.MethodByName(action)
+						if !ok {
+							fmt.Println("EE: Component '"+conf.Components[c].Id+"' has an invalid action: '"+action+"'")
+							os.Exit(0)
+						}
+
+					} else {
+						fmt.Println("EE: Component '"+conf.Components[c].Id+"' has an invalid action: '"+action+"'")
+						os.Exit(0)
+					}
+				}
+			}
+		}
+	}
+	// Check connectors
+	for t := range conf.Connectors {
+		for e1 := range conf.Connectors[t].ExecGraph.Edges {
+			for e2 := range conf.Connectors[t].ExecGraph.Edges[e1] {
+				action := conf.Connectors[t].ExecGraph.Edges[e1][e2].Action.ActionName
+				if shared.IsExternal(action){
+					if action != shared.INVP && action != shared.TERP && action != shared.INVR && action != shared.TERR{
+						fmt.Println("EE:: Connector '"+conf.Connectors[t].Id+"' has an invalid action: '"+action)
+						os.Exit(0)
+					}
+				} else {
+					if shared.IsInternal(action){
+						st := reflect.TypeOf(conf.Connectors[t].TypeElem)
+						_, ok := st.MethodByName(action)
+						if !ok {
+							fmt.Println("EE: Connector '"+conf.Connectors[t].Id+"' has an invalid action: '"+action+"'")
+							os.Exit(0)
+						}
+
+					} else {
+						fmt.Println("EE: Connector '"+conf.Connectors[t].Id+"' has an invalid action: '"+action+"'")
+						os.Exit(0)
+					}
+				}
+			}
+		}
 	}
 }
 

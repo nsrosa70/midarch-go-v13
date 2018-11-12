@@ -3,6 +3,7 @@ package components
 import (
 	"framework/messages"
 	"shared/net"
+	"shared/Handlers"
 )
 
 type NotificationEngineClientProxy struct {
@@ -12,10 +13,12 @@ type NotificationEngineClientProxy struct {
 
 var i_PreInvRNotificationEngineClientProxy = make(chan messages.SAMessage)
 var i_PosTerRNotificationEngineClientProxy = make(chan messages.SAMessage)
+var HandlersProxy = make(map[string]Handlers.HandlerNotify,10)  // TODO
 
-func (p NotificationEngineClientProxy) Subscribe(_p1 string) bool {
-	_p2 := netshared.ResolveHostIp()
-	_args := []interface{}{_p1,_p2}
+func (p NotificationEngineClientProxy) Subscribe(_p1 string) (Handlers.HandlerNotify,bool) {
+	_p2 := netshared.ResolveHostIp()             // host
+	_p3 := netshared.NextPortTCPAvailable()      // port
+	_args := []interface{}{_p1,_p2,_p3}
 	_reqMsg := messages.SAMessage{messages.Invocation{Host: p.Host, Port: p.Port, Op: "Subscribe", Args: _args}}
 
 	i_PreInvRNotificationEngineClientProxy <- _reqMsg
@@ -24,6 +27,30 @@ func (p NotificationEngineClientProxy) Subscribe(_p1 string) bool {
 	_payload := _repMsg.Payload.(map[string]interface{})
 	_reply := _payload["Reply"].(map[string]interface{})
 	_r := _reply["R"].(bool)
+
+	// Include the new handler associated to the topic [one handler per topic]
+	if _,ok := HandlersProxy[_p1]; !ok{
+		HandlersProxy[_p1] = Handlers.HandlerNotify{Host:_p2,Port:_p3}
+	}
+	HandlersProxy[_p1].StartHandler()
+
+	return HandlersProxy[_p1],_r
+}
+
+func (p NotificationEngineClientProxy) Unsubscribe(_p1 string) (bool) {
+	_p2 := HandlersProxy[_p1].Host
+	_p3 := HandlersProxy[_p1].Port
+	_args := []interface{}{_p1,_p2,_p3}
+	_reqMsg := messages.SAMessage{messages.Invocation{Host: p.Host, Port: p.Port, Op: "Unsubscribe", Args: _args}}
+
+	i_PreInvRNotificationEngineClientProxy <- _reqMsg
+	_repMsg := <-i_PosTerRNotificationEngineClientProxy
+
+	_payload := _repMsg.Payload.(map[string]interface{})
+	_reply := _payload["Reply"].(map[string]interface{})
+	_r := _reply["R"].(bool)
+
+	// Stop Handler // TODO
 
 	return _r
 }

@@ -1,17 +1,17 @@
-datatype PROCNAMES = srh | t3 | engine | invoker | manager | notifier | t1 | t2 | t4 
-channel I_PosInvP,I_Subscribe,I_Unsubscribe,I_GetSubscribers,I_Notify,I_PosTerR,I_GetSubs,I_GetResSubs,I_Publish,I_Consume,I_PreInvR
-channel TerR,InvP,TerP,InvR : PROCNAMES
-INVOKER = InvP.t1 -> I_PosInvP -> InvR.t2 -> TerR.t2 -> I_PosTerR -> TerP.t1 -> INVOKER 
+datatype PROCNAMES = manager | t1 | t4 | t2 | t3 | srh | notifier | engine | invoker 
+channel I_PreInvR,I_PosInvP,I_Subscribe,I_Unsubscribe,I_PosTerR,I_Notify,I_GetSubs,I_GetResSubs,I_GetSubscribers,I_Publish,I_Pub
+channel InvP,TerP,InvR,TerR : PROCNAMES
 SRH = I_PreInvR -> InvR.t1 -> TerR.t1 -> I_PosTerR -> SRH
 MANAGER = InvP.t3 -> I_PosInvP -> TerP.t3 -> MANAGER
-NOTIFIER = InvP.t4 -> I_PosInvP -> TerP.t4 -> NOTIFIER
-ENGINE = InvP.t2 -> I_PosInvP -> ( I_Subscribe -> InvR.t3 -> TerR.t3 -> TerP.t2 -> I_GetSubs -> InvR.t3 -> TerR.t3 -> I_GetResSubs -> ENGINE [] I_Unsubscribe -> InvR.t3 -> TerR.t3 -> TerP.t2 -> I_GetSubs -> InvR.t3 -> TerR.t3 -> I_GetResSubs -> ENGINE [] I_GetSubscribers -> InvR.t3 -> TerR.t3 -> TerP.t2 -> ENGINE [] I_Publish -> TerP.t2 -> I_Notify -> InvR.t4 -> TerR.t4 -> ENGINE [] I_Consume -> InvR.t4 -> TerR.t4 -> TerP.t2-> ENGINE )
-T1 = InvP.srh -> InvR.invoker -> TerR.invoker -> TerP.srh -> T1
+NOTIFIER = InvP.t4 -> I_Notify -> TerP.t4 -> NOTIFIER
+ENGINE = InvP.t2 -> I_PosInvP -> ( I_Subscribe -> InvR.t3 -> TerR.t3 -> TerP.t2 -> I_GetSubs -> InvR.t3 -> TerR.t3 -> I_GetResSubs -> ENGINE [] I_Unsubscribe -> InvR.t3 -> TerR.t3 -> TerP.t2 -> I_GetSubs -> InvR.t3 -> TerR.t3 -> I_GetResSubs -> ENGINE [] I_GetSubscribers -> InvR.t3 -> TerR.t3 -> TerP.t2 -> ENGINE [] I_Publish -> I_Pub -> TerP.t2 -> I_Notify -> InvR.t4 -> TerR.t4 -> ENGINE )
+INVOKER = InvP.t1 -> I_PosInvP -> InvR.t2 -> TerR.t2 -> I_PosTerR -> TerP.t1 -> INVOKER 
 T2 = InvP.invoker -> InvR.engine -> TerR.engine -> TerP.invoker -> T2
 T3 = InvP.engine -> InvR.manager -> TerR.manager -> TerP.engine -> T3
 T4 = InvP.engine -> InvR.notifier -> TerR.notifier -> TerP.engine -> T4
+T1 = InvP.srh -> InvR.invoker -> TerR.invoker -> TerP.srh -> T1
 
 P1 = (INVOKER|||SRH|||MANAGER|||NOTIFIER|||ENGINE)
-[|{|InvP,TerP,InvR,TerR|}|]
-(T1[[InvP.srh <- InvR.t1,InvR.invoker <- InvP.t1,TerR.invoker <- TerP.t1,TerP.srh <- TerR.t1]]|||T2[[InvP.invoker <- InvR.t2,InvR.engine <- InvP.t2,TerR.engine <- TerP.t2,TerP.invoker <- TerR.t2]]|||T3[[InvP.engine <- InvR.t3,InvR.manager <- InvP.t3,TerR.manager <- TerP.t3,TerP.engine <- TerR.t3]]|||T4[[InvP.engine <- InvR.t4,InvR.notifier <- InvP.t4,TerR.notifier <- TerP.t4,TerP.engine <- TerR.t4]])
+[|{|InvR,TerR,InvP,TerP|}|]
+(T3[[InvP.engine <- InvR.t3,InvR.manager <- InvP.t3,TerR.manager <- TerP.t3,TerP.engine <- TerR.t3]]|||T4[[InvP.engine <- InvR.t4,InvR.notifier <- InvP.t4,TerR.notifier <- TerP.t4,TerP.engine <- TerR.t4]]|||T1[[InvP.srh <- InvR.t1,InvR.invoker <- InvP.t1,TerR.invoker <- TerP.t1,TerP.srh <- TerR.t1]]|||T2[[InvP.invoker <- InvR.t2,InvR.engine <- InvP.t2,TerR.engine <- TerP.t2,TerP.invoker <- TerR.t2]])
 assert P1 :[deadlock free]

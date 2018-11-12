@@ -2,10 +2,9 @@ package main
 
 import (
 	EE "executionenvironment/executionenvironment"
-	"fmt"
 	"shared/factories"
 	"strconv"
-	"time"
+	"fmt"
 )
 
 func main() {
@@ -18,10 +17,10 @@ func main() {
 	queueingroxy := factories.FactoryQueueing()
 	idx := 0
 	for {
-		msg := "msg ["+strconv.Itoa(idx)+"]"
-		r:= queueingroxy.Publish("Topic01",msg)
-		fmt.Println("Producer:: "+msg+" "+strconv.FormatBool(r))
-		time.Sleep(100 * time.Millisecond)
+		msg1 := "Topic01:: msg ["+strconv.Itoa(idx)+"]"
+		queueingroxy.Publish("Topic01",msg1)
+		fmt.Println(msg1)
 		idx++
+		//time.Sleep(1000 * time.Millisecond)
 	}
 }

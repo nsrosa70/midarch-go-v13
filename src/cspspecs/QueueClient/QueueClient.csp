@@ -1,6 +1,6 @@
-datatype PROCNAMES = proxy | requestor | crh | t1 | t2 
+datatype PROCNAMES = crh | proxy | requestor | t1 | t2 
 channel I_PosInvP,I_PreTerP,I_PreInvR,I_PosTerR
-channel InvP,TerP,InvR,TerR : PROCNAMES
+channel TerP,InvR,TerR,InvP : PROCNAMES
 CRH = InvP.t2 -> I_PosInvP -> I_PreTerP -> TerP.t2 -> CRH
 PROXY = I_PreInvR -> InvR.t1 -> TerR.t1 -> I_PosTerR -> PROXY
 REQUESTOR = InvP.t1 -> I_PosInvP -> InvR.t2 -> TerR.t2 -> I_PosTerR -> TerP.t1 -> REQUESTOR

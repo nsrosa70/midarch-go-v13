@@ -9,7 +9,7 @@ import (
 
 func main() {
 
-	// QUEUEING_HOST
+	// QUEUEING_HOST=
 	// start configuration
 	EE.ExecutionEnvironment{}.Deploy("QueueClient.conf")
 
@@ -21,6 +21,5 @@ func main() {
 		queueingroxy.Publish("Topic01",msg1)
 		fmt.Println(msg1)
 		idx++
-		//time.Sleep(1000 * time.Millisecond)
 	}
 }

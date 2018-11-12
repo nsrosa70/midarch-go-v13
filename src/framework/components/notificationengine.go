@@ -50,7 +50,7 @@ func (NotificationEngine) I_Unsubscribe(msg *messages.SAMessage, r *bool) { // S
 	}
 }
 
-func (NE NotificationEngine) I_Publish(msg *messages.SAMessage, r *bool) { // NOTIFICATION CONSUMER
+func (NE NotificationEngine) I_Publish(msg *messages.SAMessage, r *bool) {
 	inv := msg.Payload.(messages.Invocation)
 
 	switch inv.Op {
@@ -84,28 +84,35 @@ func (NotificationEngine) I_GetResSubs(msg *messages.SAMessage, r *bool) { // Su
 	SubscribersNE = ter.R.(map[string][]SubscriberRecord)
 }
 
-func (NE NotificationEngine) I_Pub(msg *messages.SAMessage, r *bool) {
-	inv := msg.Payload.(messages.Invocation)
-
-	_args := inv.Args.([]interface{})
+func (NE NotificationEngine) I_Pub(msg *messages.SAMessage, r *bool) { // Publish
+	// Assemble invocation
+	_inv := msg.Payload.(messages.Invocation)
+	_args := _inv.Args.([]interface{})
 	_topic := _args[0].(string)
-	TopicToBePublished = _topic
 	_msg := _args[1].(map[string]interface{})
 	_msgHeader := _msg["Header"].(map[string]interface{})
 	_headerDestination := _msgHeader["Destination"].(string)
 	_msgPayload := _msg["PayLoad"].(string)
-	MsgToBeNotified = _msgPayload
 	_msgPub := messages.MessageMOM{Header: messages.Header{Destination: _headerDestination}, PayLoad: _msgPayload}
 
+	// Save topic and message to be used in 'Notify'
+	TopicToBePublished = _topic
+	MsgToBeNotified = _msgPayload
+
+	// Invoke operation
 	_r := NE.Publish(_topic, _msgPub)
 
+	// Assemble termination
 	_ter := shared.QueueingTermination{_r}
 	*msg = messages.SAMessage{_ter}
 }
 
 func (NotificationEngine) I_Notify(msg *messages.SAMessage, r *bool) {
 
+	// Filter subscribers using the topic just published
 	tempSubs := filterSubscribers(TopicToBePublished)
+
+	// Prepare invocation to 'Notification Consumer'
 	args := []interface{}{MsgToBeNotified, tempSubs}
 	inv := messages.Invocation{Op: "Notify", Args: args}
 	*msg = messages.SAMessage{Payload: inv}
@@ -131,10 +138,12 @@ func (NotificationEngine) Consume(topic string) messages.MessageMOM {
 func (NotificationEngine) Publish(topic string, msg messages.MessageMOM) bool {
 	r := false
 
+	// Check if the topic exist
 	if _, ok := Topics[topic]; !ok {
 		Topics[topic] = make(chan messages.MessageMOM, parameters.QUEUE_SIZE)
 	}
 
+	// Put the message on the topic
 	if len(Topics[topic]) < parameters.QUEUE_SIZE {
 		Topics[topic] <- msg
 		r = true

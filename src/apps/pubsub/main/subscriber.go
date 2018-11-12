@@ -19,11 +19,8 @@ func main() {
 	handler1,_ := queueing.Subscribe(topic01)
 	handler2,_ := queueing.Subscribe(topic02)
 
-    queueing.Unsubscribe("Topic01")
-
 	for {
 		fmt.Println(handler1.GetResult())
-		//handler1.GetResult()
 		fmt.Println(handler2.GetResult())
 	}
 	fmt.Scanln()

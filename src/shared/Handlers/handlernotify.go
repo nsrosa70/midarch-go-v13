@@ -16,13 +16,15 @@ type HandlerNotify struct {
 	Port int
 }
 
-var handlerChan = make(chan interface{})
+// Channel used to communicate
+var HandlerChan = make(chan interface{})
 
 func (HN HandlerNotify) Start() {
 	var conn net.Conn
 	var err error
 	var ln net.Listener
 
+	// Create server to wait for notifications from 'Notification Consumer'
 	addr := netshared.ResolveHostIp() + ":" + strings.TrimSpace(strconv.Itoa(HN.Port))
 	ln, err = net.Listen("tcp", addr)
 	if err != nil {
@@ -40,7 +42,7 @@ func (HN HandlerNotify) Start() {
 		}
 	}
 
-	// receive data
+	// Loop to receive data
 	for {
 		jsonDecoder := json.NewDecoder(conn)
 		msgMOM := messages.MessageMOM{}
@@ -51,7 +53,7 @@ func (HN HandlerNotify) Start() {
 			myError := errors.MyError{Source: "HandlerNotify", Message: "Unable to read data"}
 			myError.ERROR()
 		}
-		handlerChan <- msgMOM.PayLoad
+		HandlerChan <- msgMOM.PayLoad
 	}
 	return
 
@@ -61,7 +63,8 @@ func (HN HandlerNotify) StartHandler() {
 	go HN.Start()
 }
 
+// Return to 'Subscriber' the notifications received from 'Notification Consumer'
 func (HandlerNotify) GetResult() interface{} {
 
-	return <-handlerChan
+	return <-HandlerChan
 }

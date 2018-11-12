@@ -10,6 +10,7 @@ import (
 	"net"
 	"shared/errors"
 	"encoding/json"
+	"shared/parameters"
 )
 
 type NotificationConsumer struct{}
@@ -23,11 +24,14 @@ func (NC NotificationConsumer) I_Notify(msg *messages.SAMessage, r *bool) {
 
 	switch inv.Op {
 	case "Notify":
+		// Prepare invocation
 		_args := inv.Args.([]interface{})
-		//go NC.NotifySubscribers(_args[0].(string), _args[1].([]SubscriberRecord))
-		NC.NotifySubscribers(_args[0].(string), _args[1].([]SubscriberRecord))
-		_r := true // TODO
 
+		// Notify subscribers provided by 'Notification Engine'
+		NC.NotifySubscribers(_args[0].(string), _args[1].([]SubscriberRecord))
+		_r := true // TODO, check if all subscribers are actually notified
+
+		// Prepare termination to 'Notification Engine'
 		_ter := shared.QueueingTermination{_r}
 		*msg = messages.SAMessage{_ter}
 	default:
@@ -38,16 +42,18 @@ func (NC NotificationConsumer) I_Notify(msg *messages.SAMessage, r *bool) {
 
 func (NotificationConsumer) NotifySubscribers(msgToBeNotified string, listOfSubscribers []SubscriberRecord) {
 
+	// Check if 'Active Consumers' (Consumers whose connection to Handler already exists) has been created
 	if ActiveConsumers == nil {
-		ActiveConsumers = make(map[string] bool,100)  // TODO
+		ActiveConsumers = make(map[string]bool, parameters.MAX_NUMBER_OF_ACTIVE_CONSUMERS)
 	}
-	for i:= range listOfSubscribers {
-		// Notify Subscribers
 
+	// Notify Subscribers
+	for i := range listOfSubscribers {
 		host := listOfSubscribers[i].Host
 		port := listOfSubscribers[i].Port
 		addr := strings.Join([]string{host, strconv.Itoa(port)}, ":")
 
+		// Check if the connection with the Handler already exists
 		_, ok := ActiveConsumers[addr]
 		if !ok {
 			ActiveConsumers[addr] = true
@@ -61,7 +67,10 @@ func (NotificationConsumer) NotifySubscribers(msgToBeNotified string, listOfSubs
 			}
 		}
 
+		// Prepare message to be sent to Handler
 		msgMOM := messages.MessageMOM{Header: messages.Header{""}, PayLoad: msgToBeNotified}
+
+		// Send message
 		encoder := json.NewEncoder(connNC)
 		err = encoder.Encode(msgMOM)
 		if err != nil {

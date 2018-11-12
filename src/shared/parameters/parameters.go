@@ -46,6 +46,7 @@ const QUEUE_SIZE = 100
 const PLUGIN_BASE_NAME = "fibonacciinvoker"
 const GRAPH_SIZE = 30
 
+const MAX_NUMBER_OF_ACTIVE_CONSUMERS = 10
 var IS_EVOLUTIVE  = false
 var IS_CORRECTIVE = false
 var IS_PROACTIVE  = false

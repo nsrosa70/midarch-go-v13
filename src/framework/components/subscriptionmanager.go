@@ -12,7 +12,7 @@ type SubscriptionManager struct{}
 var SubscribersSM map[string][]SubscriberRecord
 
 type SubscriberRecord struct {
-	Host   string
+	Host string
 	Port int
 }
 
@@ -21,28 +21,39 @@ func (SM SubscriptionManager) I_PosInvP(msg *messages.SAMessage, r *bool) {
 
 	switch inv.Op {
 	case "Subscribe":
+
+		//Prepare invocation
 		_args := inv.Args.([]interface{})
 		_topic := _args[0].(string)
 		_ip := _args[1].(string)
 		_port := int(_args[2].(float64))
 
+		// Invoke operation
 		_r := SM.Subscribe(_topic, _ip, _port)
 
+		// Prepare termination
 		_ter := shared.QueueingTermination{_r}
 		*msg = messages.SAMessage{_ter}
 	case "Unsubscribe":
+
+		// Prepapre invocation
 		_args := inv.Args.([]interface{})
 		_topic := _args[0].(string)
 		_ip := _args[1].(string)
 		_port := int(_args[2].(float64))
 
+		// Invoke operation
 		_r := SM.Unsubscribe(_topic, _ip, _port)
 
+		// Prepare termination
 		_ter := shared.QueueingTermination{_r}
 		*msg = messages.SAMessage{_ter}
 	case "GetSubscribers":
+
+		// Invoke operation
 		_r := SM.GetSubscribers()
 
+		// Prepare termination
 		_ter := shared.QueueingTermination{_r}
 		*msg = messages.SAMessage{_ter}
 
@@ -52,6 +63,7 @@ func (SM SubscriptionManager) I_PosInvP(msg *messages.SAMessage, r *bool) {
 	}
 }
 
+// Return current subscribers
 func (SM SubscriptionManager) GetSubscribers() map[string][]SubscriberRecord {
 
 	return SubscribersSM
@@ -60,15 +72,17 @@ func (SM SubscriptionManager) GetSubscribers() map[string][]SubscriberRecord {
 func (SM SubscriptionManager) Subscribe(topic string, ip string, port int) bool {
 	r := true
 
-	// Check if list of subscribers has already been created
+	// Check if the list of subscribers has already been created
 	if SubscribersSM == nil {
 		SubscribersSM = make(map[string][]SubscriberRecord)
 	}
 
+	// Check if the topic already exists
 	if _, ok := SubscribersSM[topic]; !ok {
 		SubscribersSM[topic] = []SubscriberRecord{}
 	}
 
+	// Include new subscriber
 	SubscribersSM[topic] = append(SubscribersSM[topic], SubscriberRecord{Host: ip, Port: port})
 
 	return r
@@ -86,8 +100,8 @@ func (SM SubscriptionManager) Unsubscribe(topic string, ip string, port int) boo
 		if records, ok = SubscribersSM[topic]; !ok {
 			r = false
 		} else {
-			// remove from list
-			for i := range records{
+			// Remove subscriber
+			for i := range records {
 				if records[i].Host == ip && records[i].Port == port {
 					records[i] = records[len(records)-1] // Replace it with the last one.
 					records = records[:len(records)-1]

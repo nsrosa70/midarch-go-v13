@@ -16,22 +16,30 @@ var i_PosTerRNotificationEngineClientProxy = make(chan messages.SAMessage)
 var HandlersProxy = make(map[string]Handlers.HandlerNotify,10)  // TODO
 
 func (p NotificationEngineClientProxy) Subscribe(_p1 string) (Handlers.HandlerNotify,bool) {
+
+	// Prepare remote invocation
 	_p2 := netshared.ResolveHostIp()             // host
 	_p3 := netshared.NextPortTCPAvailable()      // port
 	_args := []interface{}{_p1,_p2,_p3}
 	_reqMsg := messages.SAMessage{messages.Invocation{Host: p.Host, Port: p.Port, Op: "Subscribe", Args: _args}}
 
+	// Send invocation to internal action 'I_PreInvR'
 	i_PreInvRNotificationEngineClientProxy <- _reqMsg
+
+	// Receive response from the remote invocation
 	_repMsg := <-i_PosTerRNotificationEngineClientProxy
 
+	// Prepapre response to Invoker
 	_payload := _repMsg.Payload.(map[string]interface{})
 	_reply := _payload["Reply"].(map[string]interface{})
 	_r := _reply["R"].(bool)
 
-	// Include the new handler associated to the topic [one handler per topic]
+	// Create the new handler associated to the topic [one handler per topic]
 	if _,ok := HandlersProxy[_p1]; !ok{
 		HandlersProxy[_p1] = Handlers.HandlerNotify{Host:_p2,Port:_p3}
 	}
+
+	// Starte the new handler
 	HandlersProxy[_p1].StartHandler()
 
 	return HandlersProxy[_p1],_r

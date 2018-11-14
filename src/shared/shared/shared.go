@@ -30,14 +30,18 @@ type Invocation struct {
 	OutArgs [] reflect.Value
 }
 
+// MAPE-K Types
 type MonitoredCorrectiveData string   // used in channel Monitor -> Analyser (Corrective)
 type MonitoredEvolutiveData []string  // used in channel Monitor -> Analyser (Evolutive)
 type MonitoredProactiveData [] string // used in channel Monitor -> Analyser (Proactive)
 
 type AnalysisResult struct {
-	// used in channel Analyser -> Planner
 	Result   interface{}
 	Analysis int
+}
+
+type AdaptationPlan struct{
+	Plan string
 }
 
 var ValidActions = map[string]bool{

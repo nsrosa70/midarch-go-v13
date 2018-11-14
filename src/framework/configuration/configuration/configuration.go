@@ -66,7 +66,7 @@ func confToGoType(confType string) string {
 	}
 
 	if !foundType {
-		fmt.Println("Configuration:: Type '" + confType + "' NOT FOUND in Library")
+		fmt.Println("Configuration:: Type '" + confType + "' NOT FOUND in the Library")
 		os.Exit(0)
 	}
 	return goType
@@ -77,16 +77,19 @@ func checkAttachments(comps map[string]ElemInfo, conns map[string]string, atts [
 	// Check if all components/connectors were declared
 	for a := range atts {
 		att := strings.Split(atts[a], ",")
-		if !IsInComponents(comps, att[0]) {
-			fmt.Println("Configuration:: Component '" + att[0] + "' was not Declared!!")
+		c1 := strings.TrimSpace(att[0])
+		t  := strings.TrimSpace(att[1])
+		c2 := strings.TrimSpace(att[2])
+		if !IsInComponents(comps, c1) {
+			fmt.Println("Configuration:: Component '" + c1 + "' was not Declared!!")
 			os.Exit(0)
 		}
-		if !shared.IsInConnectors(conns, att[1]) {
-			fmt.Println("Configuration:: Connector '" + att[1] + "' was not Declared!!")
+		if !shared.IsInConnectors(conns, t) {
+			fmt.Println("Configuration:: Connector '" + t + "' was not Declared!!")
 			os.Exit(0)
 		}
-		if !IsInComponents(comps, att[2]) {
-			fmt.Println("Configuration:: Component '" + att[2] + "' was not Declared!!")
+		if !IsInComponents(comps, c2) {
+			fmt.Println("Configuration:: Component '" + c2 + "' was not Declared!!")
 			os.Exit(0)
 		}
 	}
@@ -322,7 +325,7 @@ func isAdaptationType(line string) bool {
 
 func skipLine(line string) bool {
 
-	if line == "" || line[:2] == parameters.ADL_COMMENT {
+	if line == "" || strings.TrimSpace(line)[:2] == parameters.ADL_COMMENT {
 		return true
 	} else {
 		return false

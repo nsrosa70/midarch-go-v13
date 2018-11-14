@@ -1,0 +1,19 @@
+datatype PROCNAMES = analyser | correctiveMonitor | evolutiveMonitor | planner | executor | proactiveMonitor | monitor | t1 | t2 | t3 | t4 
+channel I_PosInvP,I_GenerateEvent
+channel InvR,InvP : PROCNAMES
+ANALYSER = InvP.t2 -> I_PosInvP -> InvR.t3 -> ANALYSER
+PLANNER = InvP.t3 -> I_PosInvP -> InvR.t4 -> PLANNER
+EXECUTOR = InvP.t4 -> I_PosInvP -> EXECUTOR
+CORRECTIVEMONITOR = I_GenerateEvent -> InvR.t1 -> CORRECTIVEMONITOR
+EVOLUTIVEMONITOR = I_GenerateEvent -> InvR.t1 -> EVOLUTIVEMONITOR
+PROACTIVEMONITOR = I_GenerateEvent -> InvR.t1 -> PROACTIVEMONITOR
+MONITOR = InvP.t1 -> I_PosInvP -> InvR.t2 -> MONITOR
+T3 = InvP.analyser -> InvR.planner -> T3
+T4 = InvP.planner -> InvR.executor -> T4
+T1 = InvP.correctiveMonitor -> InvR.monitor -> T1 [] InvP.evolutiveMonitor -> InvR.monitor -> T1 [] InvP.proactiveMonitor -> InvR.monitor -> T1
+T2 = InvP.monitor -> InvR.analyser -> T2
+
+P1 = (PLANNER|||EXECUTOR|||CORRECTIVEMONITOR|||EVOLUTIVEMONITOR|||PROACTIVEMONITOR|||MONITOR|||ANALYSER)
+[|{|InvP,InvR|}|]
+(T4[[InvP.planner <- InvR.t4,InvR.executor <- InvP.t4]]|||T1[[InvP.correctiveMonitor <- InvR.t1,InvR.monitor <- InvP.t1,InvP.evolutiveMonitor <- InvR.t1,InvR.monitor <- InvP.t1,InvP.proactiveMonitor <- InvR.t1,InvR.monitor <- InvP.t1]]|||T2[[InvP.monitor <- InvR.t2,InvR.analyser <- InvP.t2]]|||T3[[InvP.analyser <- InvR.t3,InvR.planner <- InvP.t3]])
+assert P1 :[deadlock free]

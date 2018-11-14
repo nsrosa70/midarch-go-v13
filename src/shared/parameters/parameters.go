@@ -15,6 +15,8 @@ const DIR_CSPARSER = BASE_DIR+"/src/verificationtools/cspdot/csparser"
 const COMPONENTS_PATH = "components"
 const CONNECTORS_PATH = "connectors"
 const NAMINGCLIENTPROXY_PATH = "namingclientproxy"
+const COMPONENTS_DIR = "components"
+const CONNECTORS_DIR = "connectors"
 
 const ADL_COMMENT = "//"
 

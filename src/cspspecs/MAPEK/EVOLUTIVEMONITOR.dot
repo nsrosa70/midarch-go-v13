@@ -1,4 +1,4 @@
 digraph G {
-  0 -> 1 [ label="I_GenerateEvent" ];
+  0 -> 1 [ label="I_GenerateEventEvolutive" ];
   1 -> 0 [ label="InvR.t1" ];
 }

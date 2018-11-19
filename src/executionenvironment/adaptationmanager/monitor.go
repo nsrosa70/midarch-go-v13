@@ -8,12 +8,11 @@ import (
 	"shared/shared"
 	"shared/parameters"
 	"shared/errors"
-	"framework/configuration/configuration"
 )
 
 type Monitor struct{}
 
-func (Monitor) Exec(conf configuration.Configuration, chanMACorrective chan shared.MonitoredCorrectiveData, chanMAEvolutive chan shared.MonitoredEvolutiveData, chanMAProactive chan shared.MonitoredProactiveData) {
+func (Monitor) Exec(chanMACorrective chan shared.MonitoredCorrectiveData, chanMAEvolutive chan shared.MonitoredEvolutiveData, chanMAProactive chan shared.MonitoredProactiveData) {
 
 	chanInMonitoredCorrective := make(chan shared.MonitoredCorrectiveData)
 	chanInMonitoredEvolutive := make(chan shared.MonitoredEvolutiveData)

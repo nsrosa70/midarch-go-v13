@@ -16,6 +16,7 @@ import (
 	"bufio"
 	"framework/libraries"
 	"reflect"
+	"fmt"
 )
 
 type FDR struct{}
@@ -130,7 +131,8 @@ func invokeFDR(conf configuration.Configuration) bool {
 
 	out, err := exec.Command(cmdExp, inputFile).Output()
 	if err != nil {
-		myError := errors.MyError{Source: "FDR", Message: "Problem in invoking FDR (e.g.,syntax error)"}
+		fmt.Println(err)
+		myError := errors.MyError{Source: "FDR", Message: "File '"+inputFile+"' has a problem (e.g.,syntax error)"}
 		myError.ERROR()
 	}
 	s := string(out[:])

@@ -12,31 +12,58 @@ import (
 	"framework/configuration/commands"
 	"strconv"
 	"shared/parameters"
-	"executionenvironment/adaptationmanager"
-	"executionenvironment/versioninginjector"
-	"executionenvironment/executionunit"
-	"framework/libraries"
 	"framework/element"
 	"fmt"
 	"reflect"
+	"framework/libraries"
+	"executionenvironment/executionunit"
 )
 
 type ExecutionEnvironment struct{}
 
-func (ee ExecutionEnvironment) Deploy(adlFileName string) {
+func (environment ExecutionEnvironment) Deploy(adlFileName string) {
 
-	// Load execution parameters
-	shared.LoadParameters(os.Args[1:])
+	// Initialize environment
+	environment.Initialization()
 
-	// Perform checks on library
-	libraries.CheckLibrary()
+	// Prepare configuration to be executed
+	appConf := environment.PrepareConfiguration(adlFileName)
+
+	// Prepare MAPE-K
+	//adaptationManagerConf := environment.PrepareConfiguration("MAPEK.conf")
+
+	// Configure management channels
+	managementChannelsApp := environment.ConfigureManagementChannels(appConf)
+	//managementChannelsMAPEK := environment.ConfigureManagementChannels(appConf)
+
+	// Start adaptation manager
+	//if parameters.IS_CORRECTIVE || parameters.IS_EVOLUTIVE || parameters.IS_PROACTIVE {
+	//	go adaptationmanager.AdaptationManager{}.Exec(appConf, managementChannelsApp)
+	//	go versioninginjector.InjectAdaptiveEvolution(parameters.PLUGIN_BASE_NAME)
+	//}
+
+	// Start App Configuration
+	environment.StartConfiguration(appConf, managementChannelsApp)
+	//environment.StartConfiguration(adaptationManagerConf, managementChannelsMAPEK)
+}
+
+func (environment ExecutionEnvironment) StartConfiguration(conf configuration.Configuration, managementChannels map[string]chan commands.LowLevelCommand) {
+	// Start execution units
+	for c := range conf.Components {
+		go executionunit.ExecutionUnit{}.Exec(conf.Components[c], managementChannels[conf.Components[c].Id])
+	}
+	for t := range conf.Connectors {
+		go executionunit.ExecutionUnit{}.Exec(conf.Connectors[t], managementChannels[conf.Connectors[t].Id])
+	}
+}
+
+func (environment ExecutionEnvironment) PrepareConfiguration(adlFileName string) configuration.Configuration {
 
 	// Generate Go configuration
 	conf := configuration.MapADLIntoGo(adlFileName)
 
-	// Configure management/structural channels and maps
-	managementChannels := ConfigureManagementChannels(conf)
-	ee.ConfigureStructuralChannelsAndMaps(&conf)
+	// Configure structural channels and maps of components/connectors
+	environment.ConfigureStructuralChannelsAndMaps(&conf)
 
 	// Check behaviour using FDR
 	fdrChecker := new(fdr.FDR)
@@ -53,27 +80,24 @@ func (ee ExecutionEnvironment) Deploy(adlFileName string) {
 	fdrChecker.LoadFDRGraphs(&conf)
 
 	// Generate executable graph
-	CreateExecGraphs(&conf)
+	environment.CreateExecGraphs(&conf)
 
 	// Check if actions and their respective implementations exist
 	CheckActionsAndImplementations(conf)
 
+	return conf
+
+}
+
+func (ee ExecutionEnvironment) Initialization() {
+	// Load execution parameters
+	shared.LoadParameters(os.Args[1:])
+
+	// Perform checks on the library of c
+	libraries.CheckLibrary()
+
 	// Show execution parameters
 	shared.ShowExecutionParameters(false)
-
-	// Start adaptation manager
-	if parameters.IS_CORRECTIVE || parameters.IS_EVOLUTIVE || parameters.IS_PROACTIVE {
-		go adaptationmanager.AdaptationManager{}.Exec(conf, managementChannels)
-		go versioninginjector.InjectAdaptiveEvolution(parameters.PLUGIN_BASE_NAME)
-	}
-
-	// Start execution units
-	for c := range conf.Components {
-		go executionunit.ExecutionUnit{}.Exec(conf.Components[c], managementChannels[conf.Components[c].Id])
-	}
-	for t := range conf.Connectors {
-		go executionunit.ExecutionUnit{}.Exec(conf.Connectors[t], managementChannels[conf.Connectors[t].Id])
-	}
 }
 
 func CheckActionsAndImplementations(conf configuration.Configuration) {
@@ -134,7 +158,7 @@ func CheckActionsAndImplementations(conf configuration.Configuration) {
 	}
 }
 
-func ConfigureManagementChannels(conf configuration.Configuration) map[string]chan commands.LowLevelCommand {
+func (ee ExecutionEnvironment) ConfigureManagementChannels(conf configuration.Configuration) map[string]chan commands.LowLevelCommand {
 	managementChannels := make(map[string]chan commands.LowLevelCommand)
 	for i := range conf.Components {
 		id := conf.Components[i].Id
@@ -143,7 +167,7 @@ func ConfigureManagementChannels(conf configuration.Configuration) map[string]ch
 	return managementChannels
 }
 
-func CreateExecGraphs(conf *configuration.Configuration) {
+func (ee ExecutionEnvironment) CreateExecGraphs(conf *configuration.Configuration) {
 
 	// Components
 	for c := range conf.Components {

@@ -7,6 +7,6 @@ import (
 
 type EvolutiveMonitor struct{}
 
-func (EvolutiveMonitor) I_GenerateEvent(msg *messages.SAMessage, r *bool) {
+func (EvolutiveMonitor) I_GenerateEventEvolutive(msg *messages.SAMessage, r *bool) {
 	*msg = messages.SAMessage{Payload:shared.MonitoredEvolutiveData{"Monitored EVOLUTIVE data"}}
 }

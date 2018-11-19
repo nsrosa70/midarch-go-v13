@@ -1,14 +1,13 @@
 package adaptationmanager
 
 import (
-	"framework/configuration/configuration"
 	"shared/shared"
 	"shared/parameters"
 )
 
 type Analyser struct{}
 
-func (Analyser) Exec(conf configuration.Configuration, chanMACorrective chan shared.MonitoredCorrectiveData, chanMAEvolutive chan shared.MonitoredEvolutiveData, chanMAProactive chan shared.MonitoredProactiveData, chanAP chan shared.AnalysisResult) {
+func (Analyser) Exec(chanMACorrective chan shared.MonitoredCorrectiveData, chanMAEvolutive chan shared.MonitoredEvolutiveData, chanMAProactive chan shared.MonitoredProactiveData, chanAP chan shared.AnalysisResult) {
 
 	// prepapre channels
 	chanCorrective := make(chan shared.AnalysisResult)

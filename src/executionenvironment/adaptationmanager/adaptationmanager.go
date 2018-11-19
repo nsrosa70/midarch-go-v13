@@ -16,10 +16,10 @@ func (AdaptationManager) Exec(conf configuration.Configuration, channsUnit map[s
 	chanAP := make(chan shared.AnalysisResult)
 	chanPE := make(chan commands.Plan)
 
-	go new(Monitor).Exec(conf,chanMACorrective,chanMAEvolutive,chanMAProactive)
-	go new(Analyser).Exec(conf,chanMACorrective,chanMAEvolutive,chanMAProactive,chanAP)
+	go new(Monitor).Exec(chanMACorrective,chanMAEvolutive,chanMAProactive)
+	go new(Analyser).Exec(chanMACorrective,chanMAEvolutive,chanMAProactive,chanAP)
 	go new(Planner).Exec(conf, chanAP,chanPE)
-	go new(Executor).Exec(conf,chanPE,channsUnit)
+	go new(Executor).Exec(chanPE,channsUnit)
 }
 
 type Request struct {

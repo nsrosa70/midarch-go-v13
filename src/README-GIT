@@ -1,1 +1,4 @@
 1) VCS -> Git -> Clone [create a local repository of a remote one]
+2) Create the new Github repository
+3) VCS -> Git -> Remotes (associate local repository to the new Git repository)
+4) VCS -> Git -> Push (update new Git repository)

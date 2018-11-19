@@ -9,7 +9,7 @@ import (
 
 type MAPEKMonitor struct{}
 
-func (MAPEKMonitor) I_PosInvP(msg *messages.SAMessage, r *bool) {
+func (MAPEKMonitor) I_Monitor(msg *messages.SAMessage, r *bool) {
 	switch reflect.TypeOf(msg.Payload).String() {
 	case "shared.MonitoredCorrectiveData":
 	case "shared.MonitoredEvolutiveData":

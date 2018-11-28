@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 	"shared/parameters"
-	EE "executionenvironment/executionenvironment"
+	EE "core/engine"
 	"shared/factories"
 	"framework/components"
 )

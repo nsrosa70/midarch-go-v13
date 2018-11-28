@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
-	"executionenvironment/executionenvironment"
+	"core/engine"
 )
 
 func main() {
 
 	// start configuration
-	executionenvironment.ExecutionEnvironment{}.Deploy("ExecutionEnvironment.conf")
+	engine.Engine{}.Deploy("ExecutionEnvironment.conf")
 
 	fmt.Scanln()
 }

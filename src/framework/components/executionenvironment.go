@@ -4,8 +4,7 @@ import (
 	"framework/messages"
 )
 
-type ExecutionEnvironment struct{}
+type ExecutionEnvironment struct {}
 
-func (ExecutionEnvironment) I_DefineUnit(msg *messages.SAMessage, r *bool) {
-	*msg = messages.SAMessage{Payload:"Unit 1"}
+func (ee ExecutionEnvironment) I_Nothing(msg *messages.SAMessage, info interface{}, r *bool) {
 }

@@ -33,7 +33,7 @@ func (FDR) CheckBehaviour(conf configuration.Configuration) bool {
 func (FDR) LoadFDRGraphs(conf *configuration.Configuration) {
 
 	// Load component
-	dotDir := parameters.DIR_CSP+"/"+strings.Replace(conf.Id,".confs","",99)
+	dotDir := parameters.DIR_CSP + "/" + strings.Replace(conf.Id, ".confs", "", 99)
 	for c := range conf.Components {
 		dotFileName := strings.ToUpper(conf.Components[c].Id) + ".dot"
 		dotFileName = dotDir + "/" + dotFileName
@@ -95,7 +95,7 @@ func loadDotFile(dotFileName string) []string {
 func saveCSP(conf configuration.Configuration) {
 
 	// create diretcory if it does not exist
-	confDir := parameters.DIR_CSP+"/"+strings.Replace(conf.Id,".confs","",99)
+	confDir := parameters.DIR_CSP + "/" + strings.Replace(conf.Id, ".confs", "", 99)
 	if _, err := os.Stat(confDir); os.IsNotExist(err) {
 		os.MkdirAll(confDir, os.ModePerm);
 	}
@@ -126,13 +126,13 @@ func saveCSP(conf configuration.Configuration) {
 func invokeFDR(conf configuration.Configuration) bool {
 	cmdExp := parameters.DIR_FDR + "/" + commands.FDR_COMMAND
 	fileName := conf.Id + ".csp"
-	dirFile := parameters.DIR_CSP+"/"+strings.Replace(conf.Id,".confs","",99)
+	dirFile := parameters.DIR_CSP + "/" + strings.Replace(conf.Id, ".confs", "", 99)
 	inputFile := dirFile + "/" + fileName
 
 	out, err := exec.Command(cmdExp, inputFile).Output()
 	if err != nil {
 		fmt.Println(err)
-		myError := errors.MyError{Source: "FDR", Message: "File '"+inputFile+"' has a problem (e.g.,syntax error)"}
+		myError := errors.MyError{Source: "FDR", Message: "File '" + inputFile + "' has a problem (e.g.,syntax error)"}
 		myError.ERROR()
 	}
 	s := string(out[:])
@@ -159,7 +159,7 @@ func createCSP(conf configuration.Configuration) string {
 	generalBehaviour := createGeneralBehaviourExp(&conf, externalChannels, componentProcesses)
 
 	// assertion
-	assertion := "assert P1 :[deadlock free]"
+	assertion := "assert " + conf.Id + " :[deadlock free]"
 	csp := dataTypeExp + "\n" + internalChannelsExp + "\n" + externalChannelsExp + "\n" + processesExp + "\n" + generalBehaviour + "\n" + assertion
 
 	return csp
@@ -323,8 +323,14 @@ func createProcessExp(conf configuration.Configuration) (string, map[string]stri
 	componentProcesses := make(map[string]string)
 	processesExp := ""
 	for i := range conf.Components {
-		id := conf.Components[i].Id
-		componentProcesses[strings.ToUpper(id)] = conf.Components[i].CSP
+		comp := conf.Components[i]
+		id := comp.Id
+		subprocesses := strings.Split(comp.CSP, "\n")
+		if len(subprocesses) > 1 {
+			componentProcesses[strings.ToUpper(id)] = renameSubprocesses(comp.CSP)
+		} else {
+			componentProcesses[strings.ToUpper(id)] = comp.CSP
+		}
 		processesExp += componentProcesses[strings.ToUpper(id)] + "\n"
 	}
 	connectorProcesses := make(map[string]string)
@@ -336,10 +342,30 @@ func createProcessExp(conf configuration.Configuration) (string, map[string]stri
 	return processesExp, componentProcesses, connectorProcesses
 }
 
+func renameSubprocesses(p string) string {
+	subprocesses := strings.Split(p, "\n")
+	r := ""
+	procBaseName := strings.TrimSpace(subprocesses[0][:strings.Index(subprocesses[0], "=")]) // first process
+
+	newProcNames := map[string]string{}
+	for i := 1; i < len(subprocesses); i++ {
+		procName := strings.TrimSpace(subprocesses[i][:strings.Index(subprocesses[i], "=")])
+		newProcNames[procName] = procBaseName+procName
+	}
+
+	for i := 0; i < len(subprocesses); i++ {
+		for j := range newProcNames {
+			subprocesses[i] = strings.Replace(subprocesses[i],j,newProcNames[j],99)
+		}
+		r += subprocesses[i]+"\n"
+	}
+	return r
+}
+
 func createGeneralBehaviourExp(conf *configuration.Configuration, externalChannels map[string]string, componentProcesses map[string]string) string {
 
 	// (C1 ||| C2 ||| C3)
-	generalBehaviour := "P1 = ("
+	generalBehaviour := conf.Id + " = ("
 	for i := range componentProcesses {
 		generalBehaviour += i + "|||"
 	}

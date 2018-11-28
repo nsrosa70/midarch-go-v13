@@ -5,7 +5,7 @@ import (
 	"shared/parameters"
 	"strconv"
 	"shared/net"
-	EE "executionenvironment/executionenvironment"
+	EE "core/engine"
 )
 
 func main(){

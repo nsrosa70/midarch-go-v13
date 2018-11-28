@@ -1,7 +1,7 @@
 package main
 
 import (
-	"executionenvironment/executionenvironment"
+	"core/engine"
 	"shared/factories"
 	"fmt"
 )
@@ -9,7 +9,7 @@ import (
 func main() {
 
 	// Start configuration
-	executionenvironment.ExecutionEnvironment{}.Deploy("QueueClient.conf")
+	engine.ExecutionEnvironment{}.Deploy("QueueClient.conf")
 
 	// Obtaing proxy to queueing service
 	queueing := factories.FactoryQueueing()

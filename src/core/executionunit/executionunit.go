@@ -8,9 +8,27 @@ import (
 	"shared/shared"
 )
 
-type ExecutionUnit struct{}
+type ExecutionUnit struct{
+	Elem element.Element
+}
 
-func (ExecutionUnit) Exec(elem element.Element, managementChann chan commands.LowLevelCommand) {
+func (ExecutionUnit) Exec(unit ExecutionUnit) {
+
+	// Configure Message, i.e., to set the address of 'msg' used in the unit
+	msg := messages.SAMessage{}
+	for e1 := range unit.Elem.ExecGraph.Edges {
+		for e2 := range unit.Elem.ExecGraph.Edges[e1] {
+			unit.Elem.ExecGraph.Edges[e1][e2].Action.Message = &msg
+		}
+	}
+
+	// Execute the loop of the element
+	for {
+		shared.Invoke(elem, "Loop", elem, elem.ExecGraph)
+	}
+}
+
+func (ExecutionUnit) ExecOld(elem element.Element, managementChann chan commands.LowLevelCommand) {
 
 	// Configure Message, i.e., to set the address of 'msg' used in the unit
 	msg := messages.SAMessage{}

@@ -1,7 +1,7 @@
 package main
 
 import (
-	EE "executionenvironment/executionenvironment"
+	EE "core/engine"
 	"fmt"
 	"shared/factories"
 	"time"

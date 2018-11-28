@@ -1,7 +1,7 @@
 package main
 
 import (
-	EE "executionenvironment/executionenvironment"
+	EE "core/engine"
 	"shared/factories"
 	"strconv"
 	"fmt"

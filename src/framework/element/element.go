@@ -12,8 +12,13 @@ type Element struct {
 	Id        string
 	TypeElem  interface{}
 	CSP       string
-	ExecGraph execgraph.Graph
 	FDRGraph  fdrgraph.Graph
+	ExecGraph execgraph.Graph
+	Info      interface{} // Any particular information necessary for the proper functioning of the component
+}
+
+func (e *Element) SetInfo(info interface{}) {
+	e.Info = info
 }
 
 func (e *Element) SetFDRGraph(g fdrgraph.Graph) {
@@ -33,7 +38,9 @@ func (Element) Loop(elem Element, graph execgraph.Graph) {
 		if len(edges) == 1 {
 			if shared.IsInternal(edges[0].Action.ActionName) {
 				r := false
-				edges[0].Action.InternalAction(elem.TypeElem, edges[0].Action.ActionName, edges[0].Action.Message,&r)
+				//fmt.Printf("%v start %v %v\n",time.Now(),elem.Id,edges[0].Action.ActionName)
+				edges[0].Action.InternalAction(elem.TypeElem, edges[0].Action.ActionName, edges[0].Action.Message, elem.Info, &r)
+				//fmt.Printf("%v complete %v %v\n",time.Now(),elem.Id,edges[0].Action.ActionName)
 			} else {
 				edges[0].Action.ExternalAction(edges[0].Action.ActionChannel, edges[0].Action.Message)
 			}
@@ -58,11 +65,10 @@ func choice(elem Element, msg *messages.SAMessage, chosen *int, edges []execgrap
 	for i := 0; i < len(edges); i++ {
 		cases[i] = reflect.SelectCase{Dir: reflect.SelectRecv, Chan: reflect.ValueOf(*edges[i].Action.ActionChannel)}
 		if shared.IsInternal(edges[i].Action.ActionName) {
-
 			// Execute Internal action
 			r := false
 			msgTemp := *edges[i].Action.Message
-			edges[i].Action.InternalAction(elem.TypeElem, edges[i].Action.ActionName, &msgTemp, &r)
+			edges[i].Action.InternalAction(elem.TypeElem, edges[i].Action.ActionName, &msgTemp, elem.Info, &r)
 
 			// Update internal channel
 			if r {

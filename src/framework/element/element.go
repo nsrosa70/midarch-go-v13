@@ -41,7 +41,7 @@ func (Element) Loop(elem Element, graph execgraph.Graph) {
 			if shared.IsInternal(edges[0].Action.ActionName) {
 				r := false
 				//fmt.Printf("%v start %v %v\n",time.Now(),elem.Id,edges[0].Action.ActionName)
-				edges[0].Action.InternalAction(elem.TypeElem, edges[0].Action.ActionName, edges[0].Action.Message, elem.Info, &r)
+				edges[0].Action.InternalAction(elem.TypeElem, edges[0].Action.ActionName, edges[0].Action.Message, &elem.Info, &r)
 				if elem.Id == "evolutiveMonitor"{
 					fmt.Println(edges[0].Action.ActionName)
 				}

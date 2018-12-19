@@ -14,14 +14,14 @@ import (
 
 type MAPEKPlanner struct{}
 
-func (MAPEKPlanner) I_Plan(msg *messages.SAMessage, info interface{}, r *bool) {
+func (MAPEKPlanner) I_Plan(msg *messages.SAMessage, info *interface{}, r *bool) {
 
 	analysisResult := msg.Payload.(shared.AnalysisResult)
 
 	// build new plan from analysis result
 	plan := commands.Plan{}
 	cmds := []commands.HighLevelCommand{}
-	conf := info // Configuration is the "info" of this component
+	conf := *info // Configuration is the "info" of this component
 
 	newPlugins := reflect.ValueOf(analysisResult.Result)
 	for i := 0; i < newPlugins.Len(); i++ {

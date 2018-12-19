@@ -24,11 +24,20 @@ func (unit ExecutionUnit) I_InitialiseUnit(msg *messages.SAMessage, info interfa
 }
 
 func (unit ExecutionUnit) I_AdaptUnit(msg *messages.SAMessage, info interface{}, r *bool) {
-
 	plan := msg.Payload.(commands.Plan)
+	//infoTemp := *info
 	elem := info.(element.Element)
-	fmt.Printf("UNIT:: %v ***************************************** \n", plan)
-	fmt.Printf("UNIT:: %v ***************************************** \n", elem)
+
+	// One change per time
+	switch plan.Cmds[0].Cmd {
+	case commands.REPLACE_COMPONENT: // high level command
+		newElement := plan.Cmds[0].Args
+		id := newElement.Id
+		if id == elem.Id{
+			fmt.Printf("Unit:: '%v' will be replaced *****************************\n",id)
+			fmt.Printf("Unit:: %v \n",elem.ExecGraph)
+		}
+	}
 }
 
 func (unit ExecutionUnit) I_Execute(msg *messages.SAMessage, info interface{}, r *bool) {

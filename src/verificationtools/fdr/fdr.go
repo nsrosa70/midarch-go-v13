@@ -30,7 +30,7 @@ func (FDR) CheckBehaviour(conf configuration.Configuration) bool {
 	return r
 }
 
-func (FDR) LoadFDRGraphs(conf *configuration.Configuration) {
+func (fdr FDR) LoadFDRGraphs(conf *configuration.Configuration) {
 
 	// Load component
 	dotDir := parameters.DIR_CSP + "/" + strings.Replace(conf.Id, ".confs", "", 99)
@@ -39,7 +39,7 @@ func (FDR) LoadFDRGraphs(conf *configuration.Configuration) {
 		dotFileName = dotDir + "/" + dotFileName
 
 		fileContent := loadDotFile(dotFileName)
-		graph := createFDRGraph(fileContent)
+		graph := fdr.CreateFDRGraph(fileContent)
 		tempComp := conf.Components[c]
 		tempComp.SetFDRGraph(*graph)
 		conf.Components[c] = tempComp
@@ -51,14 +51,14 @@ func (FDR) LoadFDRGraphs(conf *configuration.Configuration) {
 		dotFileName = dotDir + "/" + dotFileName
 
 		fileContent := loadDotFile(dotFileName)
-		graph := createFDRGraph(fileContent)
+		graph := fdr.CreateFDRGraph(fileContent)
 		tempConn := conf.Connectors[t]
 		tempConn.SetFDRGraph(*graph)
 		conf.Connectors[t] = tempConn
 	}
 }
 
-func createFDRGraph(fileContent []string) *fdrgraph.Graph {
+func (FDR) CreateFDRGraph(fileContent []string) *fdrgraph.Graph {
 	graph := fdrgraph.NewGraph(100)
 
 	for l := range fileContent {
@@ -70,7 +70,6 @@ func createFDRGraph(fileContent []string) *fdrgraph.Graph {
 			graph.AddEdge(from, to, action)
 		}
 	}
-
 	return graph
 }
 

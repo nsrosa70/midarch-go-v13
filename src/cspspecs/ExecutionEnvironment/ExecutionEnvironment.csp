@@ -1,31 +1,31 @@
-datatype PROCNAMES = planner | t6 | t1 | unit2 | mapekMonitor | analyser | evolutiveMonitor | unit3 | t2 | executor | t5 | ee | t3 | unit1 | t4 
-channel I_HasPlugin,I_Plan,I_InitialiseUnit,I_AdaptUnit,I_Monitor,I_EvolutiveMonitoring,I_HasNotPlugin,I_Analyse,I_Execute
-channel InvR,InvP : PROCNAMES
-UNIT2 = InvP.t1 -> I_InitialiseUnit -> UNIT2P1 
-UNIT2P1 = ( I_Execute -> UNIT2P1 [] InvP.t1 -> I_AdaptUnit -> UNIT2P1 )
-
-MAPEKMONITOR = InvP.t2 -> I_Monitor -> InvR.t3 -> MAPEKMONITOR
-ANALYSER = InvP.t3 -> I_Analyse -> InvR.t4 -> ANALYSER
+datatype PROCNAMES = ee | t5 | t6 | t2 | unit3 | mapekMonitor | planner | t3 | t1 | analyser | unit2 | evolutiveMonitor | t4 | executor | unit1 
+channel I_Monitor,I_Plan,I_HasNotPlugin,I_Analyse,I_InitialiseUnit,I_Execute,I_AdaptUnit,I_EvolutiveMonitoring,I_HasPlugin
+channel InvP,InvR : PROCNAMES
 UNIT1 = InvP.t1 -> I_InitialiseUnit -> UNIT1P1 
 UNIT1P1 = ( I_Execute -> UNIT1P1 [] InvP.t1 -> I_AdaptUnit -> UNIT1P1 )
-
-EVOLUTIVEMONITOR = I_EvolutiveMonitoring -> ( I_HasPlugin -> InvR.t2 -> EVOLUTIVEMONITOR [] I_HasNotPlugin -> EVOLUTIVEMONITOR )
-EE = InvR.t1 -> EEP1 
-EEP1 = InvP.t6 -> InvR.t1 -> EEP1
 
 UNIT3 = InvP.t1 -> I_InitialiseUnit -> UNIT3P1 
 UNIT3P1 = ( I_Execute -> UNIT3P1 [] InvP.t1 -> I_AdaptUnit -> UNIT3P1 )
 
+MAPEKMONITOR = InvP.t2 -> I_Monitor -> InvR.t3 -> MAPEKMONITOR
 PLANNER = InvP.t4 -> I_Plan -> InvR.t5 -> PLANNER
+EVOLUTIVEMONITOR = I_EvolutiveMonitoring -> ( I_HasPlugin -> InvR.t2 -> EVOLUTIVEMONITOR [] I_HasNotPlugin -> EVOLUTIVEMONITOR )
+ANALYSER = InvP.t3 -> I_Analyse -> InvR.t4 -> ANALYSER
+EE = InvR.t1 -> EEP1 
+EEP1 = InvP.t6 -> InvR.t1 -> EEP1
+
+UNIT2 = InvP.t1 -> I_InitialiseUnit -> UNIT2P1 
+UNIT2P1 = ( I_Execute -> UNIT2P1 [] InvP.t1 -> I_AdaptUnit -> UNIT2P1 )
+
 EXECUTOR = InvP.t5 -> I_Execute -> InvR.t6 -> EXECUTOR
+T5 = InvP.planner -> InvR.executor -> T5
 T6 = InvP.executor -> InvR.ee -> T6
 T1 = InvP.ee -> InvR.unit1 -> InvR.unit2 -> InvR.unit3 -> T1
 T2 = InvP.evolutiveMonitor -> InvR.mapekMonitor -> T2
 T3 = InvP.mapekMonitor -> InvR.analyser -> T3
 T4 = InvP.analyser -> InvR.planner -> T4
-T5 = InvP.planner -> InvR.executor -> T5
 
-ExecutionEnvironment = (UNIT2|||MAPEKMONITOR|||EVOLUTIVEMONITOR|||EE|||EXECUTOR|||ANALYSER|||UNIT1|||UNIT3|||PLANNER)
+ExecutionEnvironment = (PLANNER|||EVOLUTIVEMONITOR|||EE|||UNIT1|||UNIT3|||MAPEKMONITOR|||ANALYSER|||UNIT2|||EXECUTOR)
 [|{|InvP,InvR|}|]
-(T4[[InvP.analyser <- InvR.t4,InvR.planner <- InvP.t4]]|||T5[[InvP.planner <- InvR.t5,InvR.executor <- InvP.t5]]|||T6[[InvP.executor <- InvR.t6,InvR.ee <- InvP.t6]]|||T1[[InvP.ee <- InvR.t1,InvR.unit1 <- InvP.t1,InvR.unit2 <- InvP.t1,InvR.unit3 <- InvP.t1]]|||T2[[InvP.evolutiveMonitor <- InvR.t2,InvR.mapekMonitor <- InvP.t2]]|||T3[[InvP.mapekMonitor <- InvR.t3,InvR.analyser <- InvP.t3]])
+(T3[[InvP.mapekMonitor <- InvR.t3,InvR.analyser <- InvP.t3]]|||T4[[InvP.analyser <- InvR.t4,InvR.planner <- InvP.t4]]|||T5[[InvP.planner <- InvR.t5,InvR.executor <- InvP.t5]]|||T6[[InvP.executor <- InvR.t6,InvR.ee <- InvP.t6]]|||T1[[InvP.ee <- InvR.t1,InvR.unit1 <- InvP.t1,InvR.unit2 <- InvP.t1,InvR.unit3 <- InvP.t1]]|||T2[[InvP.evolutiveMonitor <- InvR.t2,InvR.mapekMonitor <- InvP.t2]])
 assert ExecutionEnvironment :[deadlock free]

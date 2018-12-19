@@ -136,17 +136,6 @@ func (Engine) StartConfiguration(conf configuration.Configuration) {
 	}
 }
 
-/*
-func (environment ExecutionEnvironment) StartConfigurationOld(conf configuration.Configuration, managementChannels map[string]chan commands.LowLevelCommand) {
-	// Start execution units
-	for c := range conf.Components {
-		go executionunit.ExecutionUnit{}.Exec(conf.Components[c], managementChannels[conf.Components[c].Id])
-	}
-	for t := range conf.Connectors {
-		go executionunit.ExecutionUnit{}.Exec(conf.Connectors[t], managementChannels[conf.Connectors[t].Id])
-	}
-}
-*/
 func (engine Engine) PrepareConfiguration(adlFileName string) configuration.Configuration {
 
 	// Generate Go configuration

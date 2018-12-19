@@ -6,6 +6,7 @@ import (
 	"shared/shared"
 	"framework/messages"
 	"reflect"
+	"fmt"
 )
 
 type Element struct {
@@ -41,6 +42,9 @@ func (Element) Loop(elem Element, graph execgraph.Graph) {
 				r := false
 				//fmt.Printf("%v start %v %v\n",time.Now(),elem.Id,edges[0].Action.ActionName)
 				edges[0].Action.InternalAction(elem.TypeElem, edges[0].Action.ActionName, edges[0].Action.Message, elem.Info, &r)
+				if elem.Id == "evolutiveMonitor"{
+					fmt.Println(edges[0].Action.ActionName)
+				}
 				//fmt.Printf("%v complete %v %v\n",time.Now(),elem.Id,edges[0].Action.ActionName)
 			} else {
 				edges[0].Action.ExternalAction(edges[0].Action.ActionChannel, edges[0].Action.Message)

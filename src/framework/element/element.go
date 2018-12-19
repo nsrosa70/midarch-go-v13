@@ -6,7 +6,8 @@ import (
 	"shared/shared"
 	"framework/messages"
 	"reflect"
-	"fmt"
+	"strings"
+	"shared/errors"
 )
 
 type Element struct {
@@ -42,9 +43,6 @@ func (Element) Loop(elem Element, graph execgraph.Graph) {
 				r := false
 				//fmt.Printf("%v start %v %v\n",time.Now(),elem.Id,edges[0].Action.ActionName)
 				edges[0].Action.InternalAction(elem.TypeElem, edges[0].Action.ActionName, edges[0].Action.Message, &elem.Info, &r)
-				if elem.Id == "evolutiveMonitor"{
-					fmt.Println(edges[0].Action.ActionName)
-				}
 				//fmt.Printf("%v complete %v %v\n",time.Now(),elem.Id,edges[0].Action.ActionName)
 			} else {
 				edges[0].Action.ExternalAction(edges[0].Action.ActionChannel, edges[0].Action.Message)
@@ -111,4 +109,28 @@ func (Element) TerR(terR *chan messages.SAMessage, msg *messages.SAMessage) {
 
 func (Element) TerP(terP *chan messages.SAMessage, msg *messages.SAMessage) {
 	*terP <- *msg
+}
+
+func DefineOldElement(comp interface{}, newElement interface{}) string {
+	found := false
+	oldElementId := ""
+	components := comp.(map[string]Element)
+
+	// TODO check compatibility of old and new elements by type
+	for i := range components {
+		oldElementType := reflect.TypeOf(components[i].TypeElem).String()
+		oldElementType = oldElementType[strings.LastIndex(oldElementType, ".")+1 : len(oldElementType)]
+		newElementType := reflect.TypeOf(newElement).String()
+		newElementType = newElementType[strings.LastIndex(newElementType, ".")+1 : len(newElementType)]
+		if oldElementType == newElementType {
+			oldElementId = components[i].Id
+			found = true
+		}
+	}
+
+	if !found {
+		myError := errors.MyError{Source: "Planner", Message: "New and old components have not COMPATIBLE types"}
+		myError.ERROR()
+	}
+	return oldElementId
 }

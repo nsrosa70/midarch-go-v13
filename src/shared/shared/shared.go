@@ -9,6 +9,9 @@ import (
 	"time"
 	"fmt"
 	"os"
+	"shared/errors"
+	"io/ioutil"
+	"plugin"
 )
 
 const PREFIX_ACTION = "->"
@@ -247,4 +250,64 @@ func Invoke(any interface{}, name string, args ... interface{}) {
 
 	inputs = nil
 	return
+}
+
+func LoadPlugins() map[string]time.Time {
+	listOfPlugins := make(map[string]time.Time)
+
+	pluginsDir, err := ioutil.ReadDir(parameters.DIR_PLUGINS)
+	if err != nil {
+		myError := errors.MyError{Source: "Analyser", Message: "Folder not read"}
+		myError.ERROR()
+	}
+	for i := range pluginsDir {
+		fileName := pluginsDir[i].Name()
+		if strings.Contains(fileName, "_plugin") {
+			info, err := os.Stat(parameters.DIR_PLUGINS + "/" + fileName)
+			if err != nil {
+				myError := errors.MyError{Source: "Analyser", Message: "Plugins not read"}
+				myError.ERROR()
+			}
+			listOfPlugins[fileName] = info.ModTime()
+		}
+	}
+	return listOfPlugins
+}
+
+func CheckForNewPlugins(listOfOldPlugins map[string]time.Time, listOfNewPlugins map[string]time.Time) [] string {
+	var newPlugins [] string
+
+	// check new plugins
+	for key := range listOfNewPlugins {
+		val1, _ := listOfNewPlugins[key]
+		val2, ok2 := listOfOldPlugins[key]
+		if ok2 {
+			if val1.After(val2) { // newer version of an old plugin is available
+				newPlugins = append(newPlugins, key)
+			}
+		} else {
+			newPlugins = append(newPlugins, key) // a new plugin is available
+		}
+	}
+	return newPlugins
+}
+
+func LoadPlugin(pluginName string, symbolName string) (plugin.Symbol) {
+
+	var lib *plugin.Plugin
+	var err error
+
+	lib, err = plugin.Open(parameters.DIR_PLUGINS + "/" + pluginName)
+
+	if err != nil {
+		myError := errors.MyError{Source: "Planner", Message: "Error on open plugin " + pluginName}
+		myError.ERROR()
+	}
+
+	fx, err := lib.Lookup(symbolName)
+	if err != nil {
+		myError := errors.MyError{Source: "Planner", Message: "Function " + symbolName + " not found in plugin"}
+		myError.ERROR()
+	}
+	return fx
 }

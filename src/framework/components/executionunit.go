@@ -3,8 +3,8 @@ package components
 import (
 	"framework/messages"
 	"framework/element"
-	"shared/shared"
 	"framework/configuration/commands"
+	"shared/shared"
 )
 
 type ExecutionUnit struct {
@@ -12,6 +12,7 @@ type ExecutionUnit struct {
 
 var unitMsg messages.SAMessage
 
+// Unit initialization
 func (unit ExecutionUnit) I_InitialiseUnit(msg *messages.SAMessage, info *interface{}, r *bool) {
 	elem := (*info).(element.Element)
 	unitMsg = messages.SAMessage{}
@@ -22,6 +23,14 @@ func (unit ExecutionUnit) I_InitialiseUnit(msg *messages.SAMessage, info *interf
 	}
 }
 
+// Unit execution
+func (unit ExecutionUnit) I_Execute(msg *messages.SAMessage, info interface{}, r *bool) {
+	elem := info.(element.Element)
+	shared.Invoke(elem, "Loop", elem, elem.ExecGraph)
+	*r = true
+}
+
+// Unit adaptation
 func (unit ExecutionUnit) I_AdaptUnit(msg *messages.SAMessage, info *interface{}, r *bool) {
 	plan := msg.Payload.(commands.Plan)
 	oldElem := (*info).(element.Element)
@@ -35,10 +44,4 @@ func (unit ExecutionUnit) I_AdaptUnit(msg *messages.SAMessage, info *interface{}
 			*info = newElement
 		}
 	}
-}
-
-func (unit ExecutionUnit) I_Execute(msg *messages.SAMessage, info interface{}, r *bool) {
-	elem := info.(element.Element)
-	shared.Invoke(elem, "Loop", elem, elem.ExecGraph)
-	*r = true
 }

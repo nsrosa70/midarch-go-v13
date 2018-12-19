@@ -34,7 +34,7 @@ var Repository = map[string]Record{
 	"components.NotificationConsumer":          Record{RBD: "TODO", PRISM: "TODO", Go: components.NotificationConsumer{}, CSP: "B = InvP.e1 -> I_Notify -> TerP.e1 -> B"},
 	"components.SRH":                           Record{RBD: "TODO", PRISM: "TODO", Go: components.SRH{}, CSP: "B = I_PreInvR -> InvR.e1 -> TerR.e1 -> I_PosTerR -> B"},
 	"components.CRH":                           Record{RBD: "TODO", PRISM: "TODO", Go: components.CRH{}, CSP: "B = InvP.e1 -> I_PosInvP -> I_PreTerP -> TerP.e1 -> B"},
-	"components.EvolutiveMonitor":              Record{RBD: "TODO", PRISM: "TODO", Go: components.EvolutiveMonitor{}, CSP: "B = I_EvolutiveMonitoring -> ( I_HasPlugin -> InvR.e1 -> B [] I_HasNotPlugin -> B )"},
+	"components.MAPEKEvolutiveMonitor":         Record{RBD: "TODO", PRISM: "TODO", Go: components.MAPEKEvolutiveMonitor{}, CSP: "B = I_EvolutiveMonitoring -> ( I_HasPlugin -> InvR.e1 -> B [] I_HasNotPlugin -> B )"},
 	"components.MAPEKMonitor":                  Record{RBD: "TODO", PRISM: "TODO", Go: components.MAPEKMonitor{}, CSP: "B = InvP.e1 -> I_Monitor -> InvR.e2 -> B"},
 	"components.MAPEKAnalyser":                 Record{RBD: "TODO", PRISM: "TODO", Go: components.MAPEKAnalyser{}, CSP: "B = InvP.e1 -> I_Analyse -> InvR.e2 -> B"},
 	"components.MAPEKPlanner":                  Record{RBD: "TODO", PRISM: "TODO", Go: components.MAPEKPlanner{}, CSP: "B = InvP.e1 -> I_Plan -> InvR.e2 -> B"},
@@ -48,7 +48,7 @@ var Repository = map[string]Record{
 	"connectors.ThreeToOne":                    Record{RBD: "TODO", PRISM: "TODO", Go: connectors.ThreeToOne{}, CSP: "B = InvP.e1 -> InvR.e2 -> B [] InvP.e3 -> InvR.e2 -> B [] InvP.e4 -> InvR.e2 -> B"},
 	"connectors.NTo1":                          Record{RBD: "TODO", PRISM: "TODO", Go: connectors.NTo1{}, CSP: "B = InvP.e1 -> InvR.e2 -> B [] InvP.e3 -> InvR.e2 -> B [] InvP.e4 -> InvR.e2 -> B"},
 	"connectors.OneWay":                        Record{RBD: "TODO", PRISM: "TODO", Go: connectors.OneWay{}, CSP: "B = InvP.e1 -> InvR.e2 -> B"},
-    "connectors.OneTo3":                        Record{RBD: "TODO", PRISM: "TODO", Go: connectors.OneTo3{}, CSP: "B = InvP.e1 -> InvR.e2 -> InvR.e3 -> InvR.e4 -> B"}}
+	"connectors.OneTo3":                        Record{RBD: "TODO", PRISM: "TODO", Go: connectors.OneTo3{}, CSP: "B = InvP.e1 -> InvR.e2 -> InvR.e3 -> InvR.e4 -> B"}}
 
 func CheckLibrary() bool {
 	r := true

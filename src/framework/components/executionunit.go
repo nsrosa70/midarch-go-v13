@@ -4,6 +4,8 @@ import (
 	"framework/messages"
 	"framework/element"
 	"shared/shared"
+	"fmt"
+	"framework/configuration/commands"
 )
 
 type ExecutionUnit struct {
@@ -21,10 +23,16 @@ func (unit ExecutionUnit) I_InitialiseUnit(msg *messages.SAMessage, info interfa
 	}
 }
 
-func (unit ExecutionUnit) I_ExecuteUnit(msg *messages.SAMessage, info interface{}, r *bool) {
+func (unit ExecutionUnit) I_AdaptUnit(msg *messages.SAMessage, info interface{}, r *bool) {
+
+	plan := msg.Payload.(commands.Plan)
 	elem := info.(element.Element)
-	shared.Invoke(elem, "Loop", elem, elem.ExecGraph)
+	fmt.Printf("UNIT:: %v ***************************************** \n", plan)
+	fmt.Printf("UNIT:: %v ***************************************** \n", elem)
 }
 
-func (unit ExecutionUnit) I_Nothing(msg *messages.SAMessage, info interface{}, r *bool) {
+func (unit ExecutionUnit) I_Execute(msg *messages.SAMessage, info interface{}, r *bool) {
+	elem := info.(element.Element)
+	shared.Invoke(elem, "Loop", elem, elem.ExecGraph)
+	*r = true
 }

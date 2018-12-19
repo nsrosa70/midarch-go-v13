@@ -9,7 +9,8 @@ import (
 
 type MAPEKMonitor struct{}
 
-func (MAPEKMonitor) I_Monitor(msg *messages.SAMessage, r *bool) {
+func (MAPEKMonitor) I_Monitor(msg *messages.SAMessage, info interface{}, r *bool) {
+
 	switch reflect.TypeOf(msg.Payload).String() {
 	case "shared.MonitoredCorrectiveData":
 	case "shared.MonitoredEvolutiveData":
@@ -18,4 +19,5 @@ func (MAPEKMonitor) I_Monitor(msg *messages.SAMessage, r *bool) {
 		fmt.Println("MAPEMonitor:: Data Monitored is Invalid")
 		os.Exit(0)
 	}
+
 }

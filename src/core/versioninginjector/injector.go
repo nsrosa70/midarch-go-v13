@@ -61,7 +61,7 @@ func InjectAdaptiveEvolution(elementName string) {
 				pluginName := strings.TrimSpace(pluginBase01 + "_plugin_v1")
 				_, err := exec.Command(parameters.DIR_GO+"/go", "build", "-buildmode=plugin", "-o", parameters.DIR_PLUGINS+"/"+pluginName, parameters.DIR_PLUGINS+"/"+pluginBase01+"/"+sourceCode01).CombinedOutput()
 				if err != nil {
-					fmt.Println("Shared:: Something wrong in generating plugin '"+pluginName+"'")
+					fmt.Println("Shared:: Something is wrong in generating plugin '"+pluginName+"'")
 					os.Stderr.WriteString(err.Error())
 				}
 			case 2:
@@ -69,7 +69,7 @@ func InjectAdaptiveEvolution(elementName string) {
 				pluginName := strings.TrimSpace(pluginBase02 + "_plugin_v1")
 				_, err := exec.Command(parameters.DIR_GO+"/go", "build", "-buildmode=plugin", "-o", parameters.DIR_PLUGINS+"/"+pluginName, parameters.DIR_PLUGINS+"/"+pluginBase02+"/"+sourceCode02).CombinedOutput()
 				if err != nil {
-					fmt.Println("Shared:: Something wrong in generating plugin '"+pluginName+"'")
+					fmt.Println("Shared:: Something is wrong in generating plugin '"+pluginName+"'")
 					os.Stderr.WriteString(err.Error())
 				}
 			}

@@ -16,6 +16,7 @@ import (
 	"fmt"
 	"reflect"
 	"framework/libraries"
+	"core/versioninginjector"
 )
 
 type Engine struct{}
@@ -29,28 +30,12 @@ func (engine Engine) Deploy(adlFileName string) {
 	appConf := engine.PrepareConfiguration(adlFileName)
 	eeConf := engine.PrepareConfiguration("ExecutionEnvironment.conf")
 
-	// Prepare MAPE-K
-	//adaptationManagerConf := environment.PrepareConfiguration("MAPEK.conf")
-
-	// Configure management channels
-	//managementChannelsApp := environment.ConfigureManagementChannels(appConf)
-	//managementChannelsMAPEK := environment.ConfigureManagementChannels(appConf)
-
-	// Start adaptation manager
-	//if parameters.IS_CORRECTIVE || parameters.IS_EVOLUTIVE || parameters.IS_PROACTIVE {
-	//	go adaptationmanager.AdaptationManager{}.Exec(appConf, managementChannelsApp)
-	//	go versioninginjector.InjectAdaptiveEvolution(parameters.PLUGIN_BASE_NAME)
-	//}
-
 	// Start App Configuration
-	//environment.StartConfiguration(appConf, managementChannelsApp)
-	//engine.StartConfiguration(appConf)
-	//engine.AssociateElementsToUnits(eeConf, appConf)
 	engine.ConfigureExecutionEnvironmentInfo(&eeConf, appConf) // TODO - Improve
 	engine.ConfigureElementInfo(&appConf)                      // TODO - Improve
 	engine.ConfigureUnits(&eeConf, appConf)
 	engine.StartConfiguration(eeConf)
-	//environment.StartConfiguration(adaptationManagerConf, managementChannelsMAPEK)
+	go versioninginjector.InjectAdaptiveEvolution(parameters.PLUGIN_BASE_NAME)
 }
 
 func (Engine) ConfigureUnits(eeConf *configuration.Configuration, appConf configuration.Configuration) {
@@ -58,7 +43,7 @@ func (Engine) ConfigureUnits(eeConf *configuration.Configuration, appConf config
 
 	// Identify units
 	for u := range eeConf.Components {
-		if reflect.TypeOf(eeConf.Components[u].TypeElem).String() == "components.ExecutionUnit" {
+		if reflect.TypeOf(eeConf.Components[u].TypeElem).String() == "components.ExecutionUnit" { // TODO Improve
 			availableUnits = append(availableUnits, eeConf.Components[u].Id)
 		}
 	}
@@ -89,7 +74,8 @@ func (Engine) ConfigureExecutionEnvironmentInfo(eeConf *configuration.Configurat
 
 	// Only components of the execution environment are checked (no connectors)
 	for c1 := range eeConf.Components {
-		if reflect.TypeOf(eeConf.Components[c1].TypeElem).String() == "components.ExecutionEnvironment" {
+		switch reflect.TypeOf(eeConf.Components[c1].TypeElem).String() {
+		case "components.ExecutionEnvironment": // TODO improve
 			listOfElements := []element.Element{}
 			for c2 := range appConf.Components {
 				listOfElements = append(listOfElements, appConf.Components[c2])
@@ -100,7 +86,11 @@ func (Engine) ConfigureExecutionEnvironmentInfo(eeConf *configuration.Configurat
 			elem := eeConf.Components[c1]
 			elem.SetInfo(listOfElements)
 			eeConf.Components[c1] = elem
-		} else {
+		case "components.MAPEKPlanner":
+			elem := eeConf.Components[c1]
+			elem.SetInfo(appConf.Components)  // only components are replaceable
+			eeConf.Components[c1] = elem
+		default:
 			elem := eeConf.Components[c1]
 			elem.SetInfo("none")
 			eeConf.Components[c1] = elem
@@ -118,7 +108,7 @@ func (Engine) ConfigureElementInfo(conf *configuration.Configuration) {
 	}
 }
 
-func StartUnit(elem element.Element) {
+func StartElement(elem element.Element) {
 	for {
 		shared.Invoke(elem, "Loop", elem, elem.ExecGraph)
 	}
@@ -132,7 +122,7 @@ func (Engine) StartConfiguration(conf configuration.Configuration) {
 				conf.Components[c].ExecGraph.Edges[e1][e2].Action.Message = &msg
 			}
 		}
-		go StartUnit(conf.Components[c])
+		go StartElement(conf.Components[c])
 	}
 
 	for t := range conf.Connectors {
@@ -142,7 +132,7 @@ func (Engine) StartConfiguration(conf configuration.Configuration) {
 				conf.Connectors[t].ExecGraph.Edges[e1][e2].Action.Message = &msg
 			}
 		}
-		go StartUnit(conf.Connectors[t])
+		go StartElement(conf.Connectors[t])
 	}
 }
 

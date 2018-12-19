@@ -33,6 +33,7 @@ func (Element) Loop(elem Element, graph execgraph.Graph) {
 
 	// Execute graph
 	node := 0
+
 	for {
 		edges := graph.AdjacentEdges(node)
 		if len(edges) == 1 {

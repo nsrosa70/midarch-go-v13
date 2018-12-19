@@ -32,7 +32,7 @@ type Invocation struct {
 
 // MAPE-K Types
 type MonitoredCorrectiveData string   // used in channel Monitor -> Analyser (Corrective)
-type MonitoredEvolutiveData []string  // used in channel Monitor -> Analyser (Evolutive)
+type MonitoredEvolutiveData [] string  // used in channel Monitor -> Analyser (Evolutive)
 type MonitoredProactiveData [] string // used in channel Monitor -> Analyser (Proactive)
 
 type AnalysisResult struct {
@@ -40,7 +40,7 @@ type AnalysisResult struct {
 	Analysis int
 }
 
-type AdaptationPlan struct{
+type AdaptationPlan struct {
 	Plan string
 }
 
@@ -67,8 +67,8 @@ func IsExternal(action string) bool {
 
 	if len(action) >= 2 {
 		action := strings.TrimSpace(action)
-		if strings.Contains(action,"."){
-			action = action[:strings.Index(action,".")]
+		if strings.Contains(action, ".") {
+			action = action[:strings.Index(action, ".")]
 		}
 
 		if action == INVP || action == TERP || action == INVR || action == TERR {
@@ -228,17 +228,6 @@ func IsInConnectors(conns map[string]string, t string) bool {
 	return foundConnector
 }
 
-/*func RenameInternalChannels(b string, id string) string {
-	tokens := strings.Split(b, " ")
-
-	for t := range tokens {
-		if IsInternal(tokens[t]) {
-			b = strings.Replace(b, tokens[t], tokens[t]+"_"+id, 99)
-		}
-	}
-	return b
-}
-*/
 type QueueingInvocation struct {
 	Op   string
 	Args []interface{}

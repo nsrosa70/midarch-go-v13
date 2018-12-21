@@ -17,9 +17,13 @@ type Record struct {
 	PetriNet interface{} // TODO
 }
 
+func (r *Record) SetCSP(csp string) {
+	r.CSP = csp
+}
+
 var Repository = map[string]Record{
 	"namingclientproxy.NamingClientProxy":      Record{RBD: "TODO", PRISM: "TODO", Go: namingclientproxy.NamingClientProxy{}, CSP: "B = I_PreInvR -> InvR.e1 -> TerR.e1 -> I_PosTerR -> B"},
-	"components.CalculatorClientProxy":         Record{LTS: "TODO", RBD: "TODO", PRISM: "TODO", Go: components.CalculatorClientProxy{}, CSP: "B = I_PreInvR -> InvR.e1 -> TerR.e1 -> I_PosTerR -> B"},
+	"components.CalculatorClientProxy":         Record{LTS: "TODO", PRISM: "TODO", Go: components.CalculatorClientProxy{}, CSP: "B = I_PreInvR -> InvR.e1 -> TerR.e1 -> I_PosTerR -> B"},
 	"components.CalculatorInvoker":             Record{RBD: "TODO", PRISM: "TODO", Go: components.CalculatorInvoker{}, CSP: "B = InvP.e1 -> I_PosInvP -> TerP.e1 -> B"},
 	"components.FibonacciClientProxy":          Record{RBD: "TODO", PRISM: "TODO", Go: components.FibonacciClientProxy{}, CSP: "B = I_PreInvR -> InvR.e1 -> TerR.e1 -> I_PosTerR -> B"},
 	"components.FibonacciInvoker":              Record{RBD: "TODO", PRISM: "TODO", Go: components.FibonacciInvoker{}, CSP: "B = InvP.e1 -> I_PosInvP -> TerP.e1 -> B"},
@@ -48,7 +52,7 @@ var Repository = map[string]Record{
 	"connectors.ThreeToOne":                    Record{RBD: "TODO", PRISM: "TODO", Go: connectors.ThreeToOne{}, CSP: "B = InvP.e1 -> InvR.e2 -> B [] InvP.e3 -> InvR.e2 -> B [] InvP.e4 -> InvR.e2 -> B"},
 	"connectors.NTo1":                          Record{RBD: "TODO", PRISM: "TODO", Go: connectors.NTo1{}, CSP: "B = InvP.e1 -> InvR.e2 -> B [] InvP.e3 -> InvR.e2 -> B [] InvP.e4 -> InvR.e2 -> B"},
 	"connectors.OneWay":                        Record{RBD: "TODO", PRISM: "TODO", Go: connectors.OneWay{}, CSP: "B = InvP.e1 -> InvR.e2 -> B"},
-	"connectors.OneTo3":                        Record{RBD: "TODO", PRISM: "TODO", Go: connectors.OneTo3{}, CSP: "B = InvP.e1 -> InvR.e2 -> InvR.e3 -> InvR.e4 -> B"}}
+	"connectors.OneToN":                        Record{RBD: "TODO", PRISM: "TODO", Go: connectors.OneToN{}, CSP: "B = InvP.e1 -> InvR.e2 -> InvR.e3 -> InvR.e4 -> B"}}
 
 func CheckLibrary() bool {
 	r := true

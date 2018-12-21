@@ -16,7 +16,7 @@ type CRH struct {
 
 var portTmp int
 
-func (c CRH) I_PosInvP(msg *messages.SAMessage,r *bool) {
+func (c CRH) I_PosInvP(msg *messages.SAMessage, info interface{}, r *bool) {
 
 	host := msg.Payload.(messages.ToCRH).Host
 	port := msg.Payload.(messages.ToCRH).Port
@@ -41,7 +41,7 @@ func (c CRH) I_PosInvP(msg *messages.SAMessage,r *bool) {
 	}
 }
 
-func (c CRH) I_PreTerP(msg *messages.SAMessage,r *bool) {
+func (c CRH) I_PreTerP(msg *messages.SAMessage, info interface{}, r *bool) {
 
 	decoder := json.NewDecoder(conn)
 	err = decoder.Decode(&msg)

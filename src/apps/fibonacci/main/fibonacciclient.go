@@ -4,16 +4,16 @@ import (
 	"fmt"
 	"time"
 	"shared/parameters"
-	EE "core/engine"
 	"shared/factories"
 	"framework/components"
+	"core/engine"
 )
 
 func main(){
 
-	// HOST_NAMING, SAMPLE_SIZE
+	// NAMING_HOST, SAMPLE_SIZE
 	// start configuration
-	EE.ExecutionEnvironment{}.Deploy("MiddlewareFibonacciClient.conf")
+	engine.Engine{}.Deploy("MiddlewareFibonacciClient.conf")
 
 	// proxy to naming service
 	namingClientProxy := factories.LocateNaming()

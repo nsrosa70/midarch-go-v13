@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"framework/element"
 	"framework/proxy"
+	"fmt"
 )
 
 type NamingClientProxy struct {
@@ -51,6 +52,7 @@ func (n NamingClientProxy) Lookup(_p1 string) interface{} {
 	_port := int64(_reply["Port"].(float64))
 	_host := _reply["Host"].(string)
 	//_p := reflect.TypeOf(libraries.Repository[_proxyName].Go)
+	fmt.Println("NamingClientProxy:: "+_proxyName)
 	_p := proxy.ProxyLibrary[_proxyName]
 
 	proxyPointer := reflect.New(_p)
@@ -62,10 +64,10 @@ func (n NamingClientProxy) Lookup(_p1 string) interface{} {
 	return proxyInterface
 }
 
-func (NamingClientProxy) I_PreInvR(msg *messages.SAMessage,r *bool) {
+func (NamingClientProxy) I_PreInvR(msg *messages.SAMessage, info interface{}, r *bool) {
 	*msg = <-i_PreInvRNamingClientProxy
 }
 
-func (NamingClientProxy) I_PosTerR(msg *messages.SAMessage,r *bool) {
+func (NamingClientProxy) I_PosTerR(msg *messages.SAMessage, info interface{}, r *bool) {
 	i_PosTerRNamingClientProxy <- *msg
 }

@@ -183,11 +183,11 @@ func MapADLIntoGo(adlFileName string) Configuration {
 	} else {
 		for i:= range requiredAdaptations{
 			switch requiredAdaptations[i] {
-			case shared.EVOLUTIVE:
+			case parameters.EVOLUTIVE:
 				parameters.IS_EVOLUTIVE = true
-			case shared.CORRECTIVE:
+			case parameters.CORRECTIVE:
 				parameters.IS_CORRECTIVE = true
-			case shared.PROACTIVE:
+			case parameters.PROACTIVE:
 				parameters.IS_PROACTIVE = true
 			}
 		}
@@ -310,6 +310,7 @@ func MapADLIntoGo(adlFileName string) Configuration {
 		c2 := compsTemp[strings.TrimSpace(attsTemp[2])]
 		conf.AddAtt(attachments.Attachment{C1: c1, T: t, C2: c2})
 	}
+
 	return conf
 }
 
@@ -317,7 +318,7 @@ func isAdaptationType(line string) bool {
 	r := false
 
 	line = strings.TrimSpace(strings.ToUpper(line))
-	if line == shared.CORRECTIVE || line == shared.EVOLUTIVE || line == shared.PROACTIVE || line == shared.NONE {
+	if line == parameters.CORRECTIVE || line == parameters.EVOLUTIVE || line == parameters.PROACTIVE || line == parameters.EMPTY_LINE {
 		r = true
 	}
 	return r

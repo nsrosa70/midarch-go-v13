@@ -10,7 +10,7 @@ import (
 
 type NamingInvoker struct{}
 
-func (NamingInvoker) I_PosInvP(msg *messages.SAMessage, r *bool) {
+func (NamingInvoker) I_PosInvP(msg *messages.SAMessage, info interface{}, r *bool) {
 	op := msg.Payload.(messages.MIOP).Body.RequestHeader.Operation
 	switch op {
 	case "Register":

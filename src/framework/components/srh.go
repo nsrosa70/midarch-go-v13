@@ -20,7 +20,7 @@ var err error
 var ln net.Listener
 var serverUp = false
 
-func (s SRH) I_PreInvR(msg *messages.SAMessage, r *bool) {
+func (s SRH) I_PreInvR(msg *messages.SAMessage, info interface{}, r *bool) {
 
 	if !serverUp {
 		addr := netshared.ResolveHostIp() + ":" + strings.TrimSpace(strconv.Itoa(s.Port))
@@ -55,7 +55,7 @@ func (s SRH) I_PreInvR(msg *messages.SAMessage, r *bool) {
 	msg.Payload = miop
 }
 
-func (SRH) I_PosTerR(msg *messages.SAMessage, r *bool) {
+func (SRH) I_PosTerR(msg *messages.SAMessage, info interface{}, r *bool) {
 
 	// send data
 	encoder := json.NewEncoder(conn)

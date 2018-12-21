@@ -11,7 +11,7 @@ import (
 func main() {
 
 	// start configuration
-	engine.ExecutionEnvironment{}.Deploy("MiddlewareNamingServer.conf") // TODO
+	engine.Engine{}.Deploy("MiddlewareNamingServer.conf") // TODO
 
 	fmt.Println("Naming service started at " + netshared.ResolveHostIp() + " Port= " + strconv.Itoa(parameters.NAMING_PORT))
 	fmt.Scanln()

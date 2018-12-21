@@ -6,7 +6,7 @@ import (
 
 type Requestor struct{}
 
-func (Requestor) I_PosInvP(msg *messages.SAMessage,r *bool) {
+func (Requestor) I_PosInvP(msg *messages.SAMessage, info interface{}, r *bool) {
 	requestHeader := messages.RequestHeader{Operation: msg.Payload.(messages.Invocation).Op}
 	requestBody := messages.RequestBody{Args: msg.Payload.(messages.Invocation).Args}
 	miopHeader := messages.MIOPHeader{Magic: "MIOP"}
@@ -17,7 +17,7 @@ func (Requestor) I_PosInvP(msg *messages.SAMessage,r *bool) {
 	*msg = messages.SAMessage{toCRH}
 }
 
-func (Requestor) I_PosTerR(msg *messages.SAMessage,r *bool) {
+func (Requestor) I_PosTerR(msg *messages.SAMessage, info interface{}, r *bool) {
 	payload := msg.Payload.(map[string]interface{})
 
 	miopBody := payload["Body"]

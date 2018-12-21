@@ -62,3 +62,18 @@ var STRATEGY = 0                 // 1 - no change 2 - change once 3 - change sam
 var SAMPLE_SIZE = 0
 var NAMING_HOST = ""
 var QUEUEING_HOST = ""
+
+const PREFIX_ACTION = "->"
+
+//const CHOICE = "[]"
+const PREFIX_INTERNAL_ACTION = "I_"
+const INVP = "InvP"
+const TERP = "TerP"
+const INVR = "InvR"
+const TERR = "TerR"
+const EVOLUTIVE = "EVOLUTIVE"
+const CORRECTIVE = "REACTIVE"
+const PROACTIVE = "PROACTIVE"
+const EMPTY_LINE = "NONE"
+const DEFAULT_INFO = ""
+const PREFIX_ADL_EXECUTION_ENVIRONMENT = "ExecutionEnvironment"

@@ -15,27 +15,107 @@ import (
 	"framework/element"
 	"fmt"
 	"reflect"
-	"framework/libraries"
 	"core/versioninginjector"
+	"framework/components"
+	"framework/libraries"
+	"framework/connectors"
 )
 
 type Engine struct{}
 
-func (engine Engine) Deploy(adlFileName string) {
+func (engine Engine) Deploy(adlApp string) {
 
 	// Initialize environment
-	engine.Initialization()
+	fmt.Print("Engine:: Initialization...")
+	engine.Initialize()
+	fmt.Println(" (ok)")
 
-	// Prepare configuration to be executed
-	appConf := engine.PrepareConfiguration(adlFileName)
-	eeConf := engine.PrepareConfiguration("ExecutionEnvironment.conf")
+	// Prepare App configuration to be executed
+	fmt.Print("Engine:: Prepapre App configuration...")
+	appConf := engine.PrepareConfiguration(adlApp,true)
+	fmt.Println(" (ok)")
 
-	// Start App Configuration
-	engine.ConfigureExecutionEnvironmentInfo(&eeConf, appConf) // TODO - Improve
-	engine.ConfigureElementInfo(&appConf)                      // TODO - Improve
+	// Generate adl of the execution environment
+	fmt.Print("Engine:: Genarate ADL of EE...")
+	adlEE := parameters.PREFIX_ADL_EXECUTION_ENVIRONMENT+adlApp
+	generateAdlEE(appConf,adlEE)
+	fmt.Println(" (ok)")
+
+	// prepare EE configuration to be executed
+	fmt.Print("Engine:: Prepapre EE configuration...")
+	eeConf := engine.PrepareConfiguration(adlEE,false)
+	fmt.Println(" (ok)")
+
+	// Configure 'Info' of components belonging to the Execution Environment
+	fmt.Print("Engine:: Prepapre 'Info' of EE...")
+	engine.ConfigureInfoEE(&eeConf, appConf)
+	fmt.Println(" (ok)")
+
+	// Configure 'Info' of components beloging to the Application
+	fmt.Print("Engine:: Prepapre 'Info' of Application...")
+	engine.ConfigureApp(&appConf)
+	fmt.Println(" (ok)")
+
+	// Deploy App into Units
+	fmt.Print("Engine:: Deploy Units...")
 	engine.ConfigureUnits(&eeConf, appConf)
+	fmt.Println(" (ok)")
+
+	// Start configuration
+	fmt.Print("Engine:: Start Configuration...")
 	engine.StartConfiguration(eeConf)
+	fmt.Println(" (ok)")
+
+	// start versioning (if the architecture is adaptable)
+	fmt.Print("Engine:: Start Versioning...")
 	go versioninginjector.InjectAdaptiveEvolution(parameters.PLUGIN_BASE_NAME)
+	fmt.Println(" (ok)")
+}
+
+func (ee Engine) Initialize() {
+	// Load execution parameters
+	shared.LoadParameters(os.Args[1:])
+
+	// Check the CSP behaviours
+	libraries.CheckLibrary()
+
+	// Show execution parameters
+	shared.ShowExecutionParameters(false)
+}
+
+func (Engine) ConfigureInfoEE(eeConf *configuration.Configuration, appConf configuration.Configuration) {
+	for c1 := range eeConf.Components {
+		componentType := reflect.TypeOf(eeConf.Components[c1].TypeElem).String()
+		switch  componentType {
+		case reflect.TypeOf(components.ExecutionEnvironment{}).String(): // Execution environment
+			listOfElements := []element.Element{}
+			for c2 := range appConf.Components {
+				listOfElements = append(listOfElements, appConf.Components[c2])
+			}
+			for t := range appConf.Connectors {
+				listOfElements = append(listOfElements, appConf.Connectors[t])
+			}
+			elem := eeConf.Components[c1]
+			elem.SetInfo(listOfElements)
+			eeConf.Components[c1] = elem
+		case reflect.TypeOf(components.MAPEKPlanner{}).String(): // Planner
+			elem := eeConf.Components[c1]
+			elem.SetInfo(appConf.Components)
+			eeConf.Components[c1] = elem
+		default:
+			elem := eeConf.Components[c1]
+			elem.SetInfo(parameters.DEFAULT_INFO)
+			eeConf.Components[c1] = elem
+		}
+	}
+}
+
+func (Engine) ConfigureApp(conf *configuration.Configuration) {
+	for c := range conf.Components {
+		elem := conf.Components[c]
+		elem.SetInfo(parameters.DEFAULT_INFO)
+		conf.Components[c] = elem
+	}
 }
 
 func (Engine) ConfigureUnits(eeConf *configuration.Configuration, appConf configuration.Configuration) {
@@ -43,11 +123,12 @@ func (Engine) ConfigureUnits(eeConf *configuration.Configuration, appConf config
 
 	// Identify units
 	for u := range eeConf.Components {
-		if reflect.TypeOf(eeConf.Components[u].TypeElem).String() == "components.ExecutionUnit" { // TODO Improve
+		if reflect.TypeOf(eeConf.Components[u].TypeElem).String() == reflect.TypeOf(components.ExecutionUnit{}).String() {
 			availableUnits = append(availableUnits, eeConf.Components[u].Id)
 		}
 	}
 
+	// Check if the numbers of units is enough to accomodate the application
 	if len(availableUnits) != len(appConf.Components)+len(appConf.Connectors) {
 		fmt.Println("Engine:: Available units are not enough to execute the components/connectos. Hence, there is a problem in the configuration")
 		os.Exit(0)
@@ -70,50 +151,6 @@ func (Engine) ConfigureUnits(eeConf *configuration.Configuration, appConf config
 	}
 }
 
-func (Engine) ConfigureExecutionEnvironmentInfo(eeConf *configuration.Configuration, appConf configuration.Configuration) {
-
-	// Only components of the execution environment are checked (no connectors)
-	for c1 := range eeConf.Components {
-		switch reflect.TypeOf(eeConf.Components[c1].TypeElem).String() {
-		case "components.ExecutionEnvironment": // TODO improve
-			listOfElements := []element.Element{}
-			for c2 := range appConf.Components {
-				listOfElements = append(listOfElements, appConf.Components[c2])
-			}
-			for t := range appConf.Connectors {
-				listOfElements = append(listOfElements, appConf.Connectors[t])
-			}
-			elem := eeConf.Components[c1]
-			elem.SetInfo(listOfElements)
-			eeConf.Components[c1] = elem
-		case "components.MAPEKPlanner":
-			elem := eeConf.Components[c1]
-			elem.SetInfo(appConf.Components)  // only components are replaceable
-			eeConf.Components[c1] = elem
-		default:
-			elem := eeConf.Components[c1]
-			elem.SetInfo("none")
-			eeConf.Components[c1] = elem
-		}
-	}
-}
-
-func (Engine) ConfigureElementInfo(conf *configuration.Configuration) {
-
-	// Components only
-	for c := range conf.Components {
-		elem := conf.Components[c]
-		elem.SetInfo("none")
-		conf.Components[c] = elem
-	}
-}
-
-func StartElement(elem element.Element) {
-	for {
-		shared.Invoke(elem, "Loop", elem, elem.ExecGraph)
-	}
-}
-
 func (Engine) StartConfiguration(conf configuration.Configuration) {
 	for c := range conf.Components {
 		msg := messages.SAMessage{}
@@ -122,7 +159,7 @@ func (Engine) StartConfiguration(conf configuration.Configuration) {
 				conf.Components[c].ExecGraph.Edges[e1][e2].Action.Message = &msg
 			}
 		}
-		go StartElement(conf.Components[c])
+		go startElement(conf.Components[c])
 	}
 
 	for t := range conf.Connectors {
@@ -132,24 +169,37 @@ func (Engine) StartConfiguration(conf configuration.Configuration) {
 				conf.Connectors[t].ExecGraph.Edges[e1][e2].Action.Message = &msg
 			}
 		}
-		go StartElement(conf.Connectors[t])
+		go startElement(conf.Connectors[t])
 	}
 }
 
-func (engine Engine) PrepareConfiguration(adlFileName string) configuration.Configuration {
+func startElement(elem element.Element) {
+	for {
+		shared.Invoke(elem, "Loop", elem, elem.ExecGraph)
+	}
+}
+
+func (engine Engine) PrepareConfiguration(adlApp string, checkConfiguration bool) configuration.Configuration {
 
 	// Generate Go configuration
-	conf := configuration.MapADLIntoGo(adlFileName)
+	conf := configuration.MapADLIntoGo(adlApp)
 
 	// Configure structural channels and maps of components/connectors
 	engine.ConfigureStructuralChannelsAndMaps(&conf)
 
+	// Update the behaviour of some connectors according to the configuration, e.g., OneToN
+	updateBehaviourOfNConnectors(conf)
+
 	// Check behaviour using FDR
 	fdrChecker := new(fdr.FDR)
-	ok := fdrChecker.CheckBehaviour(conf)
-	if !ok {
-		myError := errors.MyError{Source: "Execution Engine", Message: "Configuration has a problem detected by FDR4"}
-		myError.ERROR()
+	conf.CSP = fdrChecker.CreateCSP(conf)
+	fdrChecker.SaveCSP(conf)
+	if checkConfiguration {
+		ok := fdrChecker.InvokeFDR(conf)
+		if !ok {
+			myError := errors.MyError{Source: "Execution Engine", Message: "Configuration has a problem detected by FDR4"}
+			myError.ERROR()
+		}
 	}
 
 	// Generate *.dot files
@@ -165,18 +215,6 @@ func (engine Engine) PrepareConfiguration(adlFileName string) configuration.Conf
 	CheckActionsAndImplementations(conf)
 
 	return conf
-
-}
-
-func (ee Engine) Initialization() {
-	// Load execution parameters
-	shared.LoadParameters(os.Args[1:])
-
-	// Perform checks on the library of c
-	libraries.CheckLibrary()
-
-	// Show execution parameters
-	shared.ShowExecutionParameters(false)
 }
 
 func CheckActionsAndImplementations(conf configuration.Configuration) {
@@ -187,7 +225,7 @@ func CheckActionsAndImplementations(conf configuration.Configuration) {
 			for e2 := range conf.Components[c].ExecGraph.Edges[e1] {
 				action := conf.Components[c].ExecGraph.Edges[e1][e2].Action.ActionName
 				if shared.IsExternal(action) {
-					if action != shared.INVP && action != shared.TERP && action != shared.INVR && action != shared.TERR {
+					if action != parameters.INVP && action != parameters.TERP && action != parameters.INVR && action != parameters.TERR {
 						fmt.Println("EE:: Component '" + conf.Components[c].Id + "' has an invalid action: '" + action)
 						os.Exit(0)
 					}
@@ -208,13 +246,14 @@ func CheckActionsAndImplementations(conf configuration.Configuration) {
 			}
 		}
 	}
+
 	// Check connectors
 	for t := range conf.Connectors {
 		for e1 := range conf.Connectors[t].ExecGraph.Edges {
 			for e2 := range conf.Connectors[t].ExecGraph.Edges[e1] {
 				action := conf.Connectors[t].ExecGraph.Edges[e1][e2].Action.ActionName
 				if shared.IsExternal(action) {
-					if action != shared.INVP && action != shared.TERP && action != shared.INVR && action != shared.TERR {
+					if action != parameters.INVP && action != parameters.TERP && action != parameters.INVR && action != parameters.TERR {
 						fmt.Println("EE:: Connector '" + conf.Connectors[t].Id + "' has an invalid action: '" + action)
 						os.Exit(0)
 					}
@@ -266,16 +305,16 @@ func (engine Engine) CreateExecGraphs(conf *configuration.Configuration) {
 					channel := conf.StructuralChannels[key]
 					params := execgraph.Action{}
 					switch actionNameExec {
-					case "InvR":
+					case parameters.INVR:
 						invr := channel
 						params = execgraph.Action{ExternalAction: element.Element{}.InvR, Message: &msg, ActionChannel: &invr, ActionName: actionNameExec}
-					case "TerR":
+					case parameters.TERR:
 						terr := channel
 						params = execgraph.Action{ExternalAction: element.Element{}.TerR, Message: &msg, ActionChannel: &terr, ActionName: actionNameExec}
-					case "InvP":
+					case parameters.INVP:
 						invp := channel
 						params = execgraph.Action{ExternalAction: element.Element{}.InvP, Message: &msg, ActionChannel: &invp, ActionName: actionNameExec}
-					case "TerP":
+					case parameters.TERP:
 						terp := channel
 						params = execgraph.Action{ExternalAction: element.Element{}.TerP, Message: &msg, ActionChannel: &terp, ActionName: actionNameExec}
 					}
@@ -317,16 +356,16 @@ func (engine Engine) CreateExecGraphs(conf *configuration.Configuration) {
 					channel := conf.StructuralChannels[key]
 					params := execgraph.Action{}
 					switch actionNameExec {
-					case "InvR":
+					case parameters.INVR:
 						invr := channel
 						params = execgraph.Action{ExternalAction: element.Element{}.InvR, Message: &msg, ActionChannel: &invr, ActionName: actionNameExec}
-					case "TerR":
+					case parameters.TERR:
 						terr := channel
 						params = execgraph.Action{ExternalAction: element.Element{}.TerR, Message: &msg, ActionChannel: &terr, ActionName: actionNameExec}
-					case "InvP":
+					case parameters.INVP:
 						invp := channel
 						params = execgraph.Action{ExternalAction: element.Element{}.InvP, Message: &msg, ActionChannel: &invp, ActionName: actionNameExec}
-					case "TerP":
+					case parameters.TERP:
 						terp := channel
 						params = execgraph.Action{ExternalAction: element.Element{}.TerP, Message: &msg, ActionChannel: &terp, ActionName: actionNameExec}
 					}
@@ -360,20 +399,20 @@ func (Engine) ConfigureStructuralChannelsAndMaps(conf *configuration.Configurati
 		tId := conf.Attachments[i].T.Id
 
 		// c1 -> t
-		key01 := c1Id + "." + shared.INVR + "." + tId
-		key02 := tId + "." + shared.INVP + "." + c1Id
-		key03 := tId + "." + shared.TERP + "." + c1Id
-		key04 := c1Id + "." + shared.TERR + "." + tId
+		key01 := c1Id + "." + parameters.INVR + "." + tId
+		key02 := tId + "." + parameters.INVP + "." + c1Id
+		key03 := tId + "." + parameters.TERP + "." + c1Id
+		key04 := c1Id + "." + parameters.TERR + "." + tId
 		structuralChannels[key01] = make(chan messages.SAMessage, parameters.CHAN_BUFFER_SIZE)
 		structuralChannels[key02] = structuralChannels[key01]
 		structuralChannels[key03] = make(chan messages.SAMessage, parameters.CHAN_BUFFER_SIZE)
 		structuralChannels[key04] = structuralChannels[key03]
 
 		// t -> c2
-		key01 = tId + "." + shared.INVR + "." + c2Id
-		key02 = c2Id + "." + shared.INVP + "." + tId
-		key03 = c2Id + "." + shared.TERP + "." + tId
-		key04 = tId + "." + shared.TERR + "." + c2Id
+		key01 = tId + "." + parameters.INVR + "." + c2Id
+		key02 = c2Id + "." + parameters.INVP + "." + tId
+		key03 = c2Id + "." + parameters.TERP + "." + tId
+		key04 = tId + "." + parameters.TERR + "." + c2Id
 		structuralChannels[key01] = make(chan messages.SAMessage, parameters.CHAN_BUFFER_SIZE)
 		structuralChannels[key02] = structuralChannels[key01]
 		structuralChannels[key03] = make(chan messages.SAMessage, parameters.CHAN_BUFFER_SIZE)
@@ -414,4 +453,112 @@ func (Engine) ConfigureStructuralChannelsAndMaps(conf *configuration.Configurati
 		}
 	}
 	conf.Maps = elemMaps
+}
+
+func generateAdlEE(appConf configuration.Configuration, adlEE string) {
+
+	// Generate units
+	units := []string{}
+	componentUnits := ""
+	fullTypeName := reflect.TypeOf(components.ExecutionUnit{}).String()
+	unitTypeName := fullTypeName[strings.LastIndex(fullTypeName, ".")+1:]
+	for i := 0; i < len(appConf.Components)+len(appConf.Connectors); i++ {
+		units = append(units, "unit"+strconv.Itoa(i+1))
+	}
+	for i := 0; i < len(units); i++ {
+		componentUnits += "    "+units[i] + " : " + unitTypeName + " \n"
+	}
+
+	// Generate Attachments
+	attUnits := ""
+	for i := 0; i < len(units); i++ {
+		attUnits += "   ee,t1," + units[i] + " \n"
+	}
+
+	// Assemble configuration
+	header := "Configuration " + strings.Replace(adlEE, ".conf", "", 99) + " := "
+	adaptability := "Adaptability \n None"
+	components := "Components \n" +
+		"    ee : ExecutionEnvironment \n" +
+		"    evolutiveMonitor : MAPEKEvolutiveMonitor \n" +
+		"    mapekMonitor : MAPEKMonitor \n" +
+		"    analyser : MAPEKAnalyser \n" +
+		"    planner : MAPEKPlanner \n" +
+		"    executor : MAPEKExecutor \n" +
+		componentUnits
+
+	connectors := "Connectors \n" +
+		"    t1 : OneToN \n" +
+		"    t2 : OneWay \n" +
+		"    t3 : OneWay \n" +
+		"    t4 : OneWay \n" +
+		"    t5 : OneWay \n" +
+		"    t6 : OneWay"
+
+	attachments := "Attachments \n" +
+		attUnits +
+		"   evolutiveMonitor,t2,mapekMonitor\n" +
+		"   mapekMonitor,t3,analyser\n" +
+		"   analyser,t4,planner\n" +
+		"   planner,t5,executor\n" +
+		"   executor,t6,ee"
+	endConf := "EndConf"
+
+	adl := header + "\n\n" + adaptability + "\n\n" + components + "\n\n" + connectors + "\n\n" + attachments + "\n\n" + endConf
+
+	file, err := os.Create(parameters.DIR_CONF + "/" + adlEE)
+	if err != nil {
+		myError := errors.MyError{Source: "Engine", Message: "File '" + adlEE + "' NOT created"}
+		myError.ERROR()
+	}
+	defer file.Close()
+
+	// save data
+	_, err = file.WriteString(adl)
+	if err != nil {
+		myError := errors.MyError{Source: "Engine", Message: "File '" + adlEE + "' NOT saved"}
+		myError.ERROR()
+	}
+}
+
+func updateBehaviourOfNConnectors(conf configuration.Configuration){
+
+	// Find current behaviour in the Repository
+	for i := range conf.Connectors{
+		if reflect.TypeOf(conf.Connectors[i].TypeElem) == reflect.TypeOf(connectors.OneToN{}) {
+			oldRecord := libraries.Repository[reflect.TypeOf(conf.Connectors[i].TypeElem).String()]
+			newRecord := oldRecord
+			n := countAttachments(conf,i)
+			newBehaviour := defineNewBehaviour(n,connectors.OneToN{})
+			newRecord.SetCSP(newBehaviour)
+			libraries.Repository[reflect.TypeOf(conf.Connectors[i].TypeElem).String()] = newRecord
+		}
+	}
+}
+
+func countAttachments(conf configuration.Configuration, connectorId string) int {
+	n := 0
+	for i := range conf.Attachments{
+		if conf.Attachments[i].T.Id == connectorId {
+			n ++
+		}
+	}
+	return n
+}
+
+func defineNewBehaviour(n int,elem interface{}) string{
+	baseBehaviour := ""
+
+	switch reflect.TypeOf(elem).String() {
+	case reflect.TypeOf(connectors.OneToN{}).String():
+		baseBehaviour = "B = InvP.e1"
+		for i := 0; i < n; i++{
+			baseBehaviour += " -> InvR.e"+strconv.Itoa(i+2)
+		}
+		baseBehaviour += " -> B"
+	default:
+		fmt.Println("Configuration:: Impossible to define the new behaviour of "+reflect.TypeOf(elem).String())
+		os.Exit(0)
+	}
+	return baseBehaviour
 }

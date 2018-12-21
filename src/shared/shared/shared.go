@@ -14,19 +14,6 @@ import (
 	"plugin"
 )
 
-const PREFIX_ACTION = "->"
-
-//const CHOICE = "[]"
-const PREFIX_INTERNAL_ACTION = "I_"
-const INVP = "InvP"
-const TERP = "TerP"
-const INVR = "InvR"
-const TERR = "TerR"
-const EVOLUTIVE = "EVOLUTIVE"
-const CORRECTIVE = "REACTIVE"
-const PROACTIVE = "PROACTIVE"
-const NONE = "NONE"
-
 type Invocation struct {
 	Method  reflect.Value
 	InArgs  []reflect.Value
@@ -35,7 +22,7 @@ type Invocation struct {
 
 // MAPE-K Types
 type MonitoredCorrectiveData string   // used in channel Monitor -> Analyser (Corrective)
-type MonitoredEvolutiveData [] string  // used in channel Monitor -> Analyser (Evolutive)
+type MonitoredEvolutiveData [] string // used in channel Monitor -> Analyser (Evolutive)
 type MonitoredProactiveData [] string // used in channel Monitor -> Analyser (Proactive)
 
 type AnalysisResult struct {
@@ -48,15 +35,15 @@ type AdaptationPlan struct {
 }
 
 var ValidActions = map[string]bool{
-	INVP: true,
-	TERP: true,
-	INVR: true,
-	TERR: true}
+	parameters.INVP: true,
+	parameters.TERP: true,
+	parameters.INVR: true,
+	parameters.TERR: true}
 
 func IsInternal(action string) bool {
 	r := false
 	if len(action) >= 2 {
-		if action[0:2] == PREFIX_INTERNAL_ACTION {
+		if action[0:2] == parameters.PREFIX_INTERNAL_ACTION {
 			r = true
 		}
 	} else {
@@ -74,7 +61,7 @@ func IsExternal(action string) bool {
 			action = action[:strings.Index(action, ".")]
 		}
 
-		if action == INVP || action == TERP || action == INVR || action == TERR {
+		if action == parameters.INVP || action == parameters.TERP || action == parameters.INVR || action == parameters.TERR {
 			r = true
 		} else {
 			r = false
@@ -90,7 +77,7 @@ func IsAction(action string) bool {
 
 	action = strings.TrimSpace(action)
 	if len(action) > 2 {
-		if strings.Contains(action, INVP) || strings.Contains(action, TERP) || strings.Contains(action, INVR) || strings.Contains(action, TERR) {
+		if strings.Contains(action, parameters.INVP) || strings.Contains(action, parameters.TERP) || strings.Contains(action, parameters.INVR) || strings.Contains(action, parameters.TERR) {
 			r = true
 		} else {
 			r = false
@@ -117,7 +104,7 @@ type Quotient struct {
 }
 
 func IsToElement(action string) bool {
-	if action[:2] == PREFIX_INTERNAL_ACTION || action[:4] == INVP || action[:4] == TERR {
+	if action[:2] == parameters.PREFIX_INTERNAL_ACTION || action[:4] == parameters.INVP || action[:4] == parameters.TERR {
 		return true
 	} else { // TerP and InvR
 		return false

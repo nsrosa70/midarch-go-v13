@@ -21,15 +21,6 @@ import (
 
 type FDR struct{}
 
-func (FDR) CheckBehaviour(conf configuration.Configuration) bool {
-
-	conf.CSP = createCSP(conf)
-	saveCSP(conf)
-	r := invokeFDR(conf)
-
-	return r
-}
-
 func (fdr FDR) LoadFDRGraphs(conf *configuration.Configuration) {
 
 	// Load component
@@ -91,7 +82,7 @@ func loadDotFile(dotFileName string) []string {
 	return fileContent
 }
 
-func saveCSP(conf configuration.Configuration) {
+func (FDR) SaveCSP(conf configuration.Configuration) {
 
 	// create diretcory if it does not exist
 	confDir := parameters.DIR_CSP + "/" + strings.Replace(conf.Id, ".confs", "", 99)
@@ -122,7 +113,7 @@ func saveCSP(conf configuration.Configuration) {
 	defer file.Close()
 }
 
-func invokeFDR(conf configuration.Configuration) bool {
+func (FDR) InvokeFDR(conf configuration.Configuration) bool {
 	cmdExp := parameters.DIR_FDR + "/" + commands.FDR_COMMAND
 	fileName := conf.Id + ".csp"
 	dirFile := parameters.DIR_CSP + "/" + strings.Replace(conf.Id, ".confs", "", 99)
@@ -136,6 +127,8 @@ func invokeFDR(conf configuration.Configuration) bool {
 	}
 	s := string(out[:])
 
+	fmt.Println("\n FDR:: HERE "+conf.Id)
+
 	if strings.Contains(s, "Passed") {
 		return true
 	} else {
@@ -145,7 +138,7 @@ func invokeFDR(conf configuration.Configuration) bool {
 	}
 }
 
-func createCSP(conf configuration.Configuration) string {
+func (FDR) CreateCSP(conf configuration.Configuration) string {
 
 	// Configure behaviour expressions of components and conncetores
 	configureBehaviours(&conf)
@@ -209,14 +202,14 @@ func renameSyncPorts(conf *configuration.Configuration, elem element.Element) st
 		if shared.IsExternal(token) {
 			action := token[0:strings.Index(token, ".")]
 			switch action {
-			case shared.INVP:
-				renamingExp += token + " <- " + shared.INVR + "." + id + ","
-			case shared.TERP:
-				renamingExp += token + " <- " + shared.TERR + "." + id + ","
-			case shared.INVR:
-				renamingExp += token + " <- " + shared.INVP + "." + id + ","
-			case shared.TERR:
-				renamingExp += token + " <- " + shared.TERP + "." + id + ","
+			case parameters.INVP:
+				renamingExp += token + " <- " + parameters.INVR + "." + id + ","
+			case parameters.TERP:
+				renamingExp += token + " <- " + parameters.TERR + "." + id + ","
+			case parameters.INVR:
+				renamingExp += token + " <- " + parameters.INVP + "." + id + ","
+			case parameters.TERR:
+				renamingExp += token + " <- " + parameters.TERP + "." + id + ","
 			}
 		}
 	}
@@ -279,32 +272,32 @@ func createExternalChannelExp(conf configuration.Configuration) (string, map[str
 
 	for i := range conf.Components {
 		b := conf.Components[i].CSP
-		if strings.Contains(b, shared.INVR) {
-			externalChannels[shared.INVR] = shared.INVR
+		if strings.Contains(b, parameters.INVR) {
+			externalChannels[parameters.INVR] = parameters.INVR
 		}
-		if strings.Contains(b, shared.TERR) {
-			externalChannels[shared.TERR] = shared.TERR
+		if strings.Contains(b, parameters.TERR) {
+			externalChannels[parameters.TERR] = parameters.TERR
 		}
-		if strings.Contains(b, shared.INVP) {
-			externalChannels[shared.INVP] = shared.INVP
+		if strings.Contains(b, parameters.INVP) {
+			externalChannels[parameters.INVP] = parameters.INVP
 		}
-		if strings.Contains(b, shared.TERP) {
-			externalChannels[shared.TERP] = shared.TERP
+		if strings.Contains(b, parameters.TERP) {
+			externalChannels[parameters.TERP] = parameters.TERP
 		}
 	}
 	for i := range conf.Connectors {
 		b := conf.Connectors[i].CSP
-		if strings.Contains(b, shared.INVR) {
-			externalChannels[shared.INVR] = shared.INVR
+		if strings.Contains(b, parameters.INVR) {
+			externalChannels[parameters.INVR] = parameters.INVR
 		}
-		if strings.Contains(b, shared.TERR) {
-			externalChannels[shared.TERR] = shared.TERR
+		if strings.Contains(b, parameters.TERR) {
+			externalChannels[parameters.TERR] = parameters.TERR
 		}
-		if strings.Contains(b, shared.INVP) {
-			externalChannels[shared.INVP] = shared.INVP
+		if strings.Contains(b, parameters.INVP) {
+			externalChannels[parameters.INVP] = parameters.INVP
 		}
-		if strings.Contains(b, shared.TERP) {
-			externalChannels[shared.TERP] = shared.TERP
+		if strings.Contains(b, parameters.TERP) {
+			externalChannels[parameters.TERP] = parameters.TERP
 		}
 	}
 

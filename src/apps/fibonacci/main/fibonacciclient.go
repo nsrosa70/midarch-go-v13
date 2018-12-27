@@ -11,7 +11,7 @@ import (
 
 func main(){
 
-	// NAMING_HOST, SAMPLE_SIZE
+	// NAMING_HOST, SAMPLE_SIZE, REQUEST_TIME
 	// start configuration
 	engine.Engine{}.Deploy("MiddlewareFibonacciClient.conf")
 

@@ -2,15 +2,15 @@ package shared
 
 import (
 	"reflect"
-	"framework/messages"
-	"strings"
 	"shared/parameters"
+	"strings"
+	"framework/messages"
 	"strconv"
 	"time"
 	"fmt"
 	"os"
-	"shared/errors"
 	"io/ioutil"
+	"shared/errors"
 	"plugin"
 )
 
@@ -40,6 +40,7 @@ var ValidActions = map[string]bool{
 	parameters.INVR: true,
 	parameters.TERR: true}
 
+/*
 func IsInternal(action string) bool {
 	r := false
 	if len(action) >= 2 {
@@ -50,6 +51,14 @@ func IsInternal(action string) bool {
 		r = false
 	}
 	return r
+}
+*/
+
+func IsInternal(action string) bool {
+	if action[0:2] == parameters.PREFIX_INTERNAL_ACTION {
+		return true
+	}
+	return false
 }
 
 func IsExternal(action string) bool {
@@ -239,20 +248,22 @@ func Invoke(any interface{}, name string, args ... interface{}) {
 	return
 }
 
-func LoadPlugins() map[string]time.Time {
+func LoadPlugins(confName string) map[string]time.Time {
 	listOfPlugins := make(map[string]time.Time)
 
-	pluginsDir, err := ioutil.ReadDir(parameters.DIR_PLUGINS)
+	pluginsDir := parameters.DIR_PLUGINS + "/" + confName
+	OSDir, err := ioutil.ReadDir(pluginsDir)
 	if err != nil {
-		myError := errors.MyError{Source: "Analyser", Message: "Folder not read"}
+		myError := errors.MyError{Source: "Shared", Message: "Folder '" + pluginsDir + "' not read"}
 		myError.ERROR()
 	}
-	for i := range pluginsDir {
-		fileName := pluginsDir[i].Name()
+	for i := range OSDir {
+		fileName := OSDir[i].Name()
 		if strings.Contains(fileName, "_plugin") {
-			info, err := os.Stat(parameters.DIR_PLUGINS + "/" + fileName)
+			pluginFile := pluginsDir + "/" + fileName
+			info, err := os.Stat(pluginFile)
 			if err != nil {
-				myError := errors.MyError{Source: "Analyser", Message: "Plugins not read"}
+				myError := errors.MyError{Source: "Shared", Message: "Plugin '" + pluginFile + "'not read"}
 				myError.ERROR()
 			}
 			listOfPlugins[fileName] = info.ModTime()
@@ -264,7 +275,7 @@ func LoadPlugins() map[string]time.Time {
 func CheckForNewPlugins(listOfOldPlugins map[string]time.Time, listOfNewPlugins map[string]time.Time) [] string {
 	var newPlugins [] string
 
-	// check new plugins
+	// check for new plugins
 	for key := range listOfNewPlugins {
 		val1, _ := listOfNewPlugins[key]
 		val2, ok2 := listOfOldPlugins[key]
@@ -279,21 +290,33 @@ func CheckForNewPlugins(listOfOldPlugins map[string]time.Time, listOfNewPlugins 
 	return newPlugins
 }
 
-func LoadPlugin(pluginName string, symbolName string) (plugin.Symbol) {
+func LoadPlugin(confName string, pluginName string, symbolName string) (plugin.Symbol) {
 
 	var lib *plugin.Plugin
 	var err error
 
-	lib, err = plugin.Open(parameters.DIR_PLUGINS + "/" + pluginName)
+	pluginFile := parameters.DIR_PLUGINS + "/" + confName + "/" + pluginName
+	attempts := 0
+	for {
+		lib, err = plugin.Open(pluginFile)
 
-	if err != nil {
-		myError := errors.MyError{Source: "Planner", Message: "Error on open plugin " + pluginName}
-		myError.ERROR()
+		if err != nil {
+			if attempts >= 3 {
+				fmt.Println(err)
+				myError := errors.MyError{Source: "Shared", Message: "Error on trying open plugin " + pluginFile + " " + strconv.Itoa(attempts) + " times"}
+				myError.ERROR()
+			} else {
+				attempts++
+				time.Sleep(10 * time.Millisecond)
+			}
+		} else {
+			break
+		}
 	}
 
 	fx, err := lib.Lookup(symbolName)
 	if err != nil {
-		myError := errors.MyError{Source: "Planner", Message: "Function " + symbolName + " not found in plugin"}
+		myError := errors.MyError{Source: "Shared", Message: "Function " + symbolName + " not found in plugin"}
 		myError.ERROR()
 	}
 	return fx

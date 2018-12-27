@@ -15,10 +15,10 @@ import (
 	"framework/element"
 	"fmt"
 	"reflect"
-	"core/versioninginjector"
 	"framework/components"
 	"framework/libraries"
 	"framework/connectors"
+	"core/versioninginjector"
 )
 
 type Engine struct{}
@@ -26,50 +26,32 @@ type Engine struct{}
 func (engine Engine) Deploy(adlApp string) {
 
 	// Initialize environment
-	fmt.Print("Engine:: Initialization...")
 	engine.Initialize()
-	fmt.Println(" (ok)")
 
 	// Prepare App configuration to be executed
-	fmt.Print("Engine:: Prepapre App configuration...")
-	appConf := engine.PrepareConfiguration(adlApp,true)
-	fmt.Println(" (ok)")
+	appConf := engine.PrepareConfiguration(adlApp, true)
 
 	// Generate adl of the execution environment
-	fmt.Print("Engine:: Genarate ADL of EE...")
-	adlEE := parameters.PREFIX_ADL_EXECUTION_ENVIRONMENT+adlApp
-	generateAdlEE(appConf,adlEE)
-	fmt.Println(" (ok)")
+	adlEE := parameters.PREFIX_ADL_EXECUTION_ENVIRONMENT + adlApp
+	generateAdlEE(appConf, adlEE)
 
-	// prepare EE configuration to be executed
-	fmt.Print("Engine:: Prepapre EE configuration...")
-	eeConf := engine.PrepareConfiguration(adlEE,false)
-	fmt.Println(" (ok)")
+	// Prepare EE configuration to be executed
+	eeConf := engine.PrepareConfiguration(adlEE, false)
 
 	// Configure 'Info' of components belonging to the Execution Environment
-	fmt.Print("Engine:: Prepapre 'Info' of EE...")
 	engine.ConfigureInfoEE(&eeConf, appConf)
-	fmt.Println(" (ok)")
 
 	// Configure 'Info' of components beloging to the Application
-	fmt.Print("Engine:: Prepapre 'Info' of Application...")
 	engine.ConfigureApp(&appConf)
-	fmt.Println(" (ok)")
 
 	// Deploy App into Units
-	fmt.Print("Engine:: Deploy Units...")
 	engine.ConfigureUnits(&eeConf, appConf)
-	fmt.Println(" (ok)")
 
 	// Start configuration
-	fmt.Print("Engine:: Start Configuration...")
 	engine.StartConfiguration(eeConf)
-	fmt.Println(" (ok)")
 
 	// start versioning (if the architecture is adaptable)
-	fmt.Print("Engine:: Start Versioning...")
-	go versioninginjector.InjectAdaptiveEvolution(parameters.PLUGIN_BASE_NAME)
-	fmt.Println(" (ok)")
+	go versioninginjector.InjectAdaptiveEvolution(eeConf,parameters.PLUGIN_BASE_NAME)
 }
 
 func (ee Engine) Initialize() {
@@ -99,8 +81,13 @@ func (Engine) ConfigureInfoEE(eeConf *configuration.Configuration, appConf confi
 			elem.SetInfo(listOfElements)
 			eeConf.Components[c1] = elem
 		case reflect.TypeOf(components.MAPEKPlanner{}).String(): // Planner
+		    plannerInfo := components.MAPEKPlannerInfo{ConfId:eeConf.Id,Components:appConf.Components}
 			elem := eeConf.Components[c1]
-			elem.SetInfo(appConf.Components)
+			elem.SetInfo(plannerInfo)
+			eeConf.Components[c1] = elem
+		case reflect.TypeOf(components.MAPEKEvolutiveMonitor{}).String(): // Evolutive Monitor
+			elem := eeConf.Components[c1]
+			elem.SetInfo(eeConf.Id)
 			eeConf.Components[c1] = elem
 		default:
 			elem := eeConf.Components[c1]
@@ -152,30 +139,30 @@ func (Engine) ConfigureUnits(eeConf *configuration.Configuration, appConf config
 }
 
 func (Engine) StartConfiguration(conf configuration.Configuration) {
-	for c := range conf.Components {
-		msg := messages.SAMessage{}
-		for e1 := range conf.Components[c].ExecGraph.Edges {
-			for e2 := range conf.Components[c].ExecGraph.Edges[e1] {
-				conf.Components[c].ExecGraph.Edges[e1][e2].Action.Message = &msg
-			}
-		}
-		go startElement(conf.Components[c])
+
+	// Start connectors
+	for t := range conf.Connectors {
+		go startElement(conf.Connectors[t])
 	}
 
-	for t := range conf.Connectors {
-		msg := messages.SAMessage{}
-		for e1 := range conf.Connectors[t].ExecGraph.Edges {
-			for e2 := range conf.Connectors[t].ExecGraph.Edges[e1] {
-				conf.Connectors[t].ExecGraph.Edges[e1][e2].Action.Message = &msg
-			}
+	// Start components units first
+	for c := range conf.Components {
+		if reflect.TypeOf(conf.Components[c].TypeElem).String() != reflect.TypeOf(components.ExecutionEnvironment{}).String() {
+			go startElement(conf.Components[c])
 		}
-		go startElement(conf.Connectors[t])
+	}
+
+	// Start Execution Environment second
+	for c := range conf.Components {
+		if reflect.TypeOf(conf.Components[c].TypeElem).String() == reflect.TypeOf(components.ExecutionEnvironment{}).String() {
+			go startElement(conf.Components[c])
+		}
 	}
 }
 
 func startElement(elem element.Element) {
 	for {
-		shared.Invoke(elem, "Loop", elem, elem.ExecGraph)
+		shared.Invoke(elem, "Loop", elem, &elem.ExecGraph)
 	}
 }
 
@@ -211,10 +198,35 @@ func (engine Engine) PrepareConfiguration(adlApp string, checkConfiguration bool
 	// Generate executable graph
 	engine.CreateExecGraphs(&conf)
 
+	// Initialize executable graphs, e.g., set msg of components/connsectors
+	engine.InitializeExecGraph(&conf)
+
 	// Check if actions and their respective implementations exist
 	CheckActionsAndImplementations(conf)
 
 	return conf
+}
+
+func (Engine) InitializeExecGraph(conf *configuration.Configuration){
+	// Configure messages of components
+	for c := range conf.Components {
+		msg := messages.SAMessage{}
+		for e1 := range conf.Components[c].ExecGraph.Edges {
+			for e2 := range conf.Components[c].ExecGraph.Edges[e1] {
+				conf.Components[c].ExecGraph.Edges[e1][e2].Info.Message = &msg
+			}
+		}
+	}
+
+	// Configure messages of connectors
+	for t := range conf.Connectors {
+		msg := messages.SAMessage{}
+		for e1 := range conf.Connectors[t].ExecGraph.Edges {
+			for e2 := range conf.Connectors[t].ExecGraph.Edges[e1] {
+				conf.Connectors[t].ExecGraph.Edges[e1][e2].Info.Message = &msg
+			}
+		}
+	}
 }
 
 func CheckActionsAndImplementations(conf configuration.Configuration) {
@@ -223,7 +235,7 @@ func CheckActionsAndImplementations(conf configuration.Configuration) {
 	for c := range conf.Components {
 		for e1 := range conf.Components[c].ExecGraph.Edges {
 			for e2 := range conf.Components[c].ExecGraph.Edges[e1] {
-				action := conf.Components[c].ExecGraph.Edges[e1][e2].Action.ActionName
+				action := conf.Components[c].ExecGraph.Edges[e1][e2].Info.ActionName
 				if shared.IsExternal(action) {
 					if action != parameters.INVP && action != parameters.TERP && action != parameters.INVR && action != parameters.TERR {
 						fmt.Println("EE:: Component '" + conf.Components[c].Id + "' has an invalid action: '" + action)
@@ -251,7 +263,7 @@ func CheckActionsAndImplementations(conf configuration.Configuration) {
 	for t := range conf.Connectors {
 		for e1 := range conf.Connectors[t].ExecGraph.Edges {
 			for e2 := range conf.Connectors[t].ExecGraph.Edges[e1] {
-				action := conf.Connectors[t].ExecGraph.Edges[e1][e2].Action.ActionName
+				action := conf.Connectors[t].ExecGraph.Edges[e1][e2].Info.ActionName
 				if shared.IsExternal(action) {
 					if action != parameters.INVP && action != parameters.TERP && action != parameters.INVR && action != parameters.TERR {
 						fmt.Println("EE:: Connector '" + conf.Connectors[t].Id + "' has an invalid action: '" + action)
@@ -290,7 +302,7 @@ func (engine Engine) CreateExecGraphs(conf *configuration.Configuration) {
 	// Components
 	for c := range conf.Components {
 		graph := execgraph.NewGraph(conf.Components[c].FDRGraph.NumNodes)
-		eActions := execgraph.Action{}
+		eActions := execgraph.EdgeInfo{}
 		var msg messages.SAMessage
 		for e1 := range conf.Components[c].FDRGraph.Edges {
 			for e2 := range conf.Components[c].FDRGraph.Edges[e1] {
@@ -303,22 +315,22 @@ func (engine Engine) CreateExecGraphs(conf *configuration.Configuration) {
 				if shared.IsExternal(actionNameExec) { // External action
 					key := conf.Components[c].Id + "." + actionNameFDR
 					channel := conf.StructuralChannels[key]
-					params := execgraph.Action{}
+					params := execgraph.EdgeInfo{}
 					switch actionNameExec {
 					case parameters.INVR:
 						invr := channel
-						params = execgraph.Action{ExternalAction: element.Element{}.InvR, Message: &msg, ActionChannel: &invr, ActionName: actionNameExec}
+						params = execgraph.EdgeInfo{ExternalAction: element.Element{}.InvR, Message: &msg, ActionChannel: &invr, ActionName: actionNameExec}
 					case parameters.TERR:
 						terr := channel
-						params = execgraph.Action{ExternalAction: element.Element{}.TerR, Message: &msg, ActionChannel: &terr, ActionName: actionNameExec}
+						params = execgraph.EdgeInfo{ExternalAction: element.Element{}.TerR, Message: &msg, ActionChannel: &terr, ActionName: actionNameExec}
 					case parameters.INVP:
 						invp := channel
-						params = execgraph.Action{ExternalAction: element.Element{}.InvP, Message: &msg, ActionChannel: &invp, ActionName: actionNameExec}
+						params = execgraph.EdgeInfo{ExternalAction: element.Element{}.InvP, Message: &msg, ActionChannel: &invp, ActionName: actionNameExec}
 					case parameters.TERP:
 						terp := channel
-						params = execgraph.Action{ExternalAction: element.Element{}.TerP, Message: &msg, ActionChannel: &terp, ActionName: actionNameExec}
+						params = execgraph.EdgeInfo{ExternalAction: element.Element{}.TerP, Message: &msg, ActionChannel: &terp, ActionName: actionNameExec}
 					}
-					mapType := execgraph.Action{}
+					mapType := execgraph.EdgeInfo{}
 					mapType = params
 					eActions = mapType
 				}
@@ -326,7 +338,8 @@ func (engine Engine) CreateExecGraphs(conf *configuration.Configuration) {
 				if shared.IsInternal(actionNameFDR) {
 					msg := messages.SAMessage{}
 					channel := make(chan messages.SAMessage)
-					params := execgraph.Action{InternalAction: shared.Invoke, ActionName: actionNameFDR, Message: &msg, ActionChannel: &channel}
+					//params := execgraph.EdgeInfo{InternalAction: shared.Invoke, ActionName: actionNameFDR, Message: &msg, ActionChannel: &channel}
+					params := execgraph.EdgeInfo{InternalAction: shared.Invoke, ActionName: actionNameFDR, Message: &msg, ActionChannel: &channel}
 					mapType := params
 					eActions = mapType
 				}
@@ -341,7 +354,7 @@ func (engine Engine) CreateExecGraphs(conf *configuration.Configuration) {
 	// Connectors
 	for t := range conf.Connectors {
 		graph := execgraph.NewGraph(conf.Connectors[t].FDRGraph.NumNodes)
-		eActions := execgraph.Action{}
+		eActions := execgraph.EdgeInfo{}
 		var msg messages.SAMessage
 		for e1 := range conf.Connectors[t].FDRGraph.Edges {
 			for e2 := range conf.Connectors[t].FDRGraph.Edges[e1] {
@@ -354,29 +367,29 @@ func (engine Engine) CreateExecGraphs(conf *configuration.Configuration) {
 				if shared.IsExternal(actionNameExec) { // External action
 					key := conf.Connectors[t].Id + "." + actionNameFDR
 					channel := conf.StructuralChannels[key]
-					params := execgraph.Action{}
+					params := execgraph.EdgeInfo{}
 					switch actionNameExec {
 					case parameters.INVR:
 						invr := channel
-						params = execgraph.Action{ExternalAction: element.Element{}.InvR, Message: &msg, ActionChannel: &invr, ActionName: actionNameExec}
+						params = execgraph.EdgeInfo{ExternalAction: element.Element{}.InvR, Message: &msg, ActionChannel: &invr, ActionName: actionNameExec}
 					case parameters.TERR:
 						terr := channel
-						params = execgraph.Action{ExternalAction: element.Element{}.TerR, Message: &msg, ActionChannel: &terr, ActionName: actionNameExec}
+						params = execgraph.EdgeInfo{ExternalAction: element.Element{}.TerR, Message: &msg, ActionChannel: &terr, ActionName: actionNameExec}
 					case parameters.INVP:
 						invp := channel
-						params = execgraph.Action{ExternalAction: element.Element{}.InvP, Message: &msg, ActionChannel: &invp, ActionName: actionNameExec}
+						params = execgraph.EdgeInfo{ExternalAction: element.Element{}.InvP, Message: &msg, ActionChannel: &invp, ActionName: actionNameExec}
 					case parameters.TERP:
 						terp := channel
-						params = execgraph.Action{ExternalAction: element.Element{}.TerP, Message: &msg, ActionChannel: &terp, ActionName: actionNameExec}
+						params = execgraph.EdgeInfo{ExternalAction: element.Element{}.TerP, Message: &msg, ActionChannel: &terp, ActionName: actionNameExec}
 					}
-					mapType := execgraph.Action{}
+					mapType := execgraph.EdgeInfo{}
 					mapType = params
 					eActions = mapType
 				}
 
 				if shared.IsInternal(actionNameFDR) {
 					msg := messages.SAMessage{}
-					params := execgraph.Action{InternalAction: shared.Invoke, ActionName: actionNameFDR, Message: &msg}
+					params := execgraph.EdgeInfo{InternalAction: shared.Invoke, ActionName: actionNameFDR, Message: &msg}
 					mapType := params
 					eActions = mapType
 				}
@@ -466,7 +479,7 @@ func generateAdlEE(appConf configuration.Configuration, adlEE string) {
 		units = append(units, "unit"+strconv.Itoa(i+1))
 	}
 	for i := 0; i < len(units); i++ {
-		componentUnits += "    "+units[i] + " : " + unitTypeName + " \n"
+		componentUnits += "    " + units[i] + " : " + unitTypeName + " \n"
 	}
 
 	// Generate Attachments
@@ -521,15 +534,15 @@ func generateAdlEE(appConf configuration.Configuration, adlEE string) {
 	}
 }
 
-func updateBehaviourOfNConnectors(conf configuration.Configuration){
+func updateBehaviourOfNConnectors(conf configuration.Configuration) {
 
 	// Find current behaviour in the Repository
-	for i := range conf.Connectors{
+	for i := range conf.Connectors {
 		if reflect.TypeOf(conf.Connectors[i].TypeElem) == reflect.TypeOf(connectors.OneToN{}) {
 			oldRecord := libraries.Repository[reflect.TypeOf(conf.Connectors[i].TypeElem).String()]
 			newRecord := oldRecord
-			n := countAttachments(conf,i)
-			newBehaviour := defineNewBehaviour(n,connectors.OneToN{})
+			n := countAttachments(conf, i)
+			newBehaviour := defineNewBehaviour(n, connectors.OneToN{})
 			newRecord.SetCSP(newBehaviour)
 			libraries.Repository[reflect.TypeOf(conf.Connectors[i].TypeElem).String()] = newRecord
 		}
@@ -538,7 +551,7 @@ func updateBehaviourOfNConnectors(conf configuration.Configuration){
 
 func countAttachments(conf configuration.Configuration, connectorId string) int {
 	n := 0
-	for i := range conf.Attachments{
+	for i := range conf.Attachments {
 		if conf.Attachments[i].T.Id == connectorId {
 			n ++
 		}
@@ -546,18 +559,18 @@ func countAttachments(conf configuration.Configuration, connectorId string) int 
 	return n
 }
 
-func defineNewBehaviour(n int,elem interface{}) string{
+func defineNewBehaviour(n int, elem interface{}) string {
 	baseBehaviour := ""
 
 	switch reflect.TypeOf(elem).String() {
 	case reflect.TypeOf(connectors.OneToN{}).String():
 		baseBehaviour = "B = InvP.e1"
-		for i := 0; i < n; i++{
-			baseBehaviour += " -> InvR.e"+strconv.Itoa(i+2)
+		for i := 0; i < n; i++ {
+			baseBehaviour += " -> InvR.e" + strconv.Itoa(i+2)
 		}
 		baseBehaviour += " -> B"
 	default:
-		fmt.Println("Configuration:: Impossible to define the new behaviour of "+reflect.TypeOf(elem).String())
+		fmt.Println("Configuration:: Impossible to define the new behaviour of " + reflect.TypeOf(elem).String())
 		os.Exit(0)
 	}
 	return baseBehaviour

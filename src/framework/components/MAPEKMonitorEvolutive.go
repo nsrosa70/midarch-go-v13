@@ -9,11 +9,21 @@ import (
 
 type MAPEKEvolutiveMonitor struct{}
 
-var listOfOldPlugins = shared.LoadPlugins()
+var firstTime = true
+var listOfOldPlugins map[string]time.Time
 
-func (MAPEKEvolutiveMonitor) I_EvolutiveMonitoring(msg *messages.SAMessage, info interface{}, r *bool) {
-	listOfNewPlugins := shared.LoadPlugins()
-	newPlugins := shared.CheckForNewPlugins(listOfOldPlugins, listOfNewPlugins)
+func (MAPEKEvolutiveMonitor) I_EvolutiveMonitoring(msg *messages.SAMessage, info *interface{}, r *bool) {
+	confName := (*info).(string)
+	newPlugins := []string{}
+	listOfNewPlugins := make(map[string]time.Time)
+
+	if firstTime {
+		firstTime = false
+		listOfOldPlugins = shared.LoadPlugins(confName)
+	} else {
+		listOfNewPlugins = shared.LoadPlugins(confName)
+		newPlugins = shared.CheckForNewPlugins(listOfOldPlugins, listOfNewPlugins)
+	}
 
 	if len(newPlugins) > 0 {
 		evolutiveMonitoredData := shared.MonitoredEvolutiveData{}

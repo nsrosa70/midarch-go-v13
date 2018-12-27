@@ -26,7 +26,7 @@ const CALCULATOR_PORT = 2020
 const FIBONACCI_PORT = 2030
 const QUEUEING_PORT = 2040
 
-//
+//Java parameters
 const JAVA_COMMAND = "java"
 const JAR_COMMAND = "-jar"
 
@@ -45,8 +45,8 @@ const CHAN_BUFFER_SIZE = 1
 const QUEUE_SIZE = 100
 
 //const PLUGIN_BASE_NAME  = "calculatorinvoker"
-//const PLUGIN_BASE_NAME = "fibonacciinvoker"
-const PLUGIN_BASE_NAME = "receiver"
+const PLUGIN_BASE_NAME = "fibonacciinvoker"
+//const PLUGIN_BASE_NAME = "receiver"
 const GRAPH_SIZE = 30
 
 const MAX_NUMBER_OF_ACTIVE_CONSUMERS = 10

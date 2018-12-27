@@ -2,11 +2,14 @@ package components
 
 import (
 	"framework/messages"
+	"fmt"
 )
 
 type Requestor struct{}
 
 func (Requestor) I_PosInvP(msg *messages.SAMessage, info interface{}, r *bool) {
+	*r = true
+	fmt.Printf("Requestor:: %v [%p]\n",msg,msg)
 	requestHeader := messages.RequestHeader{Operation: msg.Payload.(messages.Invocation).Op}
 	requestBody := messages.RequestBody{Args: msg.Payload.(messages.Invocation).Args}
 	miopHeader := messages.MIOPHeader{Magic: "MIOP"}

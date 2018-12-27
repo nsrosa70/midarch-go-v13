@@ -8,9 +8,10 @@ import (
 	"shared/parameters"
 	"time"
 	"framework/libraries"
+	"framework/configuration/configuration"
 )
 
-func InjectAdaptiveEvolution(elementName string) {
+func InjectAdaptiveEvolution(conf configuration.Configuration, elementName string) {
 
 	pluginBase01 := elementName + "01"
 	sourceCode01 := pluginBase01 + ".go"
@@ -18,17 +19,20 @@ func InjectAdaptiveEvolution(elementName string) {
 	pluginBase02 := elementName + "02"
 	sourceCode02 := pluginBase02 + ".go"
 
+	dirPlugins := parameters.DIR_PLUGINS + "/"+ conf.Id
+
 	// remove old plugins
-	outputLS, err := exec.Command("/bin/ls", parameters.DIR_PLUGINS).CombinedOutput()
+	outputLS, err := exec.Command("/bin/ls", dirPlugins).CombinedOutput()
 	if err != nil {
-		fmt.Println("Shared:: Something wrong in dir '"+parameters.DIR_PLUGINS)
+		fmt.Println("Injector:: Something wrong in dir '"+dirPlugins)
 		os.Stderr.WriteString(err.Error())
+		os.Exit(0)
 	}
 	oldPlugins := strings.Split(string(outputLS), "\n")
 
 	for plugin := range oldPlugins {
 		if strings.Contains(oldPlugins[plugin], "_plugin_") {
-			exec.Command("/bin/rm", "-r", parameters.DIR_PLUGINS+"/"+strings.TrimSpace(oldPlugins[plugin])).CombinedOutput()
+			exec.Command("/bin/rm", "-r", dirPlugins+"/"+strings.TrimSpace(oldPlugins[plugin])).CombinedOutput()
 		}
 	}
 
@@ -37,18 +41,20 @@ func InjectAdaptiveEvolution(elementName string) {
 	case 1: // no change
 	case 2: // change once
 		pluginName := strings.TrimSpace(pluginBase01 + "_plugin_v1")
-		_, err := exec.Command(parameters.DIR_GO+"/go", "build", "-buildmode=plugin", "-o", parameters.DIR_PLUGINS+"/"+pluginName, parameters.DIR_PLUGINS+"/"+pluginBase01+"/"+sourceCode01).CombinedOutput()
+		_, err := exec.Command(parameters.DIR_GO+"/go", "build", "-buildmode=plugin", "-o", dirPlugins+"/"+pluginName, dirPlugins+"/"+pluginBase01+"/"+sourceCode01).CombinedOutput()
 		if err != nil {
-			fmt.Println("Shared:: Something wrong in generating plugin '"+pluginName+"'")
+			fmt.Println("Injector:: Something wrong in generating plugin '"+pluginName+"'")
 			os.Stderr.WriteString(err.Error())
+			os.Exit(0)
 		}
 	case 3: // change same plugin
 		for {
 			pluginName := strings.TrimSpace(pluginBase01 + "_plugin_v1")
-			_, err := exec.Command(parameters.DIR_GO+"/go", "build", "-buildmode=plugin", "-o", parameters.DIR_PLUGINS+"/"+pluginName, parameters.DIR_PLUGINS+"/"+pluginBase01+"/"+sourceCode01).CombinedOutput()
+			_, err := exec.Command(parameters.DIR_GO+"/go", "build", "-buildmode=plugin", "-o", dirPlugins+"/"+pluginName, dirPlugins+"/"+pluginBase01+"/"+sourceCode01).CombinedOutput()
 			if err != nil {
-				fmt.Println("Shared:: Something wrong in generating plugin '"+pluginName+"'")
+				fmt.Println("Injector:: Something wrong in generating plugin '"+pluginName+"'")
 				os.Stderr.WriteString(err.Error())
+				os.Exit(0)
 			}
 			time.Sleep(parameters.INJECTION_TIME * time.Second)
 		}
@@ -59,25 +65,29 @@ func InjectAdaptiveEvolution(elementName string) {
 			case 1:
 				currentPlugin = 2
 				pluginName := strings.TrimSpace(pluginBase01 + "_plugin_v1")
-				_, err := exec.Command(parameters.DIR_GO+"/go", "build", "-buildmode=plugin", "-o", parameters.DIR_PLUGINS+"/"+pluginName, parameters.DIR_PLUGINS+"/"+pluginBase01+"/"+sourceCode01).CombinedOutput()
+				_, err := exec.Command(parameters.DIR_GO+"/go", "build", "-buildmode=plugin", "-o", dirPlugins+"/"+pluginName, dirPlugins+"/"+pluginBase01+"/"+sourceCode01).CombinedOutput()
 				if err != nil {
-					fmt.Println("Shared:: Something is wrong in generating plugin '"+pluginName+"'")
+					fmt.Println("Injector:: Something is wrong in generating plugin '"+pluginName+"'")
 					os.Stderr.WriteString(err.Error())
+					os.Exit(0)
 				}
+				fmt.Println("Injector:: [PLUGIN 01 GENERATED]")
 			case 2:
 				currentPlugin = 1
 				pluginName := strings.TrimSpace(pluginBase02 + "_plugin_v1")
-				_, err := exec.Command(parameters.DIR_GO+"/go", "build", "-buildmode=plugin", "-o", parameters.DIR_PLUGINS+"/"+pluginName, parameters.DIR_PLUGINS+"/"+pluginBase02+"/"+sourceCode02).CombinedOutput()
+				_, err := exec.Command(parameters.DIR_GO+"/go", "build", "-buildmode=plugin", "-o", dirPlugins+"/"+pluginName, dirPlugins+"/"+pluginBase02+"/"+sourceCode02).CombinedOutput()
 				if err != nil {
-					fmt.Println("Shared:: Something is wrong in generating plugin '"+pluginName+"'")
+					fmt.Println("Injector:: Something is wrong in generating plugin '"+pluginName+"'")
 					os.Stderr.WriteString(err.Error())
+					os.Exit(0)
 				}
+				fmt.Println("Injector:: [PLUGIN 02 GENERATED]")
 			}
 			time.Sleep(parameters.INJECTION_TIME * time.Second)
 		}
+	default: // no change
 	}
 }
-
 
 func confToGoType(tConf string) string {
 	foundType := false

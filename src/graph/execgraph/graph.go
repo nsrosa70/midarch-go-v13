@@ -7,18 +7,19 @@ type Graph struct {
 	Edges    [][]Edge
 }
 
-type Action struct{
-	ActionName string
-	ActionChannel *chan messages.SAMessage
-	Message *messages.SAMessage
-	ExternalAction func(*chan messages.SAMessage, *messages.SAMessage)        // External action
+type EdgeInfo struct {
+	ActionName     string
+	ActionChannel  *chan messages.SAMessage
+	Message        *messages.SAMessage
+	ExternalAction func(*chan messages.SAMessage, *messages.SAMessage) // External action
+	//InternalAction func(elem interface{}, name string, args ... interface{}) // Internal action
 	InternalAction func(elem interface{}, name string, args ... interface{}) // Internal action
 }
 
 type Edge struct {
-	From   int
-	To     int
-	Action Action
+	From int
+	To   int
+	Info EdgeInfo
 }
 
 func NewGraph(n int) *Graph {
@@ -28,8 +29,8 @@ func NewGraph(n int) *Graph {
 	}
 }
 
-func (g *Graph) AddEdge(u, v int, a Action) {
-	g.Edges[u] = append(g.Edges[u], Edge{From: u, To: v, Action: a})
+func (g *Graph) AddEdge(u, v int, a EdgeInfo) {
+	g.Edges[u] = append(g.Edges[u], Edge{From: u, To: v, Info: a})
 }
 
 func (g *Graph) AdjacentEdges(u int) []Edge {

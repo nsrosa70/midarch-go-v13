@@ -6,9 +6,15 @@ import (
 	"framework/configuration/commands"
 	"reflect"
 	"framework/element"
+	"fmt"
 )
 
 type MAPEKPlanner struct{}
+
+type MAPEKPlannerInfo struct{
+	ConfId string
+	Components map[string]element.Element
+}
 
 func (MAPEKPlanner) I_Plan(msg *messages.SAMessage, info *interface{}, r *bool) {
 
@@ -18,19 +24,24 @@ func (MAPEKPlanner) I_Plan(msg *messages.SAMessage, info *interface{}, r *bool) 
 	// Build new plan from analysis result
 	plan := commands.Plan{}
 	cmds := []commands.HighLevelCommand{}
-	conf := *info // Configuration is the "info" of this component
+	plannerInfo := (*info).(MAPEKPlannerInfo)
 
 	newPlugins := reflect.ValueOf(analysisResult.Result)
+	fmt.Printf("Planner:: [%v] \n",newPlugins.Index(0).String())
 	for i := 0; i < newPlugins.Len(); i++ {
 		pluginName := newPlugins.Index(i).String()
-		fy := shared.LoadPlugin(pluginName, "GetBehaviourExp")
-		fz := shared.LoadPlugin(pluginName, "GetTypeElem")
+		fy := shared.LoadPlugin(plannerInfo.ConfId,pluginName, "GetBehaviourExp")
+		fz := shared.LoadPlugin(plannerInfo.ConfId,pluginName, "GetTypeElem")
+		fs := shared.LoadPlugin(plannerInfo.ConfId,pluginName, "I_APAGUE")
 
 		getBehaviourExp := fy.(func() string)
 		getTypeElem := fz.(func() interface{})
+		iApague := fs.(func() string)
 
-		idNewElement := element.DefineOldElement(conf, getTypeElem()) // TODO This is critical and needs to be improved in the future
+		idNewElement := element.DefineOldElement(plannerInfo.Components, getTypeElem()) // TODO This is critical and needs to be improved in the future
 		newElem := element.Element{Id: idNewElement, TypeElem: getTypeElem(), CSP: getBehaviourExp()}
+		fmt.Printf("Planner:: [%v] \n",reflect.TypeOf(newElem.TypeElem))
+		fmt.Printf("Planner:: %v\n",iApague())
 		cmd := commands.HighLevelCommand{commands.REPLACE_COMPONENT, newElem}
 		cmds = append(cmds, cmd)
 	}

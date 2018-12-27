@@ -127,8 +127,6 @@ func (FDR) InvokeFDR(conf configuration.Configuration) bool {
 	}
 	s := string(out[:])
 
-	fmt.Println("\n FDR:: HERE "+conf.Id)
-
 	if strings.Contains(s, "Passed") {
 		return true
 	} else {
@@ -236,11 +234,59 @@ func createDataTypeExp(conf configuration.Configuration) string {
 	return dataTypeExp
 }
 
+func myTokenize(s string) [] string {
+	tokens := []string{}
+
+	token := ""
+	for i := 0; i < len(s); i++ {
+		c := s[i : i+1]
+		switch c {
+		case "=":
+			token = ""
+		case "-":
+			if strings.TrimSpace(token) != "" {
+				tokens = append(tokens, token)
+			}
+			token = ""
+		case " ":
+			if strings.TrimSpace(token) != "" {
+				tokens = append(tokens, token)
+			}
+			token = ""
+		case "]":
+			token = ""
+		case ">":
+			token = ""
+		case "\n":
+			token = ""
+		case "[":
+			if strings.TrimSpace(token) != "" {
+				tokens = append(tokens, token)
+			}
+			token = ""
+		case "(":
+			if strings.TrimSpace(token) != "" {
+				tokens = append(tokens, token)
+			}
+			token = ""
+		case ")":
+			if strings.TrimSpace(token) != "" {
+				tokens = append(tokens, token)
+			}
+			token = ""
+		default:
+			token += c
+		}
+	}
+	return tokens
+}
+
 func createInternalChannelExp(conf configuration.Configuration) (string, map[string]string) {
 	internalChannels := make(map[string]string)
 
 	for i := range conf.Components {
-		tokens := strings.Split(conf.Components[i].CSP, " ")
+		//tokens := strings.Split(conf.Components[i].CSP, " ")
+		tokens := myTokenize(conf.Components[i].CSP)
 		for i := range tokens {
 			if shared.IsInternal(tokens[i]) {
 				iAction := strings.TrimSpace(tokens[i])
@@ -250,7 +296,7 @@ func createInternalChannelExp(conf configuration.Configuration) (string, map[str
 	}
 
 	for i := range conf.Connectors {
-		tokens := strings.Split(conf.Connectors[i].CSP, " ")
+		tokens := myTokenize(conf.Connectors[i].CSP)
 		for i := range tokens {
 			if shared.IsInternal(tokens[i]) {
 				iAction := strings.TrimSpace(tokens[i])
@@ -342,14 +388,14 @@ func renameSubprocesses(p string) string {
 	newProcNames := map[string]string{}
 	for i := 1; i < len(subprocesses); i++ {
 		procName := strings.TrimSpace(subprocesses[i][:strings.Index(subprocesses[i], "=")])
-		newProcNames[procName] = procBaseName+procName
+		newProcNames[procName] = procBaseName + procName
 	}
 
 	for i := 0; i < len(subprocesses); i++ {
 		for j := range newProcNames {
-			subprocesses[i] = strings.Replace(subprocesses[i],j,newProcNames[j],99)
+			subprocesses[i] = strings.Replace(subprocesses[i], j, newProcNames[j], 99)
 		}
-		r += subprocesses[i]+"\n"
+		r += subprocesses[i] + "\n"
 	}
 	return r
 }

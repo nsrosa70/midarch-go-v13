@@ -19,6 +19,7 @@ func (FibonacciInvoker) I_PosInvP(msg *messages.SAMessage, info interface{}, r *
 		_p1 := int(_argsX[0].(float64))
 		_r := fibonacci.Fibonacci{}.Fibo(_p1) // dispatch
 
+		fmt.Println("FibonacciInvoker:: [NON-PLUGIN]")
 		// send reply
 		_replyHeader := messages.ReplyHeader{Status: 1} // 1 - Success
 		_replyBody := messages.ReplyBody{Reply: _r}

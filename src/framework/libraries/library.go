@@ -38,21 +38,21 @@ var Repository = map[string]Record{
 	"components.NotificationConsumer":          Record{RBD: "TODO", PRISM: "TODO", Go: components.NotificationConsumer{}, CSP: "B = InvP.e1 -> I_Notify -> TerP.e1 -> B"},
 	"components.SRH":                           Record{RBD: "TODO", PRISM: "TODO", Go: components.SRH{}, CSP: "B = I_PreInvR -> InvR.e1 -> TerR.e1 -> I_PosTerR -> B"},
 	"components.CRH":                           Record{RBD: "TODO", PRISM: "TODO", Go: components.CRH{}, CSP: "B = InvP.e1 -> I_PosInvP -> I_PreTerP -> TerP.e1 -> B"},
-	"components.MAPEKEvolutiveMonitor":         Record{RBD: "TODO", PRISM: "TODO", Go: components.MAPEKEvolutiveMonitor{}, CSP: "B = I_EvolutiveMonitoring -> ( I_HasPlugin -> InvR.e1 -> B [] I_HasNotPlugin -> B )"},
+	"components.MAPEKEvolutiveMonitor":         Record{RBD: "TODO", PRISM: "TODO", Go: components.MAPEKEvolutiveMonitor{}, CSP: "B = I_EvolutiveMonitoring -> (I_HasPlugin -> InvR.e1 -> B [] I_HasNotPlugin -> B)"},
 	"components.MAPEKMonitor":                  Record{RBD: "TODO", PRISM: "TODO", Go: components.MAPEKMonitor{}, CSP: "B = InvP.e1 -> I_Monitor -> InvR.e2 -> B"},
 	"components.MAPEKAnalyser":                 Record{RBD: "TODO", PRISM: "TODO", Go: components.MAPEKAnalyser{}, CSP: "B = InvP.e1 -> I_Analyse -> InvR.e2 -> B"},
 	"components.MAPEKPlanner":                  Record{RBD: "TODO", PRISM: "TODO", Go: components.MAPEKPlanner{}, CSP: "B = InvP.e1 -> I_Plan -> InvR.e2 -> B"},
 	"components.MAPEKExecutor":                 Record{RBD: "TODO", PRISM: "TODO", Go: components.MAPEKExecutor{}, CSP: "B = InvP.e1 -> I_Execute -> InvR.e2 -> B"},
 	"components.CorrectiveMonitor":             Record{RBD: "TODO", PRISM: "TODO", Go: components.CorrectiveMonitor{}, CSP: "B = I_GenerateEvent -> InvR.e1 -> B"},
 	"components.ProactiveMonitor":              Record{RBD: "TODO", PRISM: "TODO", Go: components.ProactiveMonitor{}, CSP: "B = I_GenerateEvent -> InvR.e1 -> B"},
-	"components.ExecutionUnit":                 Record{RBD: "TODO", PRISM: "TODO", Go: components.ExecutionUnit{}, CSP: "B = InvP.e1 -> I_InitialiseUnit -> P1 \nP1 = ( I_Execute -> P1 [] InvP.e1 -> I_AdaptUnit -> P1 )"},
+	"components.ExecutionUnit":                 Record{RBD: "TODO", PRISM: "TODO", Go: components.ExecutionUnit{}, CSP: "B = InvP.e1 -> I_InitialiseUnit -> P1 \nP1 = I_Execute -> P1 [] InvP.e1 -> I_AdaptUnit -> P1"},
 	"components.ExecutionEnvironment":          Record{RBD: "TODO", PRISM: "TODO", Go: components.ExecutionEnvironment{}, CSP: "B = InvR.e1 -> P1 \nP1 = InvP.e2 -> InvR.e1 -> P1"},
 	"connectors.RequestReply":                  Record{RBD: "TODO", PRISM: "TODO", Go: connectors.RequestReply{}, CSP: "B = InvP.e1 -> InvR.e2 -> TerR.e2 -> TerP.e1 -> B"},
 	"connectors.TwoToOne":                      Record{RBD: "TODO", PRISM: "TODO", Go: connectors.TwoToOne{}, CSP: "B = InvP.e1 -> InvR.e2 -> TerR.e2 -> TerP.e1 -> B [] InvP.e3 -> InvR.e2 -> TerR.e2 -> TerP.e3 -> B"},
 	"connectors.ThreeToOne":                    Record{RBD: "TODO", PRISM: "TODO", Go: connectors.ThreeToOne{}, CSP: "B = InvP.e1 -> InvR.e2 -> B [] InvP.e3 -> InvR.e2 -> B [] InvP.e4 -> InvR.e2 -> B"},
 	"connectors.NTo1":                          Record{RBD: "TODO", PRISM: "TODO", Go: connectors.NTo1{}, CSP: "B = InvP.e1 -> InvR.e2 -> B [] InvP.e3 -> InvR.e2 -> B [] InvP.e4 -> InvR.e2 -> B"},
 	"connectors.OneWay":                        Record{RBD: "TODO", PRISM: "TODO", Go: connectors.OneWay{}, CSP: "B = InvP.e1 -> InvR.e2 -> B"},
-	"connectors.OneToN":                        Record{RBD: "TODO", PRISM: "TODO", Go: connectors.OneToN{}, CSP: "B = InvP.e1 -> InvR.e2 -> InvR.e3 -> InvR.e4 -> B"}}
+	"connectors.OneToN":                        Record{RBD: "TODO", PRISM: "TODO", Go: connectors.OneToN{}, CSP: "B = TO BE ASSEMBLED AT RUNTIME"}}
 
 func CheckLibrary() bool {
 	r := true

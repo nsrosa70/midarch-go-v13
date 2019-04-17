@@ -1,7 +1,7 @@
 package main
 
 import (
-	EE "core/engine"
+	EE "execution/execution"
 	"fmt"
 	"shared/factories"
 	"time"
@@ -13,7 +13,7 @@ func main() {
 	// QUEUEING_HOST
 	EE.ExecutionEnvironment{}.Deploy("QueueClient.conf")
 
-	// proxy to engine service
+	// proxy to execution service
 	queueingroxy := factories.FactoryQueueing()
 
 	for {

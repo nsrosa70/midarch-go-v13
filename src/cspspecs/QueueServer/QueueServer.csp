@@ -1,4 +1,4 @@
-datatype PROCNAMES = notifier | manager | t1 | t2 | t4 | engine | invoker | srh | t3 
+datatype PROCNAMES = notifier | manager | t1 | t2 | t4 | engine | invoker | srh | t3
 channel I_PosTerR,I_PosInvP,I_GetSubs,I_GetSubscribers,I_Unsubscribe,I_Publish,I_Pub,I_PreInvR,I_Notify,I_Subscribe,I_GetResSubs
 channel InvP,TerP,InvR,TerR : PROCNAMES
 NOTIFIER = InvP.t4 -> I_Notify -> TerP.t4 -> NOTIFIER

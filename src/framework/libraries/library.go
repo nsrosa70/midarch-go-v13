@@ -56,9 +56,9 @@ var Repository = map[string]Record{
 
 func CheckLibrary() bool {
 	r := true
-	for e := range Repository {
-		if Repository[e].CSP == "" {
-			fmt.Println("Library:: Behaviour of Record '" + e + "' is INVALID!!")
+	for elem := range Repository {
+		if Repository[elem].CSP == "" {
+			fmt.Println("Library:: Behaviour of Record '" + elem + "' is INVALID!!")
 			os.Exit(0)
 		}
 	}

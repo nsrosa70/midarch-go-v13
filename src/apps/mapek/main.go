@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
-	"core/engine"
+	"ee/ee"
 )
 
 func main() {
 
 	// start configuration
-	engine.ExecutionEnvironment{}.Deploy("MAPEK.conf")
+	ee.ExecutionEnvironment{}.Deploy("MAPEK.conf")
 
 	fmt.Scanln()
 }

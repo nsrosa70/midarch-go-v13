@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"strconv"
-	"core/engine"
+	"ee/ee"
 	"shared/net"
 	"shared/factories"
 	"shared/parameters"
@@ -14,7 +14,7 @@ func main(){
 
 	// Parameters: NAMING_HOST, STRATEGY, MONITOR_TIME, INJECTION_TIME
 	// start configuration
-	engine.Engine{}.Deploy("MiddlewareFibonacciServer.conf")
+	ee.Engine{}.Deploy("MiddlewareFibonacciServer.conf")
 
 	// proxy to naming service
 	namingClientProxy := factories.LocateNaming()

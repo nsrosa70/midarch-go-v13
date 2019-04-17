@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 	"shared/parameters"
-	"core"
+	"ee"
 	"apps/calculator/calculatorclientproxy"
 	"shared/conf"
 )

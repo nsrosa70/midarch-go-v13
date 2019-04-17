@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strconv"
 	"framework/components/naming/naming"
-	"core"
+	"ee"
 	"shared/parameters"
 	"apps/calculator/calculatorclientproxy"
 	"shared/conf"

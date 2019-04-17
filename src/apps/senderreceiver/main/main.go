@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
-	"core/engine"
+	"ee/ee"
 )
 
 func main() {
 
 	// start configuration
-	engine.Engine{}.Deploy("SenderReceiver.conf")
+	ee.EE{}.Deploy("SenderReceiver.conf")
 
 	fmt.Scanln()
 }

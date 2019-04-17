@@ -1,4 +1,4 @@
-package engine
+package ee
 
 import (
 	"shared/shared"
@@ -18,43 +18,52 @@ import (
 	"framework/components"
 	"framework/libraries"
 	"framework/connectors"
-	"core/versioninginjector"
+	"ee/versioninginjector"
 )
 
-type Engine struct{}
+type EE struct{}
 
-func (engine Engine) Deploy(adlApp string) {
+func (ee EE) Deploy(adlApp string) {
 
 	// Initialize environment
-	engine.Initialize()
+	fmt.Println("Engine:: Initializing Environment...")
+	ee.Initialize()
 
 	// Prepare App configuration to be executed
-	appConf := engine.PrepareConfiguration(adlApp, true)
+	fmt.Println("Engine:: Preparing App configuration...")
+	appConf := ee.PrepareConfiguration(adlApp, true)
 
 	// Generate adl of the execution environment
+	fmt.Println("Engine:: Generating ADL of EE configuration...")
 	adlEE := parameters.PREFIX_ADL_EXECUTION_ENVIRONMENT + adlApp
 	generateAdlEE(appConf, adlEE)
 
 	// Prepare EE configuration to be executed
-	eeConf := engine.PrepareConfiguration(adlEE, false)
+	fmt.Println("Engine:: Preparing EE configuration...")
+	eeConf := ee.PrepareConfiguration(adlEE, false)
 
 	// Configure 'Info' of components belonging to the Execution Environment
-	engine.ConfigureInfoEE(&eeConf, appConf)
+	fmt.Println("Engine:: Configuring Info of EE elements...")
+	ee.ConfigureInfoEE(&eeConf, appConf)
 
 	// Configure 'Info' of components beloging to the Application
-	engine.ConfigureApp(&appConf)
+	fmt.Println("Engine:: Configuring Info of App elements...")
+	ee.ConfigureApp(&appConf)
 
 	// Deploy App into Units
-	engine.ConfigureUnits(&eeConf, appConf)
+	fmt.Println("Engine:: Deploying App into Units...")
+	ee.ConfigureUnits(&eeConf, appConf)
 
 	// Start configuration
-	engine.StartConfiguration(eeConf)
+	fmt.Println("Engine:: Starting configuration...")
+	ee.StartConfiguration(eeConf)
 
 	// start versioning (if the architecture is adaptable)
+	fmt.Println("Engine:: Starting versioning...")
 	go versioninginjector.InjectAdaptiveEvolution(eeConf,parameters.PLUGIN_BASE_NAME)
 }
 
-func (ee Engine) Initialize() {
+func (ee EE) Initialize() {
 	// Load execution parameters
 	shared.LoadParameters(os.Args[1:])
 
@@ -65,7 +74,7 @@ func (ee Engine) Initialize() {
 	shared.ShowExecutionParameters(false)
 }
 
-func (Engine) ConfigureInfoEE(eeConf *configuration.Configuration, appConf configuration.Configuration) {
+func (EE) ConfigureInfoEE(eeConf *configuration.Configuration, appConf configuration.Configuration) {
 	for c1 := range eeConf.Components {
 		componentType := reflect.TypeOf(eeConf.Components[c1].TypeElem).String()
 		switch  componentType {
@@ -97,7 +106,7 @@ func (Engine) ConfigureInfoEE(eeConf *configuration.Configuration, appConf confi
 	}
 }
 
-func (Engine) ConfigureApp(conf *configuration.Configuration) {
+func (EE) ConfigureApp(conf *configuration.Configuration) {
 	for c := range conf.Components {
 		elem := conf.Components[c]
 		elem.SetInfo(parameters.DEFAULT_INFO)
@@ -105,7 +114,7 @@ func (Engine) ConfigureApp(conf *configuration.Configuration) {
 	}
 }
 
-func (Engine) ConfigureUnits(eeConf *configuration.Configuration, appConf configuration.Configuration) {
+func (EE) ConfigureUnits(eeConf *configuration.Configuration, appConf configuration.Configuration) {
 	availableUnits := []string{}
 
 	// Identify units
@@ -138,7 +147,7 @@ func (Engine) ConfigureUnits(eeConf *configuration.Configuration, appConf config
 	}
 }
 
-func (Engine) StartConfiguration(conf configuration.Configuration) {
+func (EE) StartConfiguration(conf configuration.Configuration) {
 
 	// Start connectors
 	for t := range conf.Connectors {
@@ -166,13 +175,13 @@ func startElement(elem element.Element) {
 	}
 }
 
-func (engine Engine) PrepareConfiguration(adlApp string, checkConfiguration bool) configuration.Configuration {
+func (ee EE) PrepareConfiguration(adlApp string, checkConfiguration bool) configuration.Configuration {
 
 	// Generate Go configuration
 	conf := configuration.MapADLIntoGo(adlApp)
 
 	// Configure structural channels and maps of components/connectors
-	engine.ConfigureStructuralChannelsAndMaps(&conf)
+	ee.ConfigureStructuralChannelsAndMaps(&conf)
 
 	// Update the behaviour of some connectors according to the configuration, e.g., OneToN
 	updateBehaviourOfNConnectors(conf)
@@ -196,10 +205,10 @@ func (engine Engine) PrepareConfiguration(adlApp string, checkConfiguration bool
 	fdrChecker.LoadFDRGraphs(&conf)
 
 	// Generate executable graph
-	engine.CreateExecGraphs(&conf)
+	ee.CreateExecGraphs(&conf)
 
 	// Initialize executable graphs, e.g., set msg of components/connsectors
-	engine.InitializeExecGraph(&conf)
+	ee.InitializeExecGraph(&conf)
 
 	// Check if actions and their respective implementations exist
 	CheckActionsAndImplementations(conf)
@@ -207,7 +216,7 @@ func (engine Engine) PrepareConfiguration(adlApp string, checkConfiguration bool
 	return conf
 }
 
-func (Engine) InitializeExecGraph(conf *configuration.Configuration){
+func (EE) InitializeExecGraph(conf *configuration.Configuration){
 	// Configure messages of components
 	for c := range conf.Components {
 		msg := messages.SAMessage{}
@@ -288,7 +297,7 @@ func CheckActionsAndImplementations(conf configuration.Configuration) {
 	}
 }
 
-func (engine Engine) ConfigureManagementChannels(conf configuration.Configuration) map[string]chan commands.LowLevelCommand {
+func (ee EE) ConfigureManagementChannels(conf configuration.Configuration) map[string]chan commands.LowLevelCommand {
 	managementChannels := make(map[string]chan commands.LowLevelCommand)
 	for i := range conf.Components {
 		id := conf.Components[i].Id
@@ -297,7 +306,7 @@ func (engine Engine) ConfigureManagementChannels(conf configuration.Configuratio
 	return managementChannels
 }
 
-func (engine Engine) CreateExecGraphs(conf *configuration.Configuration) {
+func (ee EE) CreateExecGraphs(conf *configuration.Configuration) {
 
 	// Components
 	for c := range conf.Components {
@@ -402,7 +411,7 @@ func (engine Engine) CreateExecGraphs(conf *configuration.Configuration) {
 	}
 }
 
-func (Engine) ConfigureStructuralChannelsAndMaps(conf *configuration.Configuration) {
+func (EE) ConfigureStructuralChannelsAndMaps(conf *configuration.Configuration) {
 	structuralChannels := make(map[string]chan messages.SAMessage)
 
 	// Configure structural channels
@@ -485,14 +494,14 @@ func generateAdlEE(appConf configuration.Configuration, adlEE string) {
 	// Generate Attachments
 	attUnits := ""
 	for i := 0; i < len(units); i++ {
-		attUnits += "   ee,t1," + units[i] + " \n"
+		attUnits += "   execution,t1," + units[i] + " \n"
 	}
 
 	// Assemble configuration
 	header := "Configuration " + strings.Replace(adlEE, ".conf", "", 99) + " := "
 	adaptability := "Adaptability \n None"
 	components := "Components \n" +
-		"    ee : ExecutionEnvironment \n" +
+		"    execution : ExecutionEnvironment \n" +
 		"    evolutiveMonitor : MAPEKEvolutiveMonitor \n" +
 		"    mapekMonitor : MAPEKMonitor \n" +
 		"    analyser : MAPEKAnalyser \n" +
@@ -514,7 +523,7 @@ func generateAdlEE(appConf configuration.Configuration, adlEE string) {
 		"   mapekMonitor,t3,analyser\n" +
 		"   analyser,t4,planner\n" +
 		"   planner,t5,executor\n" +
-		"   executor,t6,ee"
+		"   executor,t6,execution"
 	endConf := "EndConf"
 
 	adl := header + "\n\n" + adaptability + "\n\n" + components + "\n\n" + connectors + "\n\n" + attachments + "\n\n" + endConf

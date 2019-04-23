@@ -3,7 +3,7 @@ package main
 import (
 	"os/exec"
 	"shared/parameters"
-	"shared/errors"
+	"shared/error"
 )
 
 func main() {
@@ -23,7 +23,7 @@ func createDot(cspfile string, process string) {
 	exec.Command("/usr/bin/java", parameters.JAR_COMMAND, parser, inputFile, process)
 	out, err := exec.Command("java").Output()
 	if err != nil {
-		myError := errors.MyError{Source: "CSParser", Message: "Problem in creating .dot file"}
+		myError := error.MyError{Source: "CSParser", Message: "Problem in creating .dot file"}
 		myError.ERROR()
 	}
 

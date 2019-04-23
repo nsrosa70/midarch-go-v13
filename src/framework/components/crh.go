@@ -7,7 +7,7 @@ import (
 	"strings"
 	"strconv"
 	"fmt"
-	"shared/errors"
+	"shared/error"
 )
 
 type CRH struct {
@@ -28,7 +28,7 @@ func (c CRH) I_PosInvP(msg *messages.SAMessage, info interface{}, r *bool) {
 	portTmp = port
 	if err != nil {
 		fmt.Println(err)
-		myError := errors.MyError{Source: "CRH", Message: "Unable to open connection to " + host + " : " + strconv.Itoa(port)}
+		myError := error.MyError{Source: "CRH", Message: "Unable to open connection to " + host + " : " + strconv.Itoa(port)}
 		myError.ERROR()
 	}
 
@@ -36,7 +36,7 @@ func (c CRH) I_PosInvP(msg *messages.SAMessage, info interface{}, r *bool) {
 	err = encoder.Encode(msg.Payload.(messages.ToCRH).MIOP)
 	if err != nil {
 		fmt.Println(err)
-		myError := errors.MyError{Source: "CRH", Message: "Unable to send data to " + host + ":" + strconv.Itoa(port)}
+		myError := error.MyError{Source: "CRH", Message: "Unable to send data to " + host + ":" + strconv.Itoa(port)}
 		myError.ERROR()
 	}
 }
@@ -48,7 +48,7 @@ func (c CRH) I_PreTerP(msg *messages.SAMessage, info interface{}, r *bool) {
 
 	if err != nil {
 		fmt.Println(err)
-		myError := errors.MyError{Source: "CRH", Message: "Problem in decoding at Port " + strconv.Itoa(portTmp)}
+		myError := error.MyError{Source: "CRH", Message: "Problem in decoding at Port " + strconv.Itoa(portTmp)}
 		myError.ERROR()
 	}
 	conn.Close()

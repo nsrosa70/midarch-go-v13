@@ -4,14 +4,14 @@ import (
 	"reflect"
 	"shared/parameters"
 	"strings"
-	"framework/messages"
 	"strconv"
 	"time"
 	"fmt"
 	"os"
 	"io/ioutil"
-	"shared/errors"
 	"plugin"
+	"log"
+	"framework/messages"
 )
 
 type Invocation struct {
@@ -40,19 +40,31 @@ var ValidActions = map[string]bool{
 	parameters.INVR: true,
 	parameters.TERR: true}
 
-/*
-func IsInternal(action string) bool {
-	r := false
-	if len(action) >= 2 {
-		if action[0:2] == parameters.PREFIX_INTERNAL_ACTION {
-			r = true
-		}
-	} else {
-		r = false
-	}
-	return r
+type QueueingInvocation struct {
+	Op   string
+	Args []interface{}
 }
-*/
+
+type QueueingTermination struct {
+	R interface{}
+}
+
+type ParMapActions struct {
+	F1 func(*chan messages.SAMessage, *messages.SAMessage)      // External action
+	F2 func(any interface{}, name string, args ... interface{}) // Internal action
+	P1 *messages.SAMessage
+	P2 *chan messages.SAMessage
+	P3 interface{}
+	P4 string
+}
+
+type Args struct {
+	A, B int
+}
+
+type Quotient struct {
+	Quo, Rem int
+}
 
 func IsInternal(action string) bool {
 	if action[0:2] == parameters.PREFIX_INTERNAL_ACTION {
@@ -79,45 +91,6 @@ func IsExternal(action string) bool {
 		r = false
 	}
 	return r
-}
-
-func IsAction(action string) bool {
-	r := false
-
-	action = strings.TrimSpace(action)
-	if len(action) > 2 {
-		if strings.Contains(action, parameters.INVP) || strings.Contains(action, parameters.TERP) || strings.Contains(action, parameters.INVR) || strings.Contains(action, parameters.TERR) {
-			r = true
-		} else {
-			r = false
-		}
-	}
-	return r
-}
-
-type ParMapActions struct {
-	F1 func(*chan messages.SAMessage, *messages.SAMessage)      // External action
-	F2 func(any interface{}, name string, args ... interface{}) // Internal action
-	P1 *messages.SAMessage
-	P2 *chan messages.SAMessage
-	P3 interface{}
-	P4 string
-}
-
-type Args struct {
-	A, B int
-}
-
-type Quotient struct {
-	Quo, Rem int
-}
-
-func IsToElement(action string) bool {
-	if action[:2] == parameters.PREFIX_INTERNAL_ACTION || action[:4] == parameters.INVP || action[:4] == parameters.TERR {
-		return true
-	} else { // TerP and InvR
-		return false
-	}
 }
 
 func LoadParameters(args []string) {
@@ -227,15 +200,6 @@ func IsInConnectors(conns map[string]string, t string) bool {
 	return foundConnector
 }
 
-type QueueingInvocation struct {
-	Op   string
-	Args []interface{}
-}
-
-type QueueingTermination struct {
-	R interface{}
-}
-
 func Invoke(any interface{}, name string, args ... interface{}) {
 	inputs := make([]reflect.Value, len(args))
 
@@ -253,19 +217,13 @@ func LoadPlugins(confName string) map[string]time.Time {
 
 	pluginsDir := parameters.DIR_PLUGINS + "/" + confName
 	OSDir, err := ioutil.ReadDir(pluginsDir)
-	if err != nil {
-		myError := errors.MyError{Source: "Shared", Message: "Folder '" + pluginsDir + "' not read"}
-		myError.ERROR()
-	}
+	CheckError(err,"Shared:: Folder '" + pluginsDir + "' not read")
 	for i := range OSDir {
 		fileName := OSDir[i].Name()
 		if strings.Contains(fileName, "_plugin") {
 			pluginFile := pluginsDir + "/" + fileName
 			info, err := os.Stat(pluginFile)
-			if err != nil {
-				myError := errors.MyError{Source: "Shared", Message: "Plugin '" + pluginFile + "'not read"}
-				myError.ERROR()
-			}
+			CheckError(err,"Shared:: Plugin '" + pluginFile + "'not read")
 			listOfPlugins[fileName] = info.ModTime()
 		}
 	}
@@ -302,9 +260,7 @@ func LoadPlugin(confName string, pluginName string, symbolName string) (plugin.S
 
 		if err != nil {
 			if attempts >= 3 {
-				fmt.Println(err)
-				myError := errors.MyError{Source: "Shared", Message: "Error on trying open plugin " + pluginFile + " " + strconv.Itoa(attempts) + " times"}
-				myError.ERROR()
+				CheckError(err,"Shared:: Error on trying open plugin " + pluginFile + " " + strconv.Itoa(attempts) + " times")
 			} else {
 				attempts++
 				time.Sleep(10 * time.Millisecond)
@@ -315,9 +271,22 @@ func LoadPlugin(confName string, pluginName string, symbolName string) (plugin.S
 	}
 
 	fx, err := lib.Lookup(symbolName)
-	if err != nil {
-		myError := errors.MyError{Source: "Shared", Message: "Function " + symbolName + " not found in plugin"}
-		myError.ERROR()
-	}
+	CheckError(err,"Shared:: Message: Function " + symbolName + " not found in plugin")
+
 	return fx
+}
+
+func CheckError(err error, msg string){
+	if err != nil {
+		log.Fatalf("%s:: %s", msg, err)
+	}
+}
+
+func SkipLine(line string) bool {
+
+	if line == "" || strings.TrimSpace(line)[:2] == parameters.ADL_COMMENT {
+		return true
+	} else {
+		return false
+	}
 }

@@ -8,7 +8,7 @@ import (
 	"framework/messages"
 	"graph/execgraph"
 	"strings"
-	"shared/errors"
+	"shared/error"
 	"framework/configuration/commands"
 	"strconv"
 	"shared/parameters"
@@ -193,7 +193,7 @@ func (ee EE) PrepareConfiguration(adlApp string, checkConfiguration bool) config
 	if checkConfiguration {
 		ok := fdrChecker.InvokeFDR(conf)
 		if !ok {
-			myError := errors.MyError{Source: "Execution Engine", Message: "Configuration has a problem detected by FDR4"}
+			myError := error.MyError{Source: "Execution Engine", Message: "Configuration has a problem detected by FDR4"}
 			myError.ERROR()
 		}
 	}
@@ -494,14 +494,14 @@ func generateAdlEE(appConf configuration.Configuration, adlEE string) {
 	// Generate Attachments
 	attUnits := ""
 	for i := 0; i < len(units); i++ {
-		attUnits += "   execution,t1," + units[i] + " \n"
+		attUnits += "   ee,t1," + units[i] + " \n"
 	}
 
 	// Assemble configuration
 	header := "Configuration " + strings.Replace(adlEE, ".conf", "", 99) + " := "
 	adaptability := "Adaptability \n None"
 	components := "Components \n" +
-		"    execution : ExecutionEnvironment \n" +
+		"    ee : ExecutionEnvironment \n" +
 		"    evolutiveMonitor : MAPEKEvolutiveMonitor \n" +
 		"    mapekMonitor : MAPEKMonitor \n" +
 		"    analyser : MAPEKAnalyser \n" +
@@ -523,14 +523,14 @@ func generateAdlEE(appConf configuration.Configuration, adlEE string) {
 		"   mapekMonitor,t3,analyser\n" +
 		"   analyser,t4,planner\n" +
 		"   planner,t5,executor\n" +
-		"   executor,t6,execution"
+		"   executor,t6,ee"
 	endConf := "EndConf"
 
 	adl := header + "\n\n" + adaptability + "\n\n" + components + "\n\n" + connectors + "\n\n" + attachments + "\n\n" + endConf
 
 	file, err := os.Create(parameters.DIR_CONF + "/" + adlEE)
 	if err != nil {
-		myError := errors.MyError{Source: "Engine", Message: "File '" + adlEE + "' NOT created"}
+		myError := error.MyError{Source: "Engine", Message: "File '" + adlEE + "' NOT created"}
 		myError.ERROR()
 	}
 	defer file.Close()
@@ -538,7 +538,7 @@ func generateAdlEE(appConf configuration.Configuration, adlEE string) {
 	// save data
 	_, err = file.WriteString(adl)
 	if err != nil {
-		myError := errors.MyError{Source: "Engine", Message: "File '" + adlEE + "' NOT saved"}
+		myError := error.MyError{Source: "Engine", Message: "File '" + adlEE + "' NOT saved"}
 		myError.ERROR()
 	}
 }

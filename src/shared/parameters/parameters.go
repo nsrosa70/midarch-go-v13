@@ -4,10 +4,9 @@ import "time"
 
 // Dirs
 //const BASE_DIR  = "/go/midarch-go"  // docker
-const BASE_DIR = "/Users/nsr/Dropbox/go/midarch-go-v12"
+const BASE_DIR = "/Users/nsr/Dropbox/go/midarch-go-v13"
 const DIR_PLUGINS = BASE_DIR + "/src/plugins"
 const DIR_CSP = BASE_DIR + "/src/cspspecs"
-const DIR_SOURCE = BASE_DIR
 const DIR_CONF = BASE_DIR + "/src/apps/confs"
 const DIR_GO = "/usr/local/go/bin"
 const DIR_FDR = "/Volumes/Macintosh HD/Applications/FDR4-2.app/Contents/MacOS"
@@ -15,8 +14,7 @@ const DIR_CSPARSER = BASE_DIR + "/src/verificationtools/cspdot/csparser"
 const COMPONENTS_PATH = "components"
 const CONNECTORS_PATH = "connectors"
 const NAMINGCLIENTPROXY_PATH = "namingclientproxy"
-const COMPONENTS_DIR = "components"
-const CONNECTORS_DIR = "connectors"
+const MADL_EXTENSION = ".madl"
 
 const ADL_COMMENT = "//"
 

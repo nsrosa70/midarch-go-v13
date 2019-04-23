@@ -8,7 +8,7 @@ import (
 	"strings"
 	"strconv"
 	"net"
-	"shared/errors"
+	"shared/error"
 	"encoding/json"
 	"shared/parameters"
 )
@@ -62,7 +62,7 @@ func (NotificationConsumer) NotifySubscribers(msgToBeNotified string, listOfSubs
 			portTmp = port
 			if err != nil {
 				fmt.Println(err)
-				myError := errors.MyError{Source: "Notification Consumer", Message: "Unable to open connection to " + host + " : " + strconv.Itoa(port)}
+				myError := error.MyError{Source: "Notification Consumer", Message: "Unable to open connection to " + host + " : " + strconv.Itoa(port)}
 				myError.ERROR()
 			}
 		}
@@ -75,7 +75,7 @@ func (NotificationConsumer) NotifySubscribers(msgToBeNotified string, listOfSubs
 		err = encoder.Encode(msgMOM)
 		if err != nil {
 			fmt.Println(err)
-			myError := errors.MyError{Source: "Notification Consumer", Message: "Unable to send data to " + host + ":" + strconv.Itoa(port)}
+			myError := error.MyError{Source: "Notification Consumer", Message: "Unable to send data to " + host + ":" + strconv.Itoa(port)}
 			myError.ERROR()
 		}
 	}

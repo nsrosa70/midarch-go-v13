@@ -2,3 +2,4 @@
 2) Create the new Github repository
 3) VCS -> Git -> Remotes (associate local repository to the new Git repository)
 4) VCS -> Git -> Push (update new Git repository)
+5) Configure the new GOPATH (press "<command> ,")

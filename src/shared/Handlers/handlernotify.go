@@ -4,7 +4,7 @@ import (
 	"net"
 	"strconv"
 	"fmt"
-	"shared/errors"
+	"shared/error"
 	"encoding/json"
 	"framework/messages"
 	"shared/net"
@@ -29,7 +29,7 @@ func (HN HandlerNotify) Start() {
 	ln, err = net.Listen("tcp", addr)
 	if err != nil {
 		fmt.Println(err)
-		myError := errors.MyError{Source: "HandlerNotify", Message: "Unable to listen on port " + strconv.Itoa(HN.Port)}
+		myError := error.MyError{Source: "HandlerNotify", Message: "Unable to listen on port " + strconv.Itoa(HN.Port)}
 		myError.ERROR()
 	}
 
@@ -37,7 +37,7 @@ func (HN HandlerNotify) Start() {
 		conn, err = ln.Accept()
 		if err != nil {
 			fmt.Println(err)
-			myError := errors.MyError{Source: "HandlerNotify", Message: "Unable to accept connections at port " + strconv.Itoa(HN.Port)}
+			myError := error.MyError{Source: "HandlerNotify", Message: "Unable to accept connections at port " + strconv.Itoa(HN.Port)}
 			myError.ERROR()
 		}
 	}
@@ -50,7 +50,7 @@ func (HN HandlerNotify) Start() {
 
 		if err != nil {
 			fmt.Println(err)
-			myError := errors.MyError{Source: "HandlerNotify", Message: "Unable to read data"}
+			myError := error.MyError{Source: "HandlerNotify", Message: "Unable to read data"}
 			myError.ERROR()
 		}
 		HandlerChan <- msgMOM.PayLoad

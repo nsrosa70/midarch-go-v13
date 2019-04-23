@@ -9,7 +9,7 @@ import (
 	"framework/configuration/configuration"
 	"shared/shared"
 	"shared/parameters"
-	"shared/errors"
+	"shared/error"
 	"framework/configuration/commands"
 	"graph/fdrgraph"
 	"log"
@@ -94,7 +94,7 @@ func (FDR) SaveCSP(conf configuration.Configuration) {
 	fileName := conf.Id + ".csp"
 	file, err := os.Create(confDir + "/" + fileName)
 	if err != nil {
-		myError := errors.MyError{Source: "FDR", Message: "CSP File not created"}
+		myError := error.MyError{Source: "FDR", Message: "CSP File not created"}
 		myError.ERROR()
 	}
 	defer file.Close()
@@ -102,12 +102,12 @@ func (FDR) SaveCSP(conf configuration.Configuration) {
 	// save data
 	_, err = file.WriteString(conf.CSP)
 	if err != nil {
-		myError := errors.MyError{Source: "FDR", Message: "CSP Specification not saved"}
+		myError := error.MyError{Source: "FDR", Message: "CSP Specification not saved"}
 		myError.ERROR()
 	}
 	err = file.Sync()
 	if err != nil {
-		myError := errors.MyError{Source: "FDR", Message: "CSP File not Synced"}
+		myError := error.MyError{Source: "FDR", Message: "CSP File not Synced"}
 		myError.ERROR()
 	}
 	defer file.Close()
@@ -122,7 +122,7 @@ func (FDR) InvokeFDR(conf configuration.Configuration) bool {
 	out, err := exec.Command(cmdExp, inputFile).Output()
 	if err != nil {
 		fmt.Println(err)
-		myError := errors.MyError{Source: "FDR", Message: "File '" + inputFile + "' has a problem (e.g.,syntax error)"}
+		myError := error.MyError{Source: "FDR", Message: "File '" + inputFile + "' has a problem (e.g.,syntax error)"}
 		myError.ERROR()
 	}
 	s := string(out[:])
@@ -130,7 +130,7 @@ func (FDR) InvokeFDR(conf configuration.Configuration) bool {
 	if strings.Contains(s, "Passed") {
 		return true
 	} else {
-		myError := errors.MyError{Source: "FDR", Message: "Deadlock detected"}
+		myError := error.MyError{Source: "FDR", Message: "Deadlock detected"}
 		myError.ERROR()
 		return false
 	}

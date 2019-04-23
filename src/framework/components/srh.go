@@ -7,7 +7,7 @@ import (
 	"strings"
 	"strconv"
 	"fmt"
-	"shared/errors"
+	"shared/error"
 	"encoding/json"
 )
 
@@ -27,7 +27,7 @@ func (s SRH) I_PreInvR(msg *messages.SAMessage, info interface{}, r *bool) {
 		ln, err = net.Listen("tcp", addr)
 		if err != nil {
 			fmt.Println(err)
-			myError := errors.MyError{Source: "SRH", Message: "Unable to listen on port " + strconv.Itoa(s.Port)}
+			myError := error.MyError{Source: "SRH", Message: "Unable to listen on port " + strconv.Itoa(s.Port)}
 			myError.ERROR()
 		}
 		serverUp = true
@@ -37,7 +37,7 @@ func (s SRH) I_PreInvR(msg *messages.SAMessage, info interface{}, r *bool) {
 		conn, err = ln.Accept()
 		if err != nil {
 			fmt.Println(err)
-			myError := errors.MyError{Source: "SRH", Message: "Unable to accept connections at port " + strconv.Itoa(s.Port)}
+			myError := error.MyError{Source: "SRH", Message: "Unable to accept connections at port " + strconv.Itoa(s.Port)}
 			myError.ERROR()
 		}
 	}
@@ -49,7 +49,7 @@ func (s SRH) I_PreInvR(msg *messages.SAMessage, info interface{}, r *bool) {
 
 	if err != nil {
 		fmt.Println(err)
-		myError := errors.MyError{Source: "SRH", Message: "Unable to read data"}
+		myError := error.MyError{Source: "SRH", Message: "Unable to read data"}
 		myError.ERROR()
 	}
 	msg.Payload = miop
@@ -62,7 +62,7 @@ func (SRH) I_PosTerR(msg *messages.SAMessage, info interface{}, r *bool) {
 	err = encoder.Encode(msg)
 	if err != nil {
 		fmt.Println(err)
-		myError := errors.MyError{Source: "SRH", Message: "Unable to send data"}
+		myError := error.MyError{Source: "SRH", Message: "Unable to send data"}
 		myError.ERROR()
 	}
 	conn.Close()

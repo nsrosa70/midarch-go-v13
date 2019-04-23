@@ -14,7 +14,7 @@ import (
 	grpc "google.golang.org/grpc"
 )
 
-// Reference imports to suppress errors if they are not otherwise used.
+// Reference imports to suppress error if they are not otherwise used.
 var _ = proto.Marshal
 var _ = fmt.Errorf
 var _ = math.Inf
@@ -110,7 +110,7 @@ func init() {
 	proto.RegisterType((*HelloReply)(nil), "helloworld.HelloReply")
 }
 
-// Reference imports to suppress errors if they are not otherwise used.
+// Reference imports to suppress error if they are not otherwise used.
 var _ context.Context
 var _ grpc.ClientConn
 

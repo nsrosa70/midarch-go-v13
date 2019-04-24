@@ -1,16 +1,5 @@
 package Handlers
 
-import (
-	"net"
-	"strconv"
-	"fmt"
-	"shared/error"
-	"encoding/json"
-	"framework/messages"
-	"shared/net"
-	"strings"
-)
-
 type HandlerNotify struct {
 	Host   string
 	Port int
@@ -20,6 +9,7 @@ type HandlerNotify struct {
 var HandlerChan = make(chan interface{})
 
 func (HN HandlerNotify) Start() {
+	/*
 	var conn net.Conn
 	var err error
 	var ln net.Listener
@@ -56,7 +46,7 @@ func (HN HandlerNotify) Start() {
 		HandlerChan <- msgMOM.PayLoad
 	}
 	return
-
+*/
 }
 
 func (HN HandlerNotify) StartHandler() {

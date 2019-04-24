@@ -14,7 +14,7 @@ import (
 	"graph/fdrgraph"
 	"log"
 	"bufio"
-	"framework/libraries"
+	"framework/architecturallibrary"
 	"reflect"
 	"fmt"
 )
@@ -159,7 +159,7 @@ func configureBehaviours(conf *configuration.Configuration) {
 
 	// Configure components
 	for c := range conf.Components {
-		standardBehaviour := libraries.Repository[reflect.TypeOf(conf.Components[c].TypeElem).String()].CSP
+		standardBehaviour := architecturallibrary.Repository[reflect.TypeOf(conf.Components[c].TypeElem).String()].CSP
 		tokens := strings.Split(standardBehaviour, " ")
 		for j := range tokens {
 			if shared.IsExternal(tokens[j]) {
@@ -175,7 +175,7 @@ func configureBehaviours(conf *configuration.Configuration) {
 
 	// Configure connectors
 	for t := range conf.Connectors {
-		standardBehaviour := libraries.Repository[reflect.TypeOf(conf.Connectors[t].TypeElem).String()].CSP
+		standardBehaviour := architecturallibrary.Repository[reflect.TypeOf(conf.Connectors[t].TypeElem).String()].CSP
 		tokens := strings.Split(standardBehaviour, " ")
 		for j := range tokens {
 			if shared.IsExternal(tokens[j]) {

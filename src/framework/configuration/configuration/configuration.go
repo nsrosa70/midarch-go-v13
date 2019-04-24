@@ -8,7 +8,7 @@ import (
 	"os"
 	"strings"
 	"fmt"
-	"framework/libraries"
+	"framework/architecturallibrary"
 	"shared/shared"
 	"shared/parameters"
 	"log"
@@ -58,7 +58,7 @@ func confToGoType(confType string) string {
 	foundType := false
 	goType := ""
 
-	for t := range libraries.Repository {
+	for t := range architecturallibrary.Repository {
 		if t == parameters.COMPONENTS_PATH+"."+confType || t == parameters.CONNECTORS_PATH+"."+confType || t == parameters.NAMINGCLIENTPROXY_PATH+"."+confType{
 			goType = t
 			foundType = true
@@ -290,7 +290,7 @@ func MapADLIntoGo(adlFileName string) Configuration {
 			crhElem := components.CRH{Port:comps[c].Param}
 			compsTemp[c] = element.Element{Id: c, TypeElem: crhElem}
 		} else {
-			compsTemp[c] = element.Element{Id: c, TypeElem: libraries.Repository[confToGoType(comps[c].ElemType)].Go}
+			compsTemp[c] = element.Element{Id: c, TypeElem: architecturallibrary.Repository[confToGoType(comps[c].ElemType)].Go}
 		}
 		conf.AddComp(compsTemp[c])
 	}
@@ -298,7 +298,7 @@ func MapADLIntoGo(adlFileName string) Configuration {
 	// add connectors to configuration
 	connsTemp := make(map[string]element.Element)
 	for t := range conns {
-		connsTemp[t] = element.Element{Id: t, TypeElem: libraries.Repository[confToGoType(conns[t])].Go}
+		connsTemp[t] = element.Element{Id: t, TypeElem: architecturallibrary.Repository[confToGoType(conns[t])].Go}
 		conf.AddConn(connsTemp[t])
 	}
 

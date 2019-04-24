@@ -7,12 +7,12 @@ import (
 	"shared/shared"
 )
 
-type MAPEKEvolutiveMonitor struct{}
+type MAPEKMonitorEvolutive struct{}
 
 var firstTime = true
 var listOfOldPlugins map[string]time.Time
 
-func (MAPEKEvolutiveMonitor) I_EvolutiveMonitoring(msg *messages.SAMessage, info *interface{}, r *bool) {
+func (MAPEKMonitorEvolutive) I_EvolutiveMonitoring(msg *messages.SAMessage, info *interface{}, r *bool) {
 	confName := (*info).(string)
 	newPlugins := []string{}
 	listOfNewPlugins := make(map[string]time.Time)
@@ -35,14 +35,14 @@ func (MAPEKEvolutiveMonitor) I_EvolutiveMonitoring(msg *messages.SAMessage, info
 	time.Sleep(parameters.MONITOR_TIME * time.Second)
 }
 
-func (MAPEKEvolutiveMonitor) I_HasPlugin(msg *messages.SAMessage, info interface{}, r *bool) {
+func (MAPEKMonitorEvolutive) I_HasPlugin(msg *messages.SAMessage, info interface{}, r *bool) {
 
 	if msg.Payload != nil {
 		*r = true
 	}
 }
 
-func (MAPEKEvolutiveMonitor) I_HasNotPlugin(msg *messages.SAMessage, info interface{}, r *bool) {
+func (MAPEKMonitorEvolutive) I_HasNotPlugin(msg *messages.SAMessage, info interface{}, r *bool) {
 
 	if msg.Payload == nil {
 		*r = true

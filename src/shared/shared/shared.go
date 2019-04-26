@@ -67,6 +67,10 @@ type Quotient struct {
 }
 
 func IsInternal(action string) bool {
+
+	if len(action) <= 2 {
+		return false
+	}
 	if action[0:2] == parameters.PREFIX_INTERNAL_ACTION {
 		return true
 	}

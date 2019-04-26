@@ -2,7 +2,6 @@ package ee
 
 import (
 	"newelements/artefacts"
-	"fmt"
 	"errors"
 )
 
@@ -12,7 +11,7 @@ func (ee EE) Deploy(madlFileName string) error {
 	r1 := *new(error)
 
 	madlFile := artefacts.MADLFile{}
-	madlFile.ReadMADL(madlFileName)
+	madlFile.Read(madlFileName)
 
 	// Create MADL Mid
 	madl := artefacts.MADL{}
@@ -42,11 +41,41 @@ func (ee EE) Deploy(madlFileName string) error {
 	}
 
 	// Generate CSP Mid
+	cspMid := artefacts.CSP{}
+	err = cspMid.Create(madlGo)
+	if err != nil {
+		r1 = errors.New("EE:: "+err.Error())
+	}
+	cspMidFile := cspMid.GenerateFile()
+	err = cspMidFile.Save()
+	if err != nil {
+		r1 = errors.New("EE:: "+err.Error())
+	}
+	err = cspMidFile.Check()
+	if err != nil {
+		r1 = errors.New("EE:: "+err.Error())
+	}
 
 	// Generate CSP EE
+	cspEE := artefacts.CSP{}
+	err = cspEE.Create(madlEEGo)
+	if err != nil {
+		r1 = errors.New("EE:: "+err.Error())
+	}
+	cspEEFile := cspEE.GenerateFile()
+	err = cspEEFile.Save()
+	if err != nil {
+		r1 = errors.New("EE:: "+err.Error())
+	}
+	err = cspEEFile.Check()
+	if err != nil {
+		r1 = errors.New("EE:: "+err.Error())
+	}
 
-	fmt.Println(madlGo)
-	fmt.Println(madlEE.ConfigurationName)
+	// Generate State Machines
+
+	//fmt.Println(madlGo)
+	//fmt.Println(madlEE.ConfigurationName)
 
 	return r1
 }

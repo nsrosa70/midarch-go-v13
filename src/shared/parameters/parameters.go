@@ -15,6 +15,10 @@ const COMPONENTS_PATH = "components"
 const CONNECTORS_PATH = "connectors"
 const NAMINGCLIENTPROXY_PATH = "namingclientproxy"
 const MADL_EXTENSION = ".madl"
+const CSP_EXTENSION = ".csp"
+
+const DEADLOCK_PROPERTY = "assert "+CORINGA+" :[deadlock free]"
+const CORINGA = "XXX"
 
 const ADL_COMMENT = "//"
 

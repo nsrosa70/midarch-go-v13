@@ -14,7 +14,7 @@ type MADLFile struct {
 	Content  []string
 }
 
-func (m *MADLFile) ReadMADL(fileName string) {
+func (m *MADLFile) Read(fileName string) {
 
 	// Check file name
 	err := m.CheckFileName(fileName)
@@ -50,7 +50,7 @@ func (MADLFile) CheckFileName(fileName string) error {
 		r = errors.New("File Name Invalid")
 	} else {
 		if fileName[len-5:] != parameters.MADL_EXTENSION {
-			r = errors.New("Extension Invalid")
+			r = errors.New("Invalid extension of '"+fileName+"'")
 		} else {
 			r = nil
 		}

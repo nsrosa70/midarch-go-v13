@@ -37,7 +37,7 @@ func (l *ArchitecturalLibrary) Load() error {
 	l.Lib["MAPEKAnalyser"] = Record{RBD: "TODO", PRISM: "TODO", Go: components.MAPEKAnalyser{}, CSP: "B = InvP.e1 -> I_Analyse -> InvR.e2 -> B"}
 	l.Lib["MAPEKPlanner"] = Record{RBD: "TODO", PRISM: "TODO", Go: components.MAPEKPlanner{}, CSP: "B = InvP.e1 -> I_Plan -> InvR.e2 -> B"}
 	l.Lib["MAPEKExecutor"] = Record{RBD: "TODO", PRISM: "TODO", Go: components.MAPEKExecutor{}, CSP: "B = InvP.e1 -> I_Execute -> InvR.e2 -> B"}
-	l.Lib["ExecutionUnit"]=                 Record{RBD: "TODO", PRISM: "TODO", Go: components.ExecutionUnit{}, CSP: "B = InvP.e1 -> I_InitialiseUnit -> P1 \nP1 = I_Execute -> P1 [] InvP.e1 -> I_AdaptUnit -> P1"}
+	l.Lib["ExecutionUnit"] = Record{RBD: "TODO", PRISM: "TODO", Go: components.ExecutionUnit{}, CSP: "B = InvP.e1 -> I_InitialiseUnit -> P1 \nP1 = I_Execute -> P1 [] InvP.e1 -> I_AdaptUnit -> P1"}
 
 	l.Lib["RequestReply"] = Record{RBD: "TODO", PRISM: "TODO", Go: connectors.RequestReply{}, CSP: "B = InvP.e1 -> InvR.e2 -> TerR.e2 -> TerP.e1 -> B"}
 	l.Lib["TwoToOne"] = Record{RBD: "TODO", PRISM: "TODO", Go: connectors.TwoToOne{}, CSP: "B = InvP.e1 -> InvR.e2 -> TerR.e2 -> TerP.e1 -> B [] InvP.e3 -> InvR.e2 -> TerR.e2 -> TerP.e3 -> B"}

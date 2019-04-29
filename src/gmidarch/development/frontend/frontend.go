@@ -2,7 +2,7 @@ package frontend
 
 import (
 	"errors"
-	"gmidarch/development/framework/manager"
+	"gmidarch/development/manager"
 )
 
 type FrontEnd struct {}

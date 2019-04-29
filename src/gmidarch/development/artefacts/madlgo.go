@@ -2,8 +2,6 @@ package artefacts
 
 import (
 	"errors"
-	"strings"
-	"strconv"
 	"gmidarch/development/framework/element"
 	"gmidarch/development/framework/configuration/attachments"
 	"gmidarch/development/framework/architecturallibrary"

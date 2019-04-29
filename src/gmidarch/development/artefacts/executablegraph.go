@@ -2,10 +2,10 @@ package artefacts
 
 import (
 	"gmidarch/development/framework/messages"
-	"fmt"
 	"strings"
 	"gmidarch/shared/parameters"
 	"gmidarch/shared/shared"
+	"gmidarch/development/framework/element"
 )
 
 type GraphExecutable struct {
@@ -47,7 +47,6 @@ func (g GraphExecutable) Create(dot DOT, sc map[string]chan messages.SAMessage) 
 	r2 := *new(error)
 
 	elemId := strings.Replace(dot.SourceDotFile.FileName, parameters.DOT_EXTENSION, "", 99)
-	fmt.Println(elemId)
 
 	eActions := EdgeExecutableInfo{}
 	var msg messages.SAMessage
@@ -66,16 +65,16 @@ func (g GraphExecutable) Create(dot DOT, sc map[string]chan messages.SAMessage) 
 				switch actionNameExec {
 				case parameters.INVR:
 					invr := channel
-					params = EdgeExecutableInfo{ExternalAction: element.Element{}.InvR, Message: &msg, ActionChannel: &invr, ActionName: actionNameExec}
+					params = EdgeExecutableInfo{ExternalAction: element.ElementGo{}.InvR, Message: &msg, ActionChannel: &invr, ActionName: actionNameExec}
 				case parameters.TERR:
 					terr := channel
-					params = EdgeExecutableInfo{ExternalAction: element.Element{}.TerR, Message: &msg, ActionChannel: &terr, ActionName: actionNameExec}
+					params = EdgeExecutableInfo{ExternalAction: element.ElementGo{}.TerR, Message: &msg, ActionChannel: &terr, ActionName: actionNameExec}
 				case parameters.INVP:
 					invp := channel
-					params = EdgeExecutableInfo{ExternalAction: element.Element{}.InvP, Message: &msg, ActionChannel: &invp, ActionName: actionNameExec}
+					params = EdgeExecutableInfo{ExternalAction: element.ElementGo{}.InvP, Message: &msg, ActionChannel: &invp, ActionName: actionNameExec}
 				case parameters.TERP:
 					terp := channel
-					params = EdgeExecutableInfo{ExternalAction: element.Element{}.TerP, Message: &msg, ActionChannel: &terp, ActionName: actionNameExec}
+					params = EdgeExecutableInfo{ExternalAction: element.ElementGo{}.TerP, Message: &msg, ActionChannel: &terp, ActionName: actionNameExec}
 				}
 				mapType := EdgeExecutableInfo{}
 				mapType = params

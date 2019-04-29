@@ -6,7 +6,6 @@ import (
 	"gmidarch/development/creator"
 	"errors"
 	"gmidarch/development/checker"
-	"fmt"
 	"strings"
 	"strconv"
 	"gmidarch/shared/parameters"
@@ -22,8 +21,8 @@ type Manager struct {
 	MadlEEGo              artefacts.MADLGo
 	DotsEE                map[string]artefacts.DOT
 	CSPEE                 artefacts.CSP
-	SMMid                 map[string][]artefacts.GraphExecutable
-	SMEE                  map[string][]artefacts.GraphExecutable
+	SMMid                 map[string]artefacts.GraphExecutable
+	SMEE                  map[string]artefacts.GraphExecutable
 	MapsMid               map[string]string
 	MapsEE                map[string]string
 	StructuralChannelsMid map[string]chan messages.SAMessage
@@ -33,7 +32,7 @@ type Manager struct {
 func (m Manager) Invoke(madlFileName string) (error) {
 	r1 := *new(error)
 
-	// Invoke creator - Create MADLs in Go
+	// MADLs
 	creator := creator.Creator{}
 	m.MadlMidGo, m.MadlEEGo, r1 = creator.Create(madlFileName)
 	if r1 != nil {
@@ -49,7 +48,7 @@ func (m Manager) Invoke(madlFileName string) (error) {
 	m.StructuralChannelsMid = m.CreateStructuralChannels(m.MadlMidGo)
 	m.StructuralChannelsEE = m.CreateStructuralChannels(m.MadlEEGo)
 
-	// Invoke Generator - Generate CSPs artefacts
+	// CSP
 	generator := generator.Generator{}
 	m.CSPMid, r1 = generator.GenerateCSP(m.MadlMidGo,m.MapsMid)
 	if r1 != nil {
@@ -62,21 +61,18 @@ func (m Manager) Invoke(madlFileName string) (error) {
 		return r1
 	}
 
-	// Invoke Generator - Generate Mid CSP files
 	r1 = generator.GenerateCSPFile(m.CSPMid)
 	if r1 != nil {
 		r1 = errors.New("Manager:: " + r1.Error())
 		return r1
 	}
-
-	// Invoke Generator - Generate EE CSP files
 	r1 = generator.GenerateCSPFile(m.CSPEE)
 	if r1 != nil {
 		r1 = errors.New("Manager:: " + r1.Error())
 		return r1
 	}
 
-	// Invoke Checker
+	// Checker
 	checker := checker.Checker{}
 	isOk, r1 := checker.Check(m.CSPMid)
 	if r1 != nil {
@@ -97,7 +93,7 @@ func (m Manager) Invoke(madlFileName string) (error) {
 		return r1
 	}
 
-	// Generate dot files - Invoke FDR - TODO
+	// Invoke FDR - TODO
 	r1 = checker.GenerateDotFiles(m.CSPMid)
 	if r1 != nil {
 		r1 = errors.New("Manager:: " + r1.Error())
@@ -109,7 +105,7 @@ func (m Manager) Invoke(madlFileName string) (error) {
 		return r1
 	}
 
-	// Generate dots
+	// DOTS
 	m.DotsMid, r1 = artefacts.DOT{}.Create(m.CSPMid)
 	if r1 != nil {
 		r1 = errors.New("Manager" + r1.Error())
@@ -120,15 +116,29 @@ func (m Manager) Invoke(madlFileName string) (error) {
 		r1 = errors.New("Manager" + r1.Error())
 	}
 
+	// State Machines
+	m.SMMid = make(map[string]artefacts.GraphExecutable)
 	for i := range m.DotsMid {
 		g := artefacts.GraphExecutable{}
-		stateMachine, r1 := g.Create(m.DotsMid[i],m.StructuralChannelsMid)
+		m.SMMid[i], r1 = g.Create(m.DotsMid[i],m.StructuralChannelsMid)
 		if r1 != nil {
 			r1 := errors.New("Manager:: " + r1.Error())
 			return r1
 		}
-		fmt.Println(stateMachine)
 	}
+
+	m.SMEE = make(map[string]artefacts.GraphExecutable)
+	for i := range m.DotsEE {
+		g := artefacts.GraphExecutable{}
+		m.SMEE[i], r1 = g.Create(m.DotsEE[i],m.StructuralChannelsEE)
+		if r1 != nil {
+			r1 := errors.New("Manager:: " + r1.Error())
+			return r1
+		}
+	}
+
+	// Execute Machines
+	
 	return r1
 }
 

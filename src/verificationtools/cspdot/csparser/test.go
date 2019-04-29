@@ -2,8 +2,8 @@ package main
 
 import (
 	"os/exec"
-	"shared/parameters"
-	"shared/error"
+	"gmidarch/shared/parameters"
+	"gmidarch/shared/error"
 )
 
 func main() {

@@ -1,8 +1,12 @@
 package main
 
-import "ee"
+import (
+	"gmidarch/shared/shared"
+	"gmidarch/development/frontend"
+)
 
 func main(){
 
-	ee.EE{}.Deploy("SenderReceiver.madl")
+	err := frontend.FrontEnd{}.Deploy("SenderReceiver.madl")
+	shared.CheckError(err,"MAIN")
 }

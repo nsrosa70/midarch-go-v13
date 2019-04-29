@@ -6,10 +6,10 @@ import (
 	"log"
 	"fmt"
 	"net/http"
-	"shared/parameters"
+	"gmidarch/shared/parameters"
 	"strconv"
 	"apps/calculator/implrpc"
-	"shared/shared"
+	"gmidarch/shared/shared"
 )
 
 func main() {

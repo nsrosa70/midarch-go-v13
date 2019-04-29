@@ -11,6 +11,6 @@ Configuration SenderReceiver :=
       sender,t1,receiver
 
    Adaptability
-      Proactive(Invoker,CRH)
+      Evolutive
 
 EndConf

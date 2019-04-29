@@ -4,8 +4,8 @@ import (
 	"log"
 	"fmt"
 	"time"
-	"shared/parameters"
-	"shared/shared"
+	"gmidarch/shared/parameters"
+	"gmidarch/shared/shared"
 	"strconv"
 	"net/rpc"
 )

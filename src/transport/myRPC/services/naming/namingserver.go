@@ -2,10 +2,10 @@ package main
 
 import (
 	"fmt"
-	"shared/parameters"
-	"ee/ee"
+	"gmidarch/shared/parameters"
+	"gmidarch/execution/ee"
 	"strconv"
-	"shared/net"
+	"gmidarch/shared/net"
 )
 
 func main() {

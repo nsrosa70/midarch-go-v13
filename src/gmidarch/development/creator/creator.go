@@ -1,22 +1,22 @@
 package creator
 
 import (
-	"gmidarch/development/artefacts"
 	"errors"
+	"gmidarch/development/artefacts/madl"
 )
 
 type Creator struct{}
 
-func (Creator) Create(madlFileName string) (artefacts.MADLGo, artefacts.MADLGo, error) {
-	r1 := artefacts.MADLGo{}
-	r2 := artefacts.MADLGo{}
+func (Creator) Create(madlFileName string) (madl.MADLGo, madl.MADLGo, error) {
+	r1 := madl.MADLGo{}
+	r2 := madl.MADLGo{}
 	r3 := *new(error)
 
-	madlFile := artefacts.MADLFile{}
+	madlFile := madl.MADLFile{}
 	madlFile.Read(madlFileName)
 
 	// Create MADL Mid
-	madlMid := artefacts.MADL{}
+	madlMid := madl.MADL{}
 	r3 = madlMid.Create(madlFile)
 	if r3 != nil {
 		r3 = errors.New("Creator:: " + r3.Error())
@@ -31,7 +31,7 @@ func (Creator) Create(madlFileName string) (artefacts.MADLGo, artefacts.MADLGo, 
 	}
 
 	// Generate MADL Go Mid
-	madlMidGo := artefacts.MADLGo{}
+	madlMidGo := madl.MADLGo{}
 	r3 = madlMidGo.Create(madlMid)
 	if r3 != nil {
 		r3 = errors.New("Creator:: " + r3.Error())
@@ -40,7 +40,7 @@ func (Creator) Create(madlFileName string) (artefacts.MADLGo, artefacts.MADLGo, 
 	r1 = madlMidGo
 
 	// Generate MADL Go EE
-	madlEEGo := artefacts.MADLGo{}
+	madlEEGo := madl.MADLGo{}
 	r3 = madlEEGo.Create(madlEE)
 	if r3 != nil {
 		r3 = errors.New("Creator:: " + r3.Error())

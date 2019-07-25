@@ -1,4 +1,4 @@
-package artefacts
+package csp
 
 import (
 	"gmidarch/shared/parameters"
@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"fmt"
 	"os"
+	"gmidarch/development/artefacts/madl"
 )
 
 type CompositionProcess struct {
@@ -35,7 +36,7 @@ type CSP struct {
 	Property        []string
 }
 
-func (CSP) Create(madlGo MADLGo,maps map[string]string) (CSP, error) {
+func (CSP) Create(madlGo madl.MADLGo,maps map[string]string) (CSP, error) {
 	r1 := CSP{}
 	r2 := *new(error)
 
@@ -142,7 +143,7 @@ func (CSP) Create(madlGo MADLGo,maps map[string]string) (CSP, error) {
 	return r1, r2
 }
 
-func (c *CSP) ConfigureProcessBehaviours(madlGo MADLGo, maps map[string]string) (error) {
+func (c *CSP) ConfigureProcessBehaviours(madlGo madl.MADLGo, maps map[string]string) (error) {
 	r1 := *new(error)
 
 	// Components
@@ -209,7 +210,7 @@ func (CSP) RenameSyncPort(action string, processId string) string {
 	return r1
 }
 
-func identifyInternalChannels(madl MADLGo) []string {
+func identifyInternalChannels(madl madl.MADLGo) []string {
 	r1 := []string{}
 	r1Temp := map[string]string{}
 
@@ -239,7 +240,7 @@ func identifyInternalChannels(madl MADLGo) []string {
 	return r1
 }
 
-func identifyExternalChannels(madl MADLGo) []string {
+func identifyExternalChannels(madl madl.MADLGo) []string {
 	r1 := []string{}
 	r1Temp := map[string]string{}
 
@@ -297,7 +298,7 @@ func toCanonicalName(name string) (string, error) {
 	return r1, r2
 }
 
-func updateDynamicBehaviour(madlGo MADLGo) string {
+func updateDynamicBehaviour(madlGo madl.MADLGo) string {
 	r1 := ""
 
 	// Find current behaviour in the Repository
@@ -312,7 +313,7 @@ func updateDynamicBehaviour(madlGo MADLGo) string {
 	return r1
 }
 
-func countAttachments(madlGo MADLGo, connectorId string) int {
+func countAttachments(madlGo madl.MADLGo, connectorId string) int {
 	n := 0
 	for i := range madlGo.Attachments {
 		if madlGo.Attachments[i].T.ElemId == connectorId {

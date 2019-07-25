@@ -1,17 +1,18 @@
 package generator
 
 import (
-	"gmidarch/development/artefacts"
 	"errors"
 	"gmidarch/shared/parameters"
 	"strings"
 	"gmidarch/shared/shared"
+	"gmidarch/development/artefacts/madl"
+	"gmidarch/development/artefacts/csp"
 )
 
 type Generator struct{}
 
-func (g Generator) GenerateCSP(madlGo artefacts.MADLGo, maps map[string]string) (artefacts.CSP, error) {
-	r1 := artefacts.CSP{}
+func (g Generator) GenerateCSP(madlGo madl.MADLGo, maps map[string]string) (csp.CSP, error) {
+	r1 := csp.CSP{}
 	r2 := *new(error)
 
 	// Generate CSP
@@ -24,12 +25,12 @@ func (g Generator) GenerateCSP(madlGo artefacts.MADLGo, maps map[string]string) 
 	return r1, r2
 }
 
-func generateCSP(madlGo artefacts.MADLGo, maps map[string]string) (artefacts.CSP,error){
-	r1 := artefacts.CSP{}
+func generateCSP(madlGo madl.MADLGo, maps map[string]string) (csp.CSP,error){
+	r1 := csp.CSP{}
 	r2 := *new (error)
 
 	// Generate CSP Mid
-	r1, err := artefacts.CSP{}.Create(madlGo,maps)
+	r1, err := csp.CSP{}.Create(madlGo,maps)
 	if err != nil {
 		r2 = errors.New("EE:: " + err.Error())
 		return r1,r2
@@ -38,44 +39,43 @@ func generateCSP(madlGo artefacts.MADLGo, maps map[string]string) (artefacts.CSP
 	return r1,r2
 }
 
-func (Generator) GenerateCSPFile(csp artefacts.CSP)(error){
+func (Generator) GenerateCSPFile(cspSpec csp.CSP)(error){
 	r1 := *new(error)
 
 	// Generate File
-	cspFile := artefacts.CSPFile{}
-
+	cspFile := csp.CSPFile{}
 	// File Path
-	cspFile.FilePath = parameters.DIR_CSP + "/" + csp.CompositionName
+	cspFile.FilePath = parameters.DIR_CSP + "/" + cspSpec.CompositionName
 
 	// File Name
-	cspFile.FileName = csp.CompositionName + parameters.CSP_EXTENSION
+	cspFile.FileName = cspSpec.CompositionName + parameters.CSP_EXTENSION
 
 	// File content
-	dataTypeExp := "datatype PROCNAMES = " + shared.StringComposition(csp.Datatype, "|", true)
-	eChannelExp := "channel " + shared.StringComposition(csp.EChannels, ",", false) + " : PROCNAMES"
-	iChannelExp := "channel " + shared.StringComposition(csp.IChannels, ",", false)
+	dataTypeExp := "datatype PROCNAMES = " + shared.StringComposition(cspSpec.Datatype, "|", true)
+	eChannelExp := "channel " + shared.StringComposition(cspSpec.EChannels, ",", false) + " : PROCNAMES"
+	iChannelExp := "channel " + shared.StringComposition(cspSpec.IChannels, ",", false)
 	processesExp := ""
-	for i := range csp.CompProcesses {
-		processesExp += csp.CompProcesses[i]+"\n"
+	for i := range cspSpec.CompProcesses {
+		processesExp += cspSpec.CompProcesses[i]+"\n"
 	}
-	for i := range csp.ConnProcesses {
-		processesExp += csp.ConnProcesses[i]+ "\n"
+	for i := range cspSpec.ConnProcesses {
+		processesExp += cspSpec.ConnProcesses[i]+ "\n"
 	}
 
-	compositionExp := csp.CompositionName + " = (" + strings.ToUpper(shared.StringComposition(csp.Composition.Components, "|||", true)+")")
-	compositionExp += "[|{|" + shared.StringComposition(csp.Composition.SyncPorts, ",", false) + "|}|]"
+	compositionExp := cspSpec.CompositionName + " = (" + strings.ToUpper(shared.StringComposition(cspSpec.Composition.Components, "|||", true)+")")
+	compositionExp += "[|{|" + shared.StringComposition(cspSpec.Composition.SyncPorts, ",", false) + "|}|]"
 
 	renamings := []string{}
 	conns := []string{}
-	for i := range csp.Composition.RenamingPorts {
-		for j := range csp.Composition.RenamingPorts[i] {
-			r := csp.Composition.RenamingPorts[i][j].OldName + " <- " + csp.Composition.RenamingPorts[i][j].NewName
+	for i := range cspSpec.Composition.RenamingPorts {
+		for j := range cspSpec.Composition.RenamingPorts[i] {
+			r := cspSpec.Composition.RenamingPorts[i][j].OldName + " <- " + cspSpec.Composition.RenamingPorts[i][j].NewName
 			renamings = append(renamings, r)
 		}
 		conns = append(conns, strings.ToUpper(i)+"[["+shared.StringComposition(renamings, ",", false)+"]]")
 	}
 	compositionExp += "(" + shared.StringComposition(conns, "|||", true) + ")"
-	propertyExp := shared.StringComposition(csp.Property, "\n", false)
+	propertyExp := shared.StringComposition(cspSpec.Property, "\n", false)
 
 	cspFile.Content = append(cspFile.Content, dataTypeExp+"\n")
 	cspFile.Content = append(cspFile.Content, eChannelExp+"\n")

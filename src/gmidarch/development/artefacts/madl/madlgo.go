@@ -1,4 +1,4 @@
-package artefacts
+package madl
 
 import (
 	"errors"
@@ -92,5 +92,3 @@ func (m *MADLGo) Create(madl MADL) error {
 
 	return r1
 }
-
-

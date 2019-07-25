@@ -1,17 +1,17 @@
 package checker
 
 import (
-	"gmidarch/development/artefacts"
 	"errors"
 	"gmidarch/shared/parameters"
 	"gmidarch/development/framework/configuration/commands"
 	"os/exec"
 	"strings"
+	"gmidarch/development/artefacts/csp"
 )
 
 type Checker struct{}
 
-func (Checker) Check(csp artefacts.CSP) (bool, error) {
+func (Checker) Check(csp csp.CSP) (bool, error) {
 	r1 := true
 	r2 := *new(error)
 
@@ -29,7 +29,7 @@ func (Checker) Check(csp artefacts.CSP) (bool, error) {
 	return r1, r2
 }
 
-func check(csp artefacts.CSP) (bool, error) {
+func check(csp csp.CSP) (bool, error) {
 	r1 := true
 	r2 := *new(error)
 
@@ -53,7 +53,7 @@ func check(csp artefacts.CSP) (bool, error) {
 	return r1, r2
 }
 
-func (Checker) GenerateDotFiles(csp artefacts.CSP) (error) {
+func (Checker) GenerateDotFiles(csp csp.CSP) (error) {
 	r1 := *new(error)
 
 	// Invoke FDR - Generate FDR dots

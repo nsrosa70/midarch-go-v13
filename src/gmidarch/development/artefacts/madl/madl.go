@@ -1,4 +1,4 @@
-package artefacts
+package madl
 
 import (
 	"gmidarch/shared/shared"

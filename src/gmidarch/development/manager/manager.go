@@ -1,7 +1,6 @@
 package manager
 
 import (
-	"gmidarch/development/artefacts"
 	"gmidarch/development/framework/messages"
 	"gmidarch/development/creator"
 	"errors"
@@ -10,19 +9,23 @@ import (
 	"strconv"
 	"gmidarch/shared/parameters"
 	"gmidarch/development/generator"
+	"gmidarch/execution"
+	"gmidarch/development/artefacts/madl"
+	"gmidarch/development/artefacts/csp"
+	"gmidarch/development/artefacts/graphs"
 )
 
 type Manager struct {
-	MadlMid               artefacts.MADL
-	MadlMidGo             artefacts.MADLGo
-	CSPMid                artefacts.CSP
-	DotsMid               map[string]artefacts.DOT
-	MadlEE                artefacts.MADL
-	MadlEEGo              artefacts.MADLGo
-	DotsEE                map[string]artefacts.DOT
-	CSPEE                 artefacts.CSP
-	SMMid                 map[string]artefacts.GraphExecutable
-	SMEE                  map[string]artefacts.GraphExecutable
+	MadlMid               madl.MADL
+	MadlMidGo             madl.MADLGo
+	CSPMid                csp.CSP
+	DotsMid               map[string]csp.DOT
+	MadlEE                madl.MADL
+	MadlEEGo              madl.MADLGo
+	DotsEE                map[string]csp.DOT
+	CSPEE                 csp.CSP
+	SMMid                 map[string]graphs.GraphExecutable
+	SMEE                  map[string]graphs.GraphExecutable
 	MapsMid               map[string]string
 	MapsEE                map[string]string
 	StructuralChannelsMid map[string]chan messages.SAMessage
@@ -48,11 +51,11 @@ func (m Manager) Invoke(madlFileName string) (error) {
 	m.StructuralChannelsMid = m.CreateStructuralChannels(m.MadlMidGo)
 	m.StructuralChannelsEE = m.CreateStructuralChannels(m.MadlEEGo)
 
-	// CSP
+	// CSP (Mid + EE)
 	generator := generator.Generator{}
 	m.CSPMid, r1 = generator.GenerateCSP(m.MadlMidGo,m.MapsMid)
 	if r1 != nil {
-		r1 = errors.New("FrontEnd:: " + r1.Error())
+		r1 = errors.New("Manager:: " + r1.Error())
 		return r1
 	}
 	m.CSPEE, r1 = generator.GenerateCSP(m.MadlEEGo,m.MapsEE)
@@ -93,7 +96,7 @@ func (m Manager) Invoke(madlFileName string) (error) {
 		return r1
 	}
 
-	// Invoke FDR - TODO
+	// Invoke FDR - TODO (after integrating with David's solution)
 	r1 = checker.GenerateDotFiles(m.CSPMid)
 	if r1 != nil {
 		r1 = errors.New("Manager:: " + r1.Error())
@@ -106,43 +109,45 @@ func (m Manager) Invoke(madlFileName string) (error) {
 	}
 
 	// DOTS
-	m.DotsMid, r1 = artefacts.DOT{}.Create(m.CSPMid)
+	m.DotsMid, r1 = csp.DOT{}.Create(m.CSPMid)
 	if r1 != nil {
 		r1 = errors.New("Manager" + r1.Error())
 		return r1
 	}
-	m.DotsEE, r1 = artefacts.DOT{}.Create(m.CSPEE)
+	m.DotsEE, r1 = csp.DOT{}.Create(m.CSPEE)
 	if r1 != nil {
 		r1 = errors.New("Manager" + r1.Error())
 	}
 
 	// State Machines
-	m.SMMid = make(map[string]artefacts.GraphExecutable)
+	m.SMMid = make(map[string]graphs.GraphExecutable)
 	for i := range m.DotsMid {
-		g := artefacts.GraphExecutable{}
-		m.SMMid[i], r1 = g.Create(m.DotsMid[i],m.StructuralChannelsMid)
+		m.SMMid[i], r1 = execution.Create(m.DotsMid[i],m.StructuralChannelsMid)
 		if r1 != nil {
 			r1 := errors.New("Manager:: " + r1.Error())
 			return r1
 		}
 	}
 
-	m.SMEE = make(map[string]artefacts.GraphExecutable)
+	m.SMEE = make(map[string]graphs.GraphExecutable)
 	for i := range m.DotsEE {
-		g := artefacts.GraphExecutable{}
-		m.SMEE[i], r1 = g.Create(m.DotsEE[i],m.StructuralChannelsEE)
+		//g := graphs.GraphExecutable{}
+		m.SMEE[i], r1 = execution.Create(m.DotsEE[i],m.StructuralChannelsEE)
 		if r1 != nil {
 			r1 := errors.New("Manager:: " + r1.Error())
 			return r1
 		}
 	}
 
-	// Execute Machines
-	
+	// Deploy machines
+	core := execution.Core{}
+	core.Deploy(m.SMEE,m.MadlEEGo)
+	core.Deploy(m.SMMid,m.MadlMidGo)
+
 	return r1
 }
 
-func (Manager) CreateMaps(madlGo artefacts.MADLGo) (map[string]string) {
+func (Manager) CreateMaps(madlGo madl.MADLGo) (map[string]string) {
 	r1 := make(map[string]string)
 
 	partners := make(map[string]string)
@@ -178,7 +183,7 @@ func (Manager) CreateMaps(madlGo artefacts.MADLGo) (map[string]string) {
 	return r1
 }
 
-func (Manager) CreateStructuralChannels(madlGo artefacts.MADLGo) (map[string]chan messages.SAMessage) {
+func (Manager) CreateStructuralChannels(madlGo madl.MADLGo) (map[string]chan messages.SAMessage) {
 	r1 := make(map[string]chan messages.SAMessage)
 
 	// Configure structural channels

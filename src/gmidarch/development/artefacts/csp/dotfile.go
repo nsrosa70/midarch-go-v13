@@ -1,4 +1,4 @@
-package artefacts
+package csp
 
 import (
 	"gmidarch/shared/parameters"

@@ -1,4 +1,4 @@
-package artefacts
+package graphs
 
 type GraphDot struct {
 	NumNodes int

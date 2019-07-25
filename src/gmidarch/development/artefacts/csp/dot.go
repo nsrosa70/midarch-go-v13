@@ -1,15 +1,16 @@
-package artefacts
+package csp
 
 import (
 	"strings"
 	"strconv"
 	"gmidarch/shared/parameters"
 	"errors"
+	"gmidarch/development/artefacts/graphs"
 )
 
 type DOT struct {
 	SourceDotFile DOTFile
-	Dotgraph      GraphDot
+	Dotgraph      graphs.GraphDot
 }
 
 func (DOT) Create(csp CSP) (map[string]DOT, error) {
@@ -42,7 +43,7 @@ func create(dotFile DOTFile) (DOT, error) {
 	r1.SourceDotFile = dotFile
 
 	// Configure digraph
-	dotGraph := NewGraphDot(parameters.GRAPH_SIZE)
+	dotGraph := graphs.NewGraphDot(parameters.GRAPH_SIZE)
 
 	for l := range dotFile.Content {
 		line := dotFile.Content[l]

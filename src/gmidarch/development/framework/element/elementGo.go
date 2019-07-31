@@ -12,6 +12,8 @@ type ElementGo struct {
 	ElemType interface{}
 	CSP string
 	Info      interface{}
+	GoStateMachine graphs.GraphExecutable
+	FDRStateMachine graphs.GraphDot
 }
 
 // external actions common to all components and connectors
@@ -42,8 +44,10 @@ func (ElementGo) Loop(elem ElementGo, graph graphs.GraphExecutable) {
 			edge := edges[0]
 			if shared.IsInternal(edge.Info.ActionName) {
 				r := false
+				//fmt.Printf("%s:: %s \n",elem.ElemId,edge.Info.ActionName)
 				edge.Info.InternalAction(elem.ElemType, edge.Info.ActionName, edge.Info.Message, &elem.Info, &r)
 			} else {
+				//fmt.Printf("%s:: %s %v \n",elem.ElemId,edge.Info.ActionName,edge.Info.ActionChannel)
 				edge.Info.ExternalAction(edge.Info.ActionChannel, edge.Info.Message)
 			}
 			node = edge.To
@@ -58,6 +62,10 @@ func (ElementGo) Loop(elem ElementGo, graph graphs.GraphExecutable) {
 		}
 	}
 	return
+}
+
+func (e *ElementGo) SetInfo(info interface{}) {
+	e.Info = info
 }
 
 func choice(elem ElementGo, msg *messages.SAMessage, chosen *int, edges []graphs.EdgeExecutable) {

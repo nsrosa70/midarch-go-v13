@@ -24,13 +24,15 @@ func (Creator) Create(madlFileName string) (madl.MADLGo, madl.MADLGo, error) {
 	}
 
 	// Create MADL EE
-	madlEE, r3 := madlMid.CreateEE()
+	madlEE, r3 := madlMid.CreateEE(madlMid.Adaptability)
 	if r3 != nil {
 		r3 = errors.New("Creator:: " + r3.Error())
 		return r1,r2,r3
 	}
 
-	// Generate MADL Go Mid
+	//madlEE.Print()
+
+	// Create MADL Go Mid
 	madlMidGo := madl.MADLGo{}
 	r3 = madlMidGo.Create(madlMid)
 	if r3 != nil {
@@ -39,7 +41,7 @@ func (Creator) Create(madlFileName string) (madl.MADLGo, madl.MADLGo, error) {
 	}
 	r1 = madlMidGo
 
-	// Generate MADL Go EE
+	// Create MADL Go EE
 	madlEEGo := madl.MADLGo{}
 	r3 = madlEEGo.Create(madlEE)
 	if r3 != nil {

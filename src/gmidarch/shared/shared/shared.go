@@ -325,6 +325,7 @@ func StringComposition(e []string, sep string, hasSpace bool) string {
 			r1 += e[i] + sep
 		}
 	}
+
 	if hasSpace {
 		r1 = r1[:len(r1)-len(sep)-2]
 	} else {

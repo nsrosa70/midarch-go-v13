@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"os"
 	"gmidarch/development/artefacts/madl"
+	"gmidarch/development/framework/components"
 )
 
 type CompositionProcess struct {
@@ -36,9 +37,16 @@ type CSP struct {
 	Property        []string
 }
 
-func (CSP) Create(madlGo madl.MADLGo,maps map[string]string) (CSP, error) {
+func (CSP) Create(madlGo madl.MADLGo, maps map[string]string) (CSP, error) {
 	r1 := CSP{}
 	r2 := *new(error)
+
+	// Solve RUNTIME behaviours
+	r2 = r1.ConfigureProcessBehaviours(madlGo, maps)
+	if r2 != nil {
+			r2 = errors.New("CSP" + r2.Error())
+			return r1, r2
+		}
 
 	// File name
 	r1.CompositionName = madlGo.ConfigurationName
@@ -83,13 +91,6 @@ func (CSP) Create(madlGo madl.MADLGo,maps map[string]string) (CSP, error) {
 	}
 	r1.ConnProcesses = connProcesses
 
-	// Processes - Configure Process Behaviours
-	r2 = r1.ConfigureProcessBehaviours(madlGo,maps)
-	if r2 != nil {
-		r2 = errors.New("CSP"+r2.Error())
-		return r1,r2
-	}
-
 	// Composition process - Components/Connectors
 	compositionTemp := CompositionProcess{}
 	for i := range madlGo.Components {
@@ -104,8 +105,8 @@ func (CSP) Create(madlGo madl.MADLGo,maps map[string]string) (CSP, error) {
 	for i := range r1.EChannels {
 		cannonicalName, r2 := toCanonicalName(r1.EChannels[i])
 		if r2 != nil {
-			r2 = errors.New("CSP:: "+r2.Error())
-			return r1,r2
+			r2 = errors.New("CSP:: " + r2.Error())
+			return r1, r2
 		}
 		cannonicalNames[cannonicalName] = cannonicalName
 	}
@@ -147,47 +148,53 @@ func (c *CSP) ConfigureProcessBehaviours(madlGo madl.MADLGo, maps map[string]str
 	r1 := *new(error)
 
 	// Components
-	for i := range c.CompProcesses {
-		configuredBehaviour := c.CompProcesses[i]
+	for i := range madlGo.Components {
+		configuredBehaviour := madlGo.Components[i].CSP
+
+		// The Component has its behaviour defined at runtime
+		if strings.Contains(configuredBehaviour, parameters.RUNTIME_BEHAVIOUR) {
+			configuredBehaviour = updateRuntimeBehaviourComponents(madlGo.Components[i].ElemId, madlGo)
+		}
+
 		tokens := strings.Split(configuredBehaviour, " ")
 		for j := range tokens {
 			if shared.IsExternal(tokens[j]) {
 				eX := tokens[j][strings.Index(tokens[j], ".")+1:]
-				key := strings.ToLower(i) + "." + strings.ToLower(eX)
-				partner,ok := maps[key]
+				key := strings.ToLower(madlGo.Components[i].ElemId) + "." + strings.ToLower(eX)
+				partner, ok := maps[key]
 				if !ok {
-					r1 = errors.New("Map ["+key+"] of Components Not FOUND!")
+					r1 = errors.New("Map [" + key + "] of Component " + madlGo.Components[i].ElemId + "  Not FOUND!")
 					return r1
 				}
 				configuredBehaviour = strings.Replace(configuredBehaviour, eX, partner, 99)
 			}
 		}
-		c.CompProcesses[i] = configuredBehaviour
+		madlGo.Components[i].CSP = configuredBehaviour
 	}
 
 	// Connectors
-	for i := range c.ConnProcesses {
-		configuredBehaviour := ""
-		if strings.Contains(c.ConnProcesses[i], parameters.RUNTIME_BEHAVIOUR) {
-			configuredBehaviour = updateDynamicBehaviour(madlGo)
-		} else {
-			configuredBehaviour = c.ConnProcesses[i]
+	for i := range madlGo.Connectors {
+		configuredBehaviour := madlGo.Connectors[i].CSP
+
+		// The connector has its behaviour defined dynamically
+		if strings.Contains(configuredBehaviour, parameters.RUNTIME_BEHAVIOUR) {
+			configuredBehaviour = updateRuntimeBehaviourConnectors(madlGo.Connectors[i].ElemId, madlGo)
 		}
 
 		tokens := strings.Split(configuredBehaviour, " ")
 		for j := range tokens {
 			if shared.IsExternal(tokens[j]) {
 				eX := tokens[j][strings.Index(tokens[j], ".")+1:]
-				key := strings.ToLower(i) + "." + strings.ToLower(eX)
-				partner,ok := maps[key]
+				key := strings.ToLower(madlGo.Connectors[i].ElemId) + "." + strings.ToLower(eX)
+				partner, ok := maps[key]
 				if !ok {
-					r1 = errors.New("Map ["+key+"] of Connectors Not FOUND!")
+					r1 = errors.New("Map [" + key + "] of Connectors Not FOUND!")
 					return r1
 				}
 				configuredBehaviour = strings.Replace(configuredBehaviour, eX, partner, 99)
 			}
 		}
-		c.ConnProcesses[i] = configuredBehaviour
+		madlGo.Connectors[i].CSP = configuredBehaviour
 	}
 
 	return r1
@@ -258,6 +265,7 @@ func identifyExternalChannels(madl madl.MADLGo) []string {
 
 	for i := range madl.Connectors {
 		tokens := shared.MyTokenize(madl.Connectors[i].CSP)
+
 		for j := range tokens {
 			if shared.IsExternal(tokens[j]) {
 				iAction := strings.TrimSpace(tokens[j])
@@ -298,18 +306,53 @@ func toCanonicalName(name string) (string, error) {
 	return r1, r2
 }
 
-func updateDynamicBehaviour(madlGo madl.MADLGo) string {
+func updateRuntimeBehaviourConnectors(connId string, madlGo madl.MADLGo) string {
 	r1 := ""
 
-	// Find current behaviour in the Repository
+	// Define new behaviour
 	for i := range madlGo.Connectors {
 		conn := madlGo.Connectors[i]
-		if reflect.TypeOf(conn.ElemType) == reflect.TypeOf(connectors.OneToN{}) {
-			n := countAttachments(madlGo, conn.ElemId)
-			r1 = defineNewBehaviour(n, connectors.OneToN{},conn.ElemId)
+		if strings.ToUpper(connId) == strings.ToUpper(conn.ElemId) {
+			if reflect.TypeOf(conn.ElemType) == reflect.TypeOf(connectors.OneToN{}) {
+				n := countAttachments(madlGo, conn.ElemId)
+				r1 = defineNewBehaviour(n, connectors.OneToN{}, conn.ElemId)
+				break
+			}
 		}
 	}
+	return r1
+}
 
+func updateRuntimeBehaviourComponents(compId string, madlGo madl.MADLGo) string {
+	r1 := ""
+
+	// Define new behaviour
+	for i := range madlGo.Components {
+		comp := madlGo.Components[i]
+		if strings.ToUpper(comp.ElemId) == strings.ToUpper(compId) {
+			if reflect.TypeOf(comp.ElemType) == reflect.TypeOf(components.ExecutionEnvironment{}) {
+				if strings.ToUpper(madlGo.Adaptability[0]) == "NONE" { // TODO
+					//r1 = strings.ToUpper(comp.ElemId) + " = InvR.e1 -> " + strings.ToUpper(comp.ElemId)
+					r1 = "B = InvR.e1 -> B"
+				} else {
+					//r1 = strings.ToUpper(comp.ElemId) + " = InvR.e1 -> P1 \nP1 = InvP.e2 -> InvR.e1 -> P1"
+					r1 = "B = InvR.e1 -> P1 \nP1 = InvP.e2 -> InvR.e1 -> P1"
+				}
+				break
+			}
+
+			if reflect.TypeOf(comp.ElemType) == reflect.TypeOf(components.ExecutionUnit{}) {
+				if strings.ToUpper(madlGo.Adaptability[0]) == "NONE" { // TODO
+					//r1 = strings.ToUpper(comp.ElemId) + " = I_InitialiseUnit -> P1\n P1 = I_Execute -> P1"
+					r1 = "B = I_InitialiseUnit -> P1\n P1 = I_Execute -> P1"
+				} else {
+					//r1 = strings.ToUpper(comp.ElemId) + " = InvP.e1 -> I_InitialiseUnit -> P1 \nP1 = I_Execute -> P1 [] InvP.e1 -> I_AdaptUnit -> P1"
+					r1 = "B = InvP.e1 -> I_InitialiseUnit -> P1 \nP1 = I_Execute -> P1 [] InvP.e1 -> I_AdaptUnit -> P1"
+				}
+				break
+			}
+		}
+	}
 	return r1
 }
 
@@ -323,12 +366,12 @@ func countAttachments(madlGo madl.MADLGo, connectorId string) int {
 	return n
 }
 
-func defineNewBehaviour(n int, elem interface{},elemId string) string {
+func defineNewBehaviour(n int, elem interface{}, elemId string) string {
 	baseBehaviour := ""
 
 	switch reflect.TypeOf(elem).String() {
 	case reflect.TypeOf(connectors.OneToN{}).String():
-		baseBehaviour = strings.ToUpper(elemId)+" = InvP.e1"
+		baseBehaviour = strings.ToUpper(elemId) + " = InvP.e1"
 		for i := 0; i < n; i++ {
 			baseBehaviour += " -> InvR.e" + strconv.Itoa(i+2)
 		}

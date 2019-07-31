@@ -8,6 +8,7 @@ import (
 	"gmidarch/shared/parameters"
 	"gmidarch/development/framework/element"
 	"gmidarch/development/framework/configuration/attachments"
+	"fmt"
 )
 
 type MADL struct {
@@ -214,7 +215,6 @@ func (m MADL) IdentifyAdaptability() ([]string, error) {
 	}
 
 	return r1, r2
-
 }
 
 func (m *MADL) SetAttachmentTypes() {
@@ -263,9 +263,15 @@ func (m MADL) GetType(elemId string) (string, error) {
 	return r1, r2
 }
 
-func (m MADL) CreateEE() (MADL, error) {
+func (m MADL) CreateEE(kindOfAdaptability []string) (MADL, error) {
 	r1 := MADL{}
 	r2 := *new(error)
+	isAdaptive := true
+
+
+	if len(kindOfAdaptability) == 1 && kindOfAdaptability[0]== "NONE"{
+		isAdaptive = false
+	}
 
 	// configuration
 	r1.ConfigurationName = m.ConfigurationName + "_EE"
@@ -274,11 +280,14 @@ func (m MADL) CreateEE() (MADL, error) {
 	comps := []element.ElementMADL{}
 
 	comps = append(comps, element.ElementMADL{"ee", "ExecutionEnvironment"})
-	comps = append(comps, element.ElementMADL{"monitorevolutive", "MAPEKMonitorEvolutive"}) //TODO
-	comps = append(comps, element.ElementMADL{"mapekmonitor", "MAPEKMonitor"})
-	comps = append(comps, element.ElementMADL{"analyser", "MAPEKAnalyser"})
-	comps = append(comps, element.ElementMADL{"planner", "MAPEKPlanner"})
-	comps = append(comps, element.ElementMADL{"executor", "MAPEKExecutor"})
+
+	if isAdaptive {
+		comps = append(comps, element.ElementMADL{"monitorevolutive", "MAPEKMonitorEvolutive"}) //TODO
+		comps = append(comps, element.ElementMADL{"mapekmonitor", "MAPEKMonitor"})
+		comps = append(comps, element.ElementMADL{"analyser", "MAPEKAnalyser"})
+		comps = append(comps, element.ElementMADL{"planner", "MAPEKPlanner"})
+		comps = append(comps, element.ElementMADL{"executor", "MAPEKExecutor"})
+	}
 
 	units := []string{}
 	for i := 0; i < len(m.Components)+len(m.Connectors); i++ {
@@ -292,11 +301,14 @@ func (m MADL) CreateEE() (MADL, error) {
 	conns := [] element.ElementMADL{}
 
 	conns = append(conns, element.ElementMADL{"t1", "OneToN"})
-	conns = append(conns, element.ElementMADL{"t2", "OneWay"})
-	conns = append(conns, element.ElementMADL{"t3", "OneWay"})
-	conns = append(conns, element.ElementMADL{"t4", "OneWay"})
-	conns = append(conns, element.ElementMADL{"t5", "OneWay"})
-	conns = append(conns, element.ElementMADL{"t6", "OneWay"})
+
+	if isAdaptive {
+		conns = append(conns, element.ElementMADL{"t2", "OneWay"})
+		conns = append(conns, element.ElementMADL{"t3", "OneWay"})
+		conns = append(conns, element.ElementMADL{"t4", "OneWay"})
+		conns = append(conns, element.ElementMADL{"t5", "OneWay"})
+		conns = append(conns, element.ElementMADL{"t6", "OneWay"})
+	}
 
 	// Attachments
 	atts := []attachments.AttachmentMADL{}
@@ -308,34 +320,36 @@ func (m MADL) CreateEE() (MADL, error) {
 		atts = append(atts, attachments.AttachmentMADL{attC1, attT, attC2})
 	}
 
-	attC1 := element.ElementMADL{"monitorevolutive", "MAPEKMonitorEvolutive"}
-	attT := element.ElementMADL{"t2", "OneWay"}
-	attC2 := element.ElementMADL{"mapekmonitor", "MAPEKMonitor"}
-	atts = append(atts, attachments.AttachmentMADL{attC1, attT, attC2})
+	if isAdaptive {
+		attC1 := element.ElementMADL{"monitorevolutive", "MAPEKMonitorEvolutive"}
+		attT := element.ElementMADL{"t2", "OneWay"}
+		attC2 := element.ElementMADL{"mapekmonitor", "MAPEKMonitor"}
+		atts = append(atts, attachments.AttachmentMADL{attC1, attT, attC2})
 
-	attC1 = element.ElementMADL{"mapekmonitor", "MAPEKMonitor"}
-	attT = element.ElementMADL{"t3", "OneWay"}
-	attC2 = element.ElementMADL{"analyser", "MAPEKAnalyser"}
-	atts = append(atts, attachments.AttachmentMADL{attC1, attT, attC2})
+		attC1 = element.ElementMADL{"mapekmonitor", "MAPEKMonitor"}
+		attT = element.ElementMADL{"t3", "OneWay"}
+		attC2 = element.ElementMADL{"analyser", "MAPEKAnalyser"}
+		atts = append(atts, attachments.AttachmentMADL{attC1, attT, attC2})
 
-	attC1 = element.ElementMADL{"analyser", "MAPEKAnalyser"}
-	attT = element.ElementMADL{"t4", "OneWay"}
-	attC2 = element.ElementMADL{"planner", "MAPEKPlanner"}
-	atts = append(atts, attachments.AttachmentMADL{attC1, attT, attC2})
+		attC1 = element.ElementMADL{"analyser", "MAPEKAnalyser"}
+		attT = element.ElementMADL{"t4", "OneWay"}
+		attC2 = element.ElementMADL{"planner", "MAPEKPlanner"}
+		atts = append(atts, attachments.AttachmentMADL{attC1, attT, attC2})
 
-	attC1 = element.ElementMADL{"planner", "MAPEKPlanner"}
-	attT = element.ElementMADL{"t5", "OneWay"}
-	attC2 = element.ElementMADL{"executor", "MAPEKExecutor"}
-	atts = append(atts, attachments.AttachmentMADL{attC1, attT, attC2})
+		attC1 = element.ElementMADL{"planner", "MAPEKPlanner"}
+		attT = element.ElementMADL{"t5", "OneWay"}
+		attC2 = element.ElementMADL{"executor", "MAPEKExecutor"}
+		atts = append(atts, attachments.AttachmentMADL{attC1, attT, attC2})
 
-	attC1 = element.ElementMADL{"executor", "MAPEKExecutor"}
-	attT = element.ElementMADL{"t6", "OneWay"}
-	attC2 = element.ElementMADL{"ee", "ExecutionEnvironment"}
-	atts = append(atts, attachments.AttachmentMADL{attC1, attT, attC2})
+		attC1 = element.ElementMADL{"executor", "MAPEKExecutor"}
+		attT = element.ElementMADL{"t6", "OneWay"}
+		attC2 = element.ElementMADL{"ee", "ExecutionEnvironment"}
+		atts = append(atts, attachments.AttachmentMADL{attC1, attT, attC2})
+	}
 
 	// Adaptability
 	adaptability := []string{}
-	adaptability = append(adaptability, "None")
+	adaptability = append(adaptability, "NONE") // TODO
 
 	// configure MADL EE
 	r1.SourceMADL.FileName = strings.Replace(m.SourceMADL.FileName, parameters.MADL_EXTENSION, "", 99) + "_EE" + parameters.MADL_EXTENSION
@@ -346,6 +360,41 @@ func (m MADL) CreateEE() (MADL, error) {
 	r1.Adaptability = adaptability
 
 	return r1, r2
+}
+
+func (m MADL) Print() {
+	lines := []string{}
+
+	// Configuration
+	lines = append(lines,"Configuration "+m.ConfigurationName+" := "+ "\n")
+
+	// Components
+	lines = append(lines,"Components"+"\n")
+	for i := range m.Components{
+		lines = append(lines,"   "+m.Components[i].ElemId+" : "+m.Components[i].ElemType+"\n")
+	}
+
+	// Connectors
+	lines = append(lines,"Connectors"+"\n")
+	for i := range m.Connectors{
+		lines = append(lines,"   "+m.Connectors[i].ElemId+" : "+m.Connectors[i].ElemType+"\n")
+	}
+
+	// Attachments
+	lines = append(lines,"Attachments"+"\n")
+	for i := range m.Attachments {
+		lines = append(lines,"   "+m.Attachments[i].C1.ElemId+","+m.Attachments[i].T.ElemId+","+m.Attachments[i].C2.ElemId+"\n")
+	}
+
+	// Adaptability
+	lines = append(lines,"Adaptability"+"\n")
+	lines = append(lines,"   "+m.Adaptability[0] + "\n") // TODO
+
+	lines = append(lines,"EndConf")
+
+	for i := range lines {
+		fmt.Print(lines[i])
+	}
 }
 
 func (m MADL) Check() (error) {

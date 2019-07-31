@@ -7,6 +7,7 @@ import (
 	"gmidarch/shared/shared"
 	"gmidarch/development/artefacts/madl"
 	"gmidarch/development/artefacts/csp"
+	"fmt"
 )
 
 type Generator struct{}
@@ -32,7 +33,7 @@ func generateCSP(madlGo madl.MADLGo, maps map[string]string) (csp.CSP,error){
 	// Generate CSP Mid
 	r1, err := csp.CSP{}.Create(madlGo,maps)
 	if err != nil {
-		r2 = errors.New("EE:: " + err.Error())
+		r2 = errors.New("Generator:: " + err.Error())
 		return r1,r2
 	}
 
@@ -50,8 +51,12 @@ func (Generator) GenerateCSPFile(cspSpec csp.CSP)(error){
 	// File Name
 	cspFile.FileName = cspSpec.CompositionName + parameters.CSP_EXTENSION
 
+	fmt.Print("Generator:: ")
+	fmt.Println(cspFile.FileName)
+
 	// File content
 	dataTypeExp := "datatype PROCNAMES = " + shared.StringComposition(cspSpec.Datatype, "|", true)
+
 	eChannelExp := "channel " + shared.StringComposition(cspSpec.EChannels, ",", false) + " : PROCNAMES"
 	iChannelExp := "channel " + shared.StringComposition(cspSpec.IChannels, ",", false)
 	processesExp := ""

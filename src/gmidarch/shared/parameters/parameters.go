@@ -20,7 +20,7 @@ const CSP_EXTENSION = ".csp"
 const DOT_EXTENSION = ".dot"
 const RUNTIME_BEHAVIOUR = "RUNTIME"
 
-const DEADLOCK_PROPERTY = "assert "+CORINGA+" :[deadlock free]"
+const DEADLOCK_PROPERTY = "assert " + CORINGA + " :[deadlock free]"
 const CORINGA = "XXX"
 
 const ADL_COMMENT = "//"

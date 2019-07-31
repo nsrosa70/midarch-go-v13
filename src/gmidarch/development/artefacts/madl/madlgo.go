@@ -90,5 +90,8 @@ func (m *MADLGo) Create(madl MADL) error {
 	}
 	m.Attachments = atts
 
+	// Adaptability
+	m.Adaptability = madl.Adaptability
+
 	return r1
 }

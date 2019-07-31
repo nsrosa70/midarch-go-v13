@@ -13,6 +13,11 @@ import (
 	"gmidarch/development/artefacts/madl"
 	"gmidarch/development/artefacts/csp"
 	"gmidarch/development/artefacts/graphs"
+	"fmt"
+	"os"
+	"reflect"
+	"gmidarch/development/framework/components"
+	"gmidarch/development/framework/element"
 )
 
 type Manager struct {
@@ -36,6 +41,7 @@ func (m Manager) Invoke(madlFileName string) (error) {
 	r1 := *new(error)
 
 	// MADLs
+	fmt.Println("Manager:: MADL being created...")
 	creator := creator.Creator{}
 	m.MadlMidGo, m.MadlEEGo, r1 = creator.Create(madlFileName)
 	if r1 != nil {
@@ -44,20 +50,24 @@ func (m Manager) Invoke(madlFileName string) (error) {
 	}
 
 	// Create Maps
+	fmt.Println("Manager:: Maps being created...")
 	m.MapsMid = m.CreateMaps(m.MadlMidGo)
 	m.MapsEE = m.CreateMaps(m.MadlEEGo)
 
 	// Create Strcutural Channels
+	fmt.Println("Manager:: Channels being created...")
 	m.StructuralChannelsMid = m.CreateStructuralChannels(m.MadlMidGo)
 	m.StructuralChannelsEE = m.CreateStructuralChannels(m.MadlEEGo)
 
-	// CSP (Mid + EE)
+	// CSP
+	fmt.Println("Manager:: CSP being created...")
 	generator := generator.Generator{}
 	m.CSPMid, r1 = generator.GenerateCSP(m.MadlMidGo,m.MapsMid)
 	if r1 != nil {
 		r1 = errors.New("Manager:: " + r1.Error())
 		return r1
 	}
+
 	m.CSPEE, r1 = generator.GenerateCSP(m.MadlEEGo,m.MapsEE)
 	if r1 != nil {
 		r1 = errors.New("Manager:: " + r1.Error())
@@ -76,6 +86,7 @@ func (m Manager) Invoke(madlFileName string) (error) {
 	}
 
 	// Checker
+	fmt.Println("Manager:: CSP being checked...")
 	checker := checker.Checker{}
 	isOk, r1 := checker.Check(m.CSPMid)
 	if r1 != nil {
@@ -109,6 +120,7 @@ func (m Manager) Invoke(madlFileName string) (error) {
 	}
 
 	// DOTS
+	fmt.Println("Manager:: DOTS being created...")
 	m.DotsMid, r1 = csp.DOT{}.Create(m.CSPMid)
 	if r1 != nil {
 		r1 = errors.New("Manager" + r1.Error())
@@ -120,29 +132,55 @@ func (m Manager) Invoke(madlFileName string) (error) {
 	}
 
 	// State Machines
+	fmt.Println("Manager:: State Machines being created...")
 	m.SMMid = make(map[string]graphs.GraphExecutable)
 	for i := range m.DotsMid {
-		m.SMMid[i], r1 = execution.Create(m.DotsMid[i],m.StructuralChannelsMid)
+		m.SMMid[strings.ToLower(i)], r1 = execution.Create(m.DotsMid[i],m.StructuralChannelsMid)
 		if r1 != nil {
 			r1 := errors.New("Manager:: " + r1.Error())
 			return r1
 		}
 	}
-
 	m.SMEE = make(map[string]graphs.GraphExecutable)
 	for i := range m.DotsEE {
-		//g := graphs.GraphExecutable{}
-		m.SMEE[i], r1 = execution.Create(m.DotsEE[i],m.StructuralChannelsEE)
+		m.SMEE[strings.ToLower(i)], r1 = execution.Create(m.DotsEE[i],m.StructuralChannelsEE)
 		if r1 != nil {
 			r1 := errors.New("Manager:: " + r1.Error())
 			return r1
 		}
 	}
 
-	// Deploy machines
+	// Update elements' state machines
+	for i := range m.MadlMidGo.Components{
+		m.MadlMidGo.Components[i].FDRStateMachine = m.DotsMid[strings.ToUpper(m.MadlMidGo.Components[i].ElemId)].Dotgraph
+		m.MadlMidGo.Components[i].GoStateMachine =  m.SMMid[m.MadlMidGo.Components[i].ElemId]
+	}
+	for i := range m.MadlMidGo.Connectors{
+		m.MadlMidGo.Connectors[i].FDRStateMachine = m.DotsMid[strings.ToUpper(m.MadlMidGo.Connectors[i].ElemId)].Dotgraph
+		m.MadlMidGo.Connectors[i].GoStateMachine =  m.SMMid[m.MadlMidGo.Connectors[i].ElemId]
+	}
+	for i := range m.MadlEEGo.Components{
+		m.MadlEEGo.Components[i].FDRStateMachine = m.DotsEE[strings.ToUpper(m.MadlEEGo.Components[i].ElemId)].Dotgraph
+		m.MadlEEGo.Components[i].GoStateMachine =  m.SMEE[m.MadlEEGo.Components[i].ElemId]
+	}
+	for i := range m.MadlEEGo.Connectors{
+		m.MadlEEGo.Connectors[i].FDRStateMachine = m.DotsEE[strings.ToUpper(m.MadlEEGo.Connectors[i].ElemId)].Dotgraph
+		m.MadlEEGo.Connectors[i].GoStateMachine =  m.SMEE[m.MadlEEGo.Connectors[i].ElemId]
+	}
+
+	// Update Info of elements
+	m.ConfigureInfoEE(&m.MadlEEGo,m.MadlMidGo)
+	m.ConfigureInfoApp(&m.MadlMidGo)
+
+	// Deploy App into Units
+	fmt.Println("Manager:: Deploying elements into Execution Units...")
+	m.ConfigureUnits(&m.MadlEEGo, m.MadlMidGo)
+
+	// Start the execution of the architecture
 	core := execution.Core{}
-	core.Deploy(m.SMEE,m.MadlEEGo)
+	fmt.Println("Manager:: State Machines being deployed...")
 	core.Deploy(m.SMMid,m.MadlMidGo)
+	core.Deploy(m.SMEE,m.MadlEEGo)
 
 	return r1
 }
@@ -213,4 +251,77 @@ func (Manager) CreateStructuralChannels(madlGo madl.MADLGo) (map[string]chan mes
 		r1[key04] = r1[key03]
 	}
 	return r1;
+}
+
+func (Manager) ConfigureUnits(eeConf *madl.MADLGo, appConf madl.MADLGo) {
+	availableUnits := []int{}
+
+	// Identify available units
+	for i := 0; i < len(eeConf.Components); i++ {
+		if reflect.TypeOf(eeConf.Components[i].ElemType).String() == reflect.TypeOf(components.ExecutionUnit{}).String() {
+			availableUnits = append(availableUnits, i)
+		}
+	}
+
+	// Check if the numbers of units is enough to accomodate the application
+	if len(availableUnits) != len(appConf.Components)+len(appConf.Connectors) {
+		fmt.Println("Engine:: Available units are not enough to execute the components/connectos. Hence, there is a problem in the configuration")
+		os.Exit(0)
+	}
+
+	// Associate info to units, e.g., u1.info = c1, u2.info = t, u3.info = c2
+	idx := 0
+	for c := range appConf.Components {
+		elem := eeConf.Components[availableUnits[idx]]
+		elem.SetInfo(appConf.Components[c])
+		eeConf.Components[availableUnits[idx]] = elem
+		idx++
+	}
+
+	for t := range appConf.Connectors {
+		elem := eeConf.Components[availableUnits[idx]]
+		elem.SetInfo(appConf.Connectors[t])
+		eeConf.Components[availableUnits[idx]] = elem
+		idx++
+	}
+}
+
+func (Manager) ConfigureInfoEE(eeConf *madl.MADLGo, appConf madl.MADLGo) {
+	for c1 := range eeConf.Components {
+		componentType := reflect.TypeOf(eeConf.Components[c1].ElemType).String()
+		switch  componentType {
+		case reflect.TypeOf(components.ExecutionEnvironment{}).String(): // Execution environment
+			listOfElements := []element.ElementGo{}
+			for c2 := range appConf.Components {
+				listOfElements = append(listOfElements, appConf.Components[c2])
+			}
+			for t := range appConf.Connectors {
+				listOfElements = append(listOfElements, appConf.Connectors[t])
+			}
+			elem := eeConf.Components[c1]
+			elem.SetInfo(listOfElements)
+			eeConf.Components[c1] = elem
+		case reflect.TypeOf(components.MAPEKPlanner{}).String(): // Planner
+			plannerInfo := components.MAPEKPlannerInfo{ConfId:eeConf.ConfigurationName,Components:appConf.Components}
+			elem := eeConf.Components[c1]
+			elem.SetInfo(plannerInfo)
+			eeConf.Components[c1] = elem
+		case reflect.TypeOf(components.MAPEKMonitorEvolutive{}).String(): // Evolutive Monitor
+			elem := eeConf.Components[c1]
+			elem.SetInfo(eeConf.ConfigurationName)
+			eeConf.Components[c1] = elem
+		default:
+			elem := eeConf.Components[c1]
+			elem.SetInfo(parameters.DEFAULT_INFO)
+			eeConf.Components[c1] = elem
+		}
+	}
+}
+
+func (Manager) ConfigureInfoApp(conf *madl.MADLGo) {
+	for c := range conf.Components {
+		elem := conf.Components[c]
+		elem.SetInfo(parameters.DEFAULT_INFO)
+		conf.Components[c] = elem
+	}
 }

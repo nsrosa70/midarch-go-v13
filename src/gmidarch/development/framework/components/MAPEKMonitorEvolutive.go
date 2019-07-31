@@ -5,6 +5,8 @@ import (
 	"gmidarch/shared/parameters"
 	"gmidarch/shared/shared"
 	"gmidarch/development/framework/messages"
+	"fmt"
+	"os"
 )
 
 type MAPEKMonitorEvolutive struct{}
@@ -13,6 +15,7 @@ var firstTime = true
 var listOfOldPlugins map[string]time.Time
 
 func (MAPEKMonitorEvolutive) I_EvolutiveMonitoring(msg *messages.SAMessage, info *interface{}, r *bool) {
+
 	confName := (*info).(string)
 	newPlugins := []string{}
 	listOfNewPlugins := make(map[string]time.Time)
@@ -24,6 +27,9 @@ func (MAPEKMonitorEvolutive) I_EvolutiveMonitoring(msg *messages.SAMessage, info
 		listOfNewPlugins = shared.LoadPlugins(confName)
 		newPlugins = shared.CheckForNewPlugins(listOfOldPlugins, listOfNewPlugins)
 	}
+
+	fmt.Printf("MAPEKMonitorEvolutive:: %v \n",confName)
+	os.Exit(0)
 
 	if len(newPlugins) > 0 {
 		evolutiveMonitoredData := shared.MonitoredEvolutiveData{}

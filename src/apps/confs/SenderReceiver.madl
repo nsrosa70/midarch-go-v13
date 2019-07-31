@@ -5,12 +5,11 @@ Configuration SenderReceiver :=
       receiver : Receiver
 
    Connectors
-      t1 : OneWay
+      t5 : OneWay
 
    Attachments
-      sender,t1,receiver
+      sender,t5,receiver
 
    Adaptability
-      Evolutive
-
+      EVOLUTIVE
 EndConf

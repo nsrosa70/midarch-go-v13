@@ -4,12 +4,17 @@ import (
 	"gmidarch/shared/shared"
 	"gmidarch/shared/parameters"
 	"gmidarch/development/framework/messages"
+	"fmt"
+	"os"
 )
 
 type MAPEKAnalyser struct{}
 
 func (MAPEKAnalyser) I_Analyse(msg *messages.SAMessage, info interface{}, r *bool) {
 
+	fmt.Printf("MAPEAnalyser:: I_Analyse \n")
+	os.Exit(0)
+	
 	// Information received from Monitor
 	listOfNewPlugins := msg.Payload.(shared.MonitoredEvolutiveData)
 

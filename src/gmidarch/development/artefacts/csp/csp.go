@@ -37,12 +37,12 @@ type CSP struct {
 	Property        []string
 }
 
-func (CSP) Create(madlGo madl.MADLGo, maps map[string]string) (CSP, error) {
+func (CSP) Create(madlGo madl.MADLGo, maps map[string]string, kindOfMADL int, midAdaptability []string) (CSP, error) {
 	r1 := CSP{}
 	r2 := *new(error)
 
 	// Solve RUNTIME behaviours
-	r2 = r1.ConfigureProcessBehaviours(madlGo, maps)
+	r2 = r1.ConfigureProcessBehaviours(madlGo, maps, kindOfMADL, midAdaptability)
 	if r2 != nil {
 			r2 = errors.New("CSP" + r2.Error())
 			return r1, r2
@@ -144,7 +144,7 @@ func (CSP) Create(madlGo madl.MADLGo, maps map[string]string) (CSP, error) {
 	return r1, r2
 }
 
-func (c *CSP) ConfigureProcessBehaviours(madlGo madl.MADLGo, maps map[string]string) (error) {
+func (c *CSP) ConfigureProcessBehaviours(madlGo madl.MADLGo, maps map[string]string, kindOfMADL int, midAdaptability []string) (error) {
 	r1 := *new(error)
 
 	// Components
@@ -153,7 +153,7 @@ func (c *CSP) ConfigureProcessBehaviours(madlGo madl.MADLGo, maps map[string]str
 
 		// The Component has its behaviour defined at runtime
 		if strings.Contains(configuredBehaviour, parameters.RUNTIME_BEHAVIOUR) {
-			configuredBehaviour = updateRuntimeBehaviourComponents(madlGo.Components[i].ElemId, madlGo)
+			configuredBehaviour = updateRuntimeBehaviourComponents(madlGo.Components[i].ElemId, madlGo, kindOfMADL, midAdaptability)
 		}
 
 		tokens := strings.Split(configuredBehaviour, " ")
@@ -323,7 +323,7 @@ func updateRuntimeBehaviourConnectors(connId string, madlGo madl.MADLGo) string 
 	return r1
 }
 
-func updateRuntimeBehaviourComponents(compId string, madlGo madl.MADLGo) string {
+func updateRuntimeBehaviourComponents(compId string, madlGo madl.MADLGo, kindOfMADL int, midAdaptability []string) string {
 	r1 := ""
 
 	// Define new behaviour
@@ -331,22 +331,18 @@ func updateRuntimeBehaviourComponents(compId string, madlGo madl.MADLGo) string 
 		comp := madlGo.Components[i]
 		if strings.ToUpper(comp.ElemId) == strings.ToUpper(compId) {
 			if reflect.TypeOf(comp.ElemType) == reflect.TypeOf(components.ExecutionEnvironment{}) {
-				if strings.ToUpper(madlGo.Adaptability[0]) == "NONE" { // TODO
-					//r1 = strings.ToUpper(comp.ElemId) + " = InvR.e1 -> " + strings.ToUpper(comp.ElemId)
+				if (strings.ToUpper(midAdaptability[0]) == "NONE") { // TODO
 					r1 = "B = InvR.e1 -> B"
 				} else {
-					//r1 = strings.ToUpper(comp.ElemId) + " = InvR.e1 -> P1 \nP1 = InvP.e2 -> InvR.e1 -> P1"
 					r1 = "B = InvR.e1 -> P1 \nP1 = InvP.e2 -> InvR.e1 -> P1"
 				}
 				break
 			}
 
 			if reflect.TypeOf(comp.ElemType) == reflect.TypeOf(components.ExecutionUnit{}) {
-				if strings.ToUpper(madlGo.Adaptability[0]) == "NONE" { // TODO
-					//r1 = strings.ToUpper(comp.ElemId) + " = I_InitialiseUnit -> P1\n P1 = I_Execute -> P1"
+				if strings.ToUpper(midAdaptability[0]) == "NONE" { // TODO
 					r1 = "B = I_InitialiseUnit -> P1\n P1 = I_Execute -> P1"
 				} else {
-					//r1 = strings.ToUpper(comp.ElemId) + " = InvP.e1 -> I_InitialiseUnit -> P1 \nP1 = I_Execute -> P1 [] InvP.e1 -> I_AdaptUnit -> P1"
 					r1 = "B = InvP.e1 -> I_InitialiseUnit -> P1 \nP1 = I_Execute -> P1 [] InvP.e1 -> I_AdaptUnit -> P1"
 				}
 				break

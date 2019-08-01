@@ -30,8 +30,6 @@ func (Creator) Create(madlFileName string) (madl.MADLGo, madl.MADLGo, error) {
 		return r1,r2,r3
 	}
 
-	//madlEE.Print()
-
 	// Create MADL Go Mid
 	madlMidGo := madl.MADLGo{}
 	r3 = madlMidGo.Create(madlMid)
@@ -49,6 +47,9 @@ func (Creator) Create(madlFileName string) (madl.MADLGo, madl.MADLGo, error) {
 		return r1,r2,r3
 	}
 	r2 = madlEEGo
+
+	//madlEE.Print()
+	//os.Exit(0)
 
 	return r1, r2, r3
 }

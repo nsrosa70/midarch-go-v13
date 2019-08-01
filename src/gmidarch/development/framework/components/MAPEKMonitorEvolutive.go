@@ -5,8 +5,6 @@ import (
 	"gmidarch/shared/parameters"
 	"gmidarch/shared/shared"
 	"gmidarch/development/framework/messages"
-	"fmt"
-	"os"
 )
 
 type MAPEKMonitorEvolutive struct{}
@@ -27,9 +25,6 @@ func (MAPEKMonitorEvolutive) I_EvolutiveMonitoring(msg *messages.SAMessage, info
 		listOfNewPlugins = shared.LoadPlugins(confName)
 		newPlugins = shared.CheckForNewPlugins(listOfOldPlugins, listOfNewPlugins)
 	}
-
-	fmt.Printf("MAPEKMonitorEvolutive:: %v \n",confName)
-	os.Exit(0)
 
 	if len(newPlugins) > 0 {
 		evolutiveMonitoredData := shared.MonitoredEvolutiveData{}

@@ -12,35 +12,33 @@ import (
 
 type Generator struct{}
 
-func (g Generator) GenerateCSP(madlGo madl.MADLGo, maps map[string]string) (csp.CSP, error) {
+func (g Generator) GenerateCSP(madlGo madl.MADLGo, maps map[string]string, kindOfMADL int, midAdaptability []string) (csp.CSP, error) {
 	r1 := csp.CSP{}
 	r2 := *new(error)
 
 	// Generate CSP
-	r1,err := generateCSP(madlGo,maps)
+	r1, err := generateCSP(madlGo, maps, kindOfMADL, midAdaptability)
 	if err != nil {
 		r2 = errors.New("Generator:: " + err.Error())
-		return r1,r2
 	}
 
 	return r1, r2
 }
 
-func generateCSP(madlGo madl.MADLGo, maps map[string]string) (csp.CSP,error){
+func generateCSP(madlGo madl.MADLGo, maps map[string]string, kindOfMADL int, midAdaptability []string) (csp.CSP, error) {
 	r1 := csp.CSP{}
-	r2 := *new (error)
+	r2 := *new(error)
 
 	// Generate CSP Mid
-	r1, err := csp.CSP{}.Create(madlGo,maps)
+	r1, err := csp.CSP{}.Create(madlGo, maps, kindOfMADL,midAdaptability)
 	if err != nil {
 		r2 = errors.New("Generator:: " + err.Error())
-		return r1,r2
 	}
 
-	return r1,r2
+	return r1, r2
 }
 
-func (Generator) GenerateCSPFile(cspSpec csp.CSP)(error){
+func (Generator) GenerateCSPFile(cspSpec csp.CSP) (error) {
 	r1 := *new(error)
 
 	// Generate File
@@ -61,10 +59,10 @@ func (Generator) GenerateCSPFile(cspSpec csp.CSP)(error){
 	iChannelExp := "channel " + shared.StringComposition(cspSpec.IChannels, ",", false)
 	processesExp := ""
 	for i := range cspSpec.CompProcesses {
-		processesExp += cspSpec.CompProcesses[i]+"\n"
+		processesExp += cspSpec.CompProcesses[i] + "\n"
 	}
 	for i := range cspSpec.ConnProcesses {
-		processesExp += cspSpec.ConnProcesses[i]+ "\n"
+		processesExp += cspSpec.ConnProcesses[i] + "\n"
 	}
 
 	compositionExp := cspSpec.CompositionName + " = (" + strings.ToUpper(shared.StringComposition(cspSpec.Composition.Components, "|||", true)+")")
@@ -92,7 +90,7 @@ func (Generator) GenerateCSPFile(cspSpec csp.CSP)(error){
 	// Save file
 	r1 = cspFile.Save()
 	if r1 != nil {
-		r1 = errors.New("Generator:: "+r1.Error())
+		r1 = errors.New("Generator:: " + r1.Error())
 		return r1
 	}
 	return r1

@@ -82,3 +82,6 @@ const PROACTIVE = "PROACTIVE"
 const EMPTY_LINE = "NONE"
 const DEFAULT_INFO = ""
 const PREFIX_ADL_EXECUTION_ENVIRONMENT = "ExecutionEnvironment"
+
+const MADL_EE = 0
+const MADL_MID = 1

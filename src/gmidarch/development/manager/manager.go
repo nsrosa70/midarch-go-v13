@@ -18,14 +18,15 @@ import (
 	"reflect"
 	"gmidarch/development/framework/components"
 	"gmidarch/development/framework/element"
+	"injector/versioning"
+	"gmidarch/shared/shared"
+	"gmidarch/development/framework/architecturallibrary"
 )
 
 type Manager struct {
-	MadlMid               madl.MADL
 	MadlMidGo             madl.MADLGo
 	CSPMid                csp.CSP
 	DotsMid               map[string]csp.DOT
-	MadlEE                madl.MADL
 	MadlEEGo              madl.MADLGo
 	DotsEE                map[string]csp.DOT
 	CSPEE                 csp.CSP
@@ -39,6 +40,9 @@ type Manager struct {
 
 func (m Manager) Invoke(madlFileName string) (error) {
 	r1 := *new(error)
+
+	// Initialize Environment
+	m.Initialize()
 
 	// MADLs
 	fmt.Println("Manager:: MADL being created...")
@@ -62,13 +66,13 @@ func (m Manager) Invoke(madlFileName string) (error) {
 	// CSP
 	fmt.Println("Manager:: CSP being created...")
 	generator := generator.Generator{}
-	m.CSPMid, r1 = generator.GenerateCSP(m.MadlMidGo,m.MapsMid)
+	m.CSPMid, r1 = generator.GenerateCSP(m.MadlMidGo,m.MapsMid,parameters.MADL_MID,m.MadlMidGo.Adaptability)
 	if r1 != nil {
 		r1 = errors.New("Manager:: " + r1.Error())
 		return r1
 	}
 
-	m.CSPEE, r1 = generator.GenerateCSP(m.MadlEEGo,m.MapsEE)
+	m.CSPEE, r1 = generator.GenerateCSP(m.MadlEEGo,m.MapsEE,parameters.MADL_EE,m.MadlMidGo.Adaptability)
 	if r1 != nil {
 		r1 = errors.New("Manager:: " + r1.Error())
 		return r1
@@ -181,6 +185,9 @@ func (m Manager) Invoke(madlFileName string) (error) {
 	fmt.Println("Manager:: State Machines being deployed...")
 	core.Deploy(m.SMMid,m.MadlMidGo)
 	core.Deploy(m.SMEE,m.MadlEEGo)
+
+	// Start Versioning Injector
+	versioning.VersioningInjector{}.Start(m.MadlMidGo,parameters.PLUGIN_BASE_NAME)
 
 	return r1
 }
@@ -308,7 +315,8 @@ func (Manager) ConfigureInfoEE(eeConf *madl.MADLGo, appConf madl.MADLGo) {
 			eeConf.Components[c1] = elem
 		case reflect.TypeOf(components.MAPEKMonitorEvolutive{}).String(): // Evolutive Monitor
 			elem := eeConf.Components[c1]
-			elem.SetInfo(eeConf.ConfigurationName)
+			//elem.SetInfo(eeConf.ConfigurationName)
+			elem.SetInfo(appConf.ConfigurationName)
 			eeConf.Components[c1] = elem
 		default:
 			elem := eeConf.Components[c1]
@@ -324,4 +332,15 @@ func (Manager) ConfigureInfoApp(conf *madl.MADLGo) {
 		elem.SetInfo(parameters.DEFAULT_INFO)
 		conf.Components[c] = elem
 	}
+}
+
+func (m Manager) Initialize() {
+	// Load execution parameters
+	shared.LoadParameters(os.Args[1:])
+
+	// Check the CSP behaviours
+	architecturallibrary.ArchitecturalLibrary{}.CheckLibrary()
+
+	// Show execution parameters
+	shared.ShowExecutionParameters(false)
 }

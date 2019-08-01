@@ -32,14 +32,12 @@ func (l *ArchitecturalLibrary) Load() error {
 	// load
 	l.Lib["Sender"] = Record{RBD: "TODO", PRISM: "TODO", Go: components.Sender{}, CSP: "B = I_PreInvR1 -> InvR.e1 -> B [] I_PreInvR2 -> InvR.e1 -> B"}
 	l.Lib["Receiver"] = Record{RBD: "TODO", PRISM: "TODO", Go: components.Receiver{}, CSP: "B = InvP.e1 -> I_PosInvP -> B"}
-	//l.Lib["ExecutionEnvironment"] = Record{RBD: "TODO", PRISM: "TODO", Go: components.ExecutionEnvironment{}, CSP: "B = InvR.e1 -> P1 \nP1 = InvP.e2 -> InvR.e1 -> P1"}
 	l.Lib["ExecutionEnvironment"] = Record{RBD: "TODO", PRISM: "TODO", Go: components.ExecutionEnvironment{}, CSP: "B = "+parameters.RUNTIME_BEHAVIOUR}
 	l.Lib["MAPEKMonitorEvolutive"] = Record{RBD: "TODO", PRISM: "TODO", Go: components.MAPEKMonitorEvolutive{}, CSP: "B = I_EvolutiveMonitoring -> (I_HasPlugin -> InvR.e1 -> B [] I_HasNotPlugin -> B)"}
 	l.Lib["MAPEKMonitor"] = Record{RBD: "TODO", PRISM: "TODO", Go: components.MAPEKMonitor{}, CSP: "B = InvP.e1 -> I_Monitor -> InvR.e2 -> B"}
 	l.Lib["MAPEKAnalyser"] = Record{RBD: "TODO", PRISM: "TODO", Go: components.MAPEKAnalyser{}, CSP: "B = InvP.e1 -> I_Analyse -> InvR.e2 -> B"}
 	l.Lib["MAPEKPlanner"] = Record{RBD: "TODO", PRISM: "TODO", Go: components.MAPEKPlanner{}, CSP: "B = InvP.e1 -> I_Plan -> InvR.e2 -> B"}
 	l.Lib["MAPEKExecutor"] = Record{RBD: "TODO", PRISM: "TODO", Go: components.MAPEKExecutor{}, CSP: "B = InvP.e1 -> I_Execute -> InvR.e2 -> B"}
-	//l.Lib["ExecutionUnit"] = Record{RBD: "TODO", PRISM: "TODO", Go: components.ExecutionUnit{}, CSP: "B = InvP.e1 -> I_InitialiseUnit -> P1 \nP1 = I_Execute -> P1 [] InvP.e1 -> I_AdaptUnit -> P1"}
 	l.Lib["ExecutionUnit"] = Record{RBD: "TODO", PRISM: "TODO", Go: components.ExecutionUnit{}, CSP: "B = "+ parameters.RUNTIME_BEHAVIOUR}
 
 	l.Lib["RequestReply"] = Record{RBD: "TODO", PRISM: "TODO", Go: connectors.RequestReply{}, CSP: "B = InvP.e1 -> InvR.e2 -> TerR.e2 -> TerP.e1 -> B"}

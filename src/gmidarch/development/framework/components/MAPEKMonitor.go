@@ -10,8 +10,7 @@ import (
 type MAPEKMonitor struct{}
 
 func (MAPEKMonitor) I_Monitor(msg *messages.SAMessage, info interface{}, r *bool) {
-
-	// TODO Is this check necessary
+	
 	switch reflect.TypeOf(msg.Payload).String() {
 	case "shared.MonitoredCorrectiveData":
 	case "shared.MonitoredEvolutiveData":

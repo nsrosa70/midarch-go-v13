@@ -12,7 +12,7 @@ type ExecutionUnit struct {
 var unitMsg messages.SAMessage
 
 // Unit initialization
-func (unit ExecutionUnit) I_InitialiseUnit(msg *messages.SAMessage, info *interface{}, r *bool) {
+func (ExecutionUnit) I_InitialiseUnit(msg *messages.SAMessage, info *interface{}, r *bool) {
 	elem := (*info).(element.ElementGo)
 	unitMsg = messages.SAMessage{}
 	for e1 := range elem.GoStateMachine.EdgesExecutable {
@@ -24,14 +24,15 @@ func (unit ExecutionUnit) I_InitialiseUnit(msg *messages.SAMessage, info *interf
 }
 
 // Unit execution
-func (unit ExecutionUnit) I_Execute(msg *messages.SAMessage, info *interface{}, r *bool) {
+func (ExecutionUnit) I_Execute(msg *messages.SAMessage, info *interface{}, r *bool) {
 	elem := (*info).(element.ElementGo)
 
-	//shared.Invoke(elem, "Loop", elem, &elem.GoStateMachine)
-	shared.Invoke(elem, "Loop", elem, elem.GoStateMachine)
+//	shared.Invoke(elem, "Loop", elem, &elem.GoStateMachine)
+	shared.Invoke(elem, "Loop", &elem)
+	//shared.Invoke(elem, "Loop", elem, elem.GoStateMachine)
 	*r = true
 }
 
 // Unit adaptation
-func (unit ExecutionUnit) I_AdaptUnit(msg *messages.SAMessage, info *interface{}, r *bool) {
+func (ExecutionUnit) I_AdaptUnit(msg *messages.SAMessage, info *interface{}, r *bool) {
 }

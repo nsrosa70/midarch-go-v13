@@ -11,5 +11,5 @@ Configuration SenderReceiver :=
       sender,t5,receiver
 
    Adaptability
-      EVOLUTIVE
+      Reative
 EndConf

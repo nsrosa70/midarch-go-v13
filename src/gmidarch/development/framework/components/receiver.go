@@ -1,8 +1,8 @@
 package components
 
 import (
-	"fmt"
 	"gmidarch/development/framework/messages"
+	"fmt"
 )
 
 type Receiver struct{}

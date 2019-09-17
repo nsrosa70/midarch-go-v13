@@ -18,19 +18,22 @@ func (ee Core) Deploy(stateMachines map[string]graphs.GraphExecutable, madlGo ma
 
 	for i := range madlGo.Components {
 		elemId := madlGo.Components[i].ElemId
-		go startElement(madlGo.Components[i],stateMachines[elemId])
+		madlGo.Components[i].GoStateMachine = stateMachines[elemId]
+		go startElement(madlGo.Components[i])
 	}
 
 	for i := range madlGo.Connectors {
 		elemId := madlGo.Connectors[i].ElemId
-		go startElement(madlGo.Connectors[i],stateMachines[elemId])
+		madlGo.Connectors[i].GoStateMachine = stateMachines[elemId]
+		go startElement(madlGo.Connectors[i])
 	}
 	return r1
 }
 
-func startElement(elem element.ElementGo, stateMachine graphs.GraphExecutable) {
+func startElement(elem element.ElementGo) {
 	for {
-		shared.Invoke(elem, "Loop", elem, stateMachine)
+		//shared.Invoke(elem, "Loop", elem, &elem.GoStateMachine)
+		shared.Invoke(elem, "Loop", &elem)
 	}
 }
 
@@ -52,7 +55,7 @@ func Create(dot csp.DOT, sc map[string]chan messages.SAMessage) (graphs.GraphExe
 			}
 			if shared.IsExternal(actionNameExec) { // External action
 				key := strings.ToLower(elemId) + "." + actionNameFDR
-				channel,_ := sc[key]
+				channel, _ := sc[key]
 				params := graphs.EdgeExecutableInfo{}
 				switch actionNameExec {
 				case parameters.INVR:

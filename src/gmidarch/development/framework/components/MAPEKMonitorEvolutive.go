@@ -5,6 +5,7 @@ import (
 	"gmidarch/shared/parameters"
 	"gmidarch/shared/shared"
 	"gmidarch/development/framework/messages"
+	"fmt"
 )
 
 type MAPEKMonitorEvolutive struct{}
@@ -36,16 +37,23 @@ func (MAPEKMonitorEvolutive) I_EvolutiveMonitoring(msg *messages.SAMessage, info
 	time.Sleep(parameters.MONITOR_TIME * time.Second)
 }
 
-func (MAPEKMonitorEvolutive) I_HasPlugin(msg *messages.SAMessage, info interface{}, r *bool) {
+func (MAPEKMonitorEvolutive) I_HasPlugin(msg *messages.SAMessage, info *interface{}, r *bool) {
 
-	if msg.Payload != nil {
+	//if msg.Payload != nil {
+	if len(listOfOldPlugins) >= 1 {
+		*msg = messages.SAMessage{listOfOldPlugins}
 		*r = true
 	}
+
+	fmt.Printf("MAPEKEvolutiveMonitor:: I_HasPlugin %v \n",msg.Payload)
+
 }
 
-func (MAPEKMonitorEvolutive) I_HasNotPlugin(msg *messages.SAMessage, info interface{}, r *bool) {
+func (MAPEKMonitorEvolutive) I_HasNotPlugin(msg *messages.SAMessage, info *interface{}, r *bool) {
 
-	if msg.Payload == nil {
+	//if msg.Payload == nil {
+	if len(listOfOldPlugins) == 0 {
 		*r = true
 	}
+	fmt.Printf("MAPEKEvolutiveMonitor:: I_HasNotPlugin %v \n",msg.Payload)
 }

@@ -334,7 +334,7 @@ func (Manager) ConfigureInfoApp(conf *madl.MADLGo) {
 	}
 }
 
-func (m Manager) Initialize() {
+func (Manager) Initialize() {
 	// Load execution parameters
 	shared.LoadParameters(os.Args[1:])
 

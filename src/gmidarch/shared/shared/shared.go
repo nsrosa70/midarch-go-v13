@@ -172,6 +172,7 @@ func Invoke(any interface{}, name string, args ... interface{}) {
 	for i, _ := range args {
 		inputs[i] = reflect.ValueOf(args[i])
 	}
+
 	reflect.ValueOf(any).MethodByName(name).Call(inputs)
 
 	inputs = nil

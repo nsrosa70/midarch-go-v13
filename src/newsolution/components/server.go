@@ -4,6 +4,7 @@ import (
 	"gmidarch/development/artefacts/graphs"
 	"gmidarch/development/framework/messages"
 	"strings"
+	"newsolution/element"
 )
 
 type Server struct {
@@ -29,25 +30,17 @@ func NewServer(invP *chan messages.SAMessage, terP *chan messages.SAMessage) Ser
 	r.Graph = *graphs.NewGraph(3)
 	actionChannel := make(chan messages.SAMessage)
 
-	newEdgeInfo := graphs.EdgeExecutableInfo{ExternalAction: Server{}.InvP, ActionType: 2, ActionChannel: &r.InvPChan, Message: &r.Msg}
+	newEdgeInfo := graphs.EdgeExecutableInfo{ExternalAction: element.Element{}.InvP, ActionType: 2, ActionChannel: &r.InvPChan, Message: &r.Msg}
 	r.Graph.AddEdge(0, 1, newEdgeInfo)
 	newEdgeInfo = graphs.EdgeExecutableInfo{InternalAction: Server{}.I_Process, ActionType: 1, ActionChannel: &actionChannel, Message: &r.Msg}
 	r.Graph.AddEdge(1, 2, newEdgeInfo)
-	newEdgeInfo = graphs.EdgeExecutableInfo{ExternalAction: Server{}.TerP, ActionType: 2, ActionChannel: &r.TerPChan, Message: &r.Msg}
+	newEdgeInfo = graphs.EdgeExecutableInfo{ExternalAction: element.Element{}.TerP, ActionType: 2, ActionChannel: &r.TerPChan, Message: &r.Msg}
 	r.Graph.AddEdge(2, 0, newEdgeInfo)
 
 	return *r
 }
 
-func (c Server) I_Process(msg *messages.SAMessage) {
+func (Server) I_Process(msg *messages.SAMessage) {
 	msgTemp := strings.ToUpper(msg.Payload.(string))
 	*msg = messages.SAMessage{Payload: msgTemp}
-}
-
-func (c Server) InvP(invP *chan messages.SAMessage, msg *messages.SAMessage) {
-	*msg = <-*invP
-}
-
-func (c Server) TerP(terP *chan messages.SAMessage, msg *messages.SAMessage) {
-	*terP <- *msg
 }

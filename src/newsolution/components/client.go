@@ -4,6 +4,7 @@ import (
 	"gmidarch/development/artefacts/graphs"
 	"gmidarch/development/framework/messages"
 	"fmt"
+	"newsolution/element"
 )
 
 type Client struct {
@@ -30,9 +31,9 @@ func NewClient(invR *chan messages.SAMessage, terR *chan messages.SAMessage) Cli
 	actionChannel := make(chan messages.SAMessage)
 	newEdgeInfo := graphs.EdgeExecutableInfo{InternalAction: Client{}.I_SetMessage1, ActionType: 1, ActionChannel: &actionChannel, Message: &r.Msg}
 	r.Graph.AddEdge(0, 1, newEdgeInfo)
-	newEdgeInfo = graphs.EdgeExecutableInfo{ExternalAction: Client{}.InvR, ActionType: 2, ActionChannel: &r.InvRChan, Message: &r.Msg}
+	newEdgeInfo = graphs.EdgeExecutableInfo{ExternalAction: element.Element{}.InvR, ActionType: 2, ActionChannel: &r.InvRChan, Message: &r.Msg}
 	r.Graph.AddEdge(1, 2, newEdgeInfo)
-	newEdgeInfo = graphs.EdgeExecutableInfo{ExternalAction: Client{}.TerR, ActionType: 2, ActionChannel: &r.TerRChan, Message: &r.Msg}
+	newEdgeInfo = graphs.EdgeExecutableInfo{ExternalAction: element.Element{}.TerR, ActionType: 2, ActionChannel: &r.TerRChan, Message: &r.Msg}
 	r.Graph.AddEdge(2, 3, newEdgeInfo)
 	newEdgeInfo = graphs.EdgeExecutableInfo{InternalAction: Client{}.I_PrintMessage, ActionType: 1, ActionChannel: &actionChannel, Message: &r.Msg}
 	r.Graph.AddEdge(3, 0, newEdgeInfo)
@@ -40,18 +41,9 @@ func NewClient(invR *chan messages.SAMessage, terR *chan messages.SAMessage) Cli
 	return *r
 }
 
-func (c Client) I_SetMessage1(msg *messages.SAMessage) {
+func (Client) I_SetMessage1(msg *messages.SAMessage) {
 	*msg = messages.SAMessage{Payload: "Hello World (Type 1)"}
 }
-
-func (c Client) InvR(invR *chan messages.SAMessage, msg *messages.SAMessage) {
-	*invR <- *msg
-}
-
-func (c Client) TerR(terR *chan messages.SAMessage, msg *messages.SAMessage) {
-	*msg = <- *terR
-}
-
-func (c Client) I_PrintMessage(msg *messages.SAMessage) {
+func (Client) I_PrintMessage(msg *messages.SAMessage) {
 	fmt.Println(msg.Payload)
 }

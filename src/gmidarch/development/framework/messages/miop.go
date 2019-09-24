@@ -4,7 +4,7 @@ type RequestHeader struct{
 	Context string
 	RequestId int
 	ResponseExpected bool
-	Key string
+	Key int
 	Operation string
 }
 
@@ -19,7 +19,7 @@ type ReplyHeader struct {
 }
 
 type ReplyBody struct {
-	Reply interface{}
+	Args interface{}
 }
 
 type MIOP struct {

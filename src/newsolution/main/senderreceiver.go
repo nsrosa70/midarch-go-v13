@@ -15,9 +15,9 @@ func main() {
 	chn3 := make(chan messages.SAMessage)
 
 	sender := components.NewSender(&chn1)
+	t := connectors.NewOneWay(&chn1, &chn2)
 	receiver := components.NewReceiver(&chn2)
 	executor := components.NewExecutor(&chn3)
-	t := connectors.NewOneWay(&chn1, &chn2)
 
 	unit1 := components.NewUnit(sender,&chn3)
 	unit2 := components.NewUnit(receiver,&chn3)

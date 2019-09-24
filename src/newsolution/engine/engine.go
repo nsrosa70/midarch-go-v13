@@ -24,7 +24,7 @@ func (Engine) Execute(elem interface{}, graph graphs.GraphExecutable, executionM
 			case 2:
 				edge.Info.ExternalAction(edge.Info.ActionChannel, edge.Info.Message)
 			case 3:
-				edge.Info.InternalActionWithArgs(edge.Info.Message, edge.Info.Args, )
+				edge.Info.InternalActionWithArgs(edge.Info.Message, edge.Info.Args)
 			}
 			node = edge.To
 		} else {

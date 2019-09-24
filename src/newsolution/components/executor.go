@@ -3,8 +3,7 @@ package components
 import (
 "gmidarch/development/artefacts/graphs"
 "gmidarch/development/framework/messages"
-	"fmt"
-	"time"
+	"newsolution/element"
 )
 
 type Executor struct {
@@ -26,15 +25,9 @@ func NewExecutor(invR *chan messages.SAMessage) Executor {
 
 	// configure the state machine
 	r.Graph = *graphs.NewGraph(1)
-	newEdgeInfo := graphs.EdgeExecutableInfo{ExternalAction: Executor{}.InvR, ActionType: 2, ActionChannel: &r.InvRChan, Message: &r.Msg}
+	newEdgeInfo := graphs.EdgeExecutableInfo{ExternalAction: element.Element{}.InvR, ActionType: 2, ActionChannel: &r.InvRChan, Message: &r.Msg}
 	r.Graph.AddEdge(0, 0, newEdgeInfo)
 
 	return *r
-}
-
-func (Executor) InvR(invR *chan messages.SAMessage, msg *messages.SAMessage) {
-	time.Sleep(10 * time.Millisecond)
-	fmt.Println("Executor:: NEW ADAPTATION AVAILABLE")
-	*invR <- *msg
 }
 

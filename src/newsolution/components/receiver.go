@@ -4,6 +4,7 @@ import (
 	"gmidarch/development/artefacts/graphs"
 	"gmidarch/development/framework/messages"
 	"fmt"
+	"newsolution/element"
 )
 
 type Receiver struct {
@@ -13,7 +14,7 @@ type Receiver struct {
 	Msg      messages.SAMessage
 }
 
-func NewReceiver(chn *chan messages.SAMessage) Receiver {
+func NewReceiver(invP *chan messages.SAMessage) Receiver {
 
 	// create a new instance of client
 	r := new(Receiver)
@@ -21,11 +22,11 @@ func NewReceiver(chn *chan messages.SAMessage) Receiver {
 	// configure the new instance
 	r.CSP = "B = InvP -> I_PrintMessage -> B"
 	r.Msg = messages.SAMessage{}
-	r.InvPChan = *chn // TODO
+	r.InvPChan = *invP
 
 	// configure the state machine
 	r.Graph = *graphs.NewGraph(2)
-	newEdgeInfo := graphs.EdgeExecutableInfo{ExternalAction: Receiver{}.InvP, Message: &r.Msg, ActionChannel: &r.InvPChan, ActionType: 2}
+	newEdgeInfo := graphs.EdgeExecutableInfo{ExternalAction: element.Element{}.InvP, Message: &r.Msg, ActionChannel: &r.InvPChan, ActionType: 2}
 	r.Graph.AddEdge(0, 1, newEdgeInfo)
 	actionChannel := make(chan messages.SAMessage)
 	newEdgeInfo = graphs.EdgeExecutableInfo{InternalAction: Receiver{}.I_PrintMessage, Message: &r.Msg, ActionType: 1, ActionChannel: &actionChannel}
@@ -34,10 +35,6 @@ func NewReceiver(chn *chan messages.SAMessage) Receiver {
 	return *r
 }
 
-func (c Receiver) I_PrintMessage(msg *messages.SAMessage) {
+func (Receiver) I_PrintMessage(msg *messages.SAMessage) {
 	fmt.Println(*msg)
-}
-
-func (c Receiver) InvP(chn *chan messages.SAMessage, msg *messages.SAMessage) {
-	*msg = <-*chn
 }

@@ -10,7 +10,7 @@ type GraphExecutable struct {
 }
 
 type TypeInternalAction func(*messages.SAMessage)
-type TypeInternalActionWithArgs func(*messages.SAMessage, interface{},)
+type TypeInternalActionWithArgs func(*messages.SAMessage, [] *interface{})
 type TypeExternalAction func(*chan messages.SAMessage, *messages.SAMessage)
 
 type EdgeExecutableInfo struct {
@@ -21,8 +21,8 @@ type EdgeExecutableInfo struct {
 	ExternalAction         TypeExternalAction         // External action
 	InternalAction         TypeInternalAction         // Internal action
 	InternalActionWithArgs TypeInternalActionWithArgs // Internal action with args
-	Args                   interface{}
-	Response                      *bool
+	Args                   [] *interface{}
+	Response               *bool
 }
 
 type EdgeExecutable struct {

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"gmidarch/development/framework/components"
 	"gmidarch/development/framework/connectors"
-	"gmidarch/shared/parameters"
+	"newsolution/shared/parameters"
 )
 
 type Record struct {

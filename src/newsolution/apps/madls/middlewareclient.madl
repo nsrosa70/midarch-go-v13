@@ -1,0 +1,19 @@
+Configuration MiddlewareCalculatorClient :=
+   Components
+      proxy1          : Calculatorproxy
+      marshaller      : Marshaller
+      requestor       : Requestor
+      crh             : CRH
+
+   Connectors
+      t1 : Requestreply
+      t2 : Requestreply
+      t3 : Requestreply
+
+   Attachments
+      proxy1,t1,requestor
+      requestor,t2,marshaller
+      requestor,t3,crh
+   Adaptability
+      None
+EndConf

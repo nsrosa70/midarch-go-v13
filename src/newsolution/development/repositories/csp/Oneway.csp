@@ -1,0 +1,3 @@
+datatype PROCNAMES = e1 | e2
+channel InvP, InvR : PROCNAMES
+oneway = InvP.e1 -> InvR.e2 -> oneway

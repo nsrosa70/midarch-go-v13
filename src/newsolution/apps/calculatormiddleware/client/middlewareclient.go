@@ -10,13 +10,13 @@ import (
 	"newsolution/execution/environment/frontend"
 )
 
-func oldmain() {
+func main() {
 	frontend.FrontEnd{}.Deploy("middlewareclient.madl")
 
 	fmt.Scanln()
 }
 
-func main() {
+func oldmain() {
 	var chn [21] chan messages.SAMessage
 
 	for i := 0; i < 21; i++ {

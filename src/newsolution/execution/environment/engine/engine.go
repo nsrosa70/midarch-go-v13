@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"newsolution/shared/parameters"
 	"newsolution/development/artefacts/exec"
+	"fmt"
 )
 
 type Engine struct{}
@@ -22,6 +23,9 @@ func (Engine) Execute(elem interface{}, graph exec.ExecGraph, executionMode bool
 			edge := edges[0]
 			switch edge.Info.ActionType {
 			case 1:
+				if edge.Info.ActionName == "I_Receive"{
+					fmt.Printf("Engine:: %v\n",len(edge.Info.Args))
+				}
 				edge.Info.InternalAction(elem, edge.Info.ActionName, edge.Info.Args)
 			case 2:
 				edge.Info.ExternalAction(edge.Info.ActionChannel, edge.Info.Message)

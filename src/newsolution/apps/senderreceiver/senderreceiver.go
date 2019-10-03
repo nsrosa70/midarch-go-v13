@@ -10,14 +10,14 @@ import (
 	"newsolution/execution/environment/frontend"
 )
 
-func oldmain() {
+func main() {
 	frontend.FrontEnd{}.Deploy("senderreceiver.madl")
 
 	fmt.Scanln()
 }
 
 
-func main() {
+func oldmain() {
 	chn1 := make(chan messages.SAMessage)
 	chn2 := make(chan messages.SAMessage)
 	chn3 := make(chan messages.SAMessage)

@@ -52,7 +52,6 @@ func (Sender) I_Setmessage2(msg *messages.SAMessage) {
 func (Sender) I_Setmessage3(msg *messages.SAMessage) {
 	*msg = messages.SAMessage{Payload: "Hello World (Type 3)"}
 }
-
 func (Sender) I_Debug(msg *messages.SAMessage) {
 	fmt.Printf("Sender:: Debug:: %v \n", msg)
 }

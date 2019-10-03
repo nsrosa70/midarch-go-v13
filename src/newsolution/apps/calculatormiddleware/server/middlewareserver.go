@@ -23,7 +23,7 @@ func oldmain() {
 		chn[i] = make(chan messages.SAMessage)
 	}
 
-	srh := components.NewSRH("localhost",1313)
+	srh := components.NewSRH()
 	srh.Configure(&chn[0], &chn[1])
 	t1 := connectors.NewRequestReply()
 	t1.Configure(&chn[0], &chn[1], &chn[2], &chn[3])
@@ -39,7 +39,7 @@ func oldmain() {
 	t3.Configure(&chn[6], &chn[7], &chn[10], &chn[11])
 	t4 := connectors.NewRequestReply()
 	t4.Configure(&chn[13], &chn[14], &chn[15], &chn[16])
-	calculatorServer := components.NewCalculatorServer()
+	calculatorServer := components.Newcalculatorserver()
 	calculatorServer.Configure(&chn[10],&chn[11])
 	executor := components.NewExecutor()
 	executor.Configure(&chn[12])

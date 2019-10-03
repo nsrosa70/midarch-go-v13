@@ -8,6 +8,7 @@ import (
 type Record struct {
 	Type interface{}
 	CSP string
+	X interface{}
 }
 
 type ArchitecturalRepository struct {
@@ -20,7 +21,7 @@ func (al *ArchitecturalRepository) Load() error {
 	al.Library = make(map[string]Record)
 
 	// load
-	al.Library["Oneway"] = Record{Type:connectors.NewOneway(),CSP:""}
+	al.Library["Oneway"] = Record{Type:connectors.NewOneway(),X:connectors.Oneway{},CSP:"TODO"}
 	al.Library["Requestreply"] = Record{Type:connectors.NewRequestReply(),CSP:""}
 	al.Library["Sender"] = Record{Type:components.NewSender(),CSP:""}
 	al.Library["Receiver"] = Record{Type:components.NewReceiver(),CSP:""}
@@ -30,6 +31,9 @@ func (al *ArchitecturalRepository) Load() error {
 	al.Library["Marshaller"] = Record{Type:components.NewMarshaller(),CSP:""}
 	al.Library["Requestor"] = Record{Type:components.NewRequestor(),CSP:""}
 	al.Library["CRH"] = Record{Type:components.NewCRH(),CSP:""}
+	al.Library["SRH"] = Record{Type:components.NewSRH(),CSP:""}
+	al.Library["Calculatorserver"] = Record{Type:components.Newcalculatorserver(),CSP:""}
+	al.Library["Calculatorinvoker"] = Record{Type:components.NewCalculatorinvoker(),CSP:""}
 
 	return r1
 }

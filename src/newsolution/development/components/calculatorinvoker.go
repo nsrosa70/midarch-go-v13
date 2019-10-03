@@ -8,12 +8,12 @@ import (
 	"newsolution/development/artefacts/exec"
 )
 
-type Invoker struct {
+type Calculatorinvoker struct {
 	CSP   string
 	Graph exec.ExecGraph
 }
 
-func NewInvoker() Invoker {
+func NewCalculatorinvoker() Invoker {
 
 	// create a new instance of Invoker
 	r := new(Invoker)
@@ -21,7 +21,7 @@ func NewInvoker() Invoker {
 		return *r
 }
 
-func (i *Invoker) Configure(invP, terP, invR1, terR1, invR2, terR2, invR3, terR3 *chan messages.SAMessage) {
+func (i *Calculatorinvoker) Configure(invP, terP, invR1, terR1, invR2, terR2, invR3, terR3 *chan messages.SAMessage) {
 
 	// configure the state machine
 	i.Graph = *exec.NewExecGraph(12)
@@ -41,7 +41,7 @@ func (i *Invoker) Configure(invP, terP, invR1, terR1, invR2, terR2, invR3, terR3
 	newEdgeInfo = exec.ExecEdgeInfo{ExternalAction: element.Element{}.TerR, ActionType: 2, ActionChannel: terR1, Message: msg}
 	i.Graph.AddEdge(3, 4, newEdgeInfo)
 	actionChannel = make(chan messages.SAMessage)
-	newEdgeInfo = exec.ExecEdgeInfo{InternalAction: shared.Invoke,ActionName:"I_Preparetoobject", Message: msg, ActionType: 1, ActionChannel: &actionChannel, Args:args}
+	newEdgeInfo = exec.ExecEdgeInfo{InternalAction: shared.Invoke,ActionName:"I_PrepareToObject", Message: msg, ActionType: 1, ActionChannel: &actionChannel, Args:args}
 	i.Graph.AddEdge(4, 5, newEdgeInfo)
 	newEdgeInfo = exec.ExecEdgeInfo{ExternalAction: element.Element{}.InvR, ActionType: 2, ActionChannel: invR2, Message: msg}
 	i.Graph.AddEdge(5, 6, newEdgeInfo)
@@ -55,13 +55,13 @@ func (i *Invoker) Configure(invP, terP, invR1, terR1, invR2, terR2, invR3, terR3
 	newEdgeInfo = exec.ExecEdgeInfo{ExternalAction: element.Element{}.TerR, ActionType: 2, ActionChannel: terR3, Message: msg}
 	i.Graph.AddEdge(9, 10, newEdgeInfo)
 	actionChannel = make(chan messages.SAMessage)
-	newEdgeInfo = exec.ExecEdgeInfo{InternalAction: shared.Invoke,ActionName:"I_PreparetoSRH", Message: msg, ActionType: 1, ActionChannel: &actionChannel, Args: args}
+	newEdgeInfo = exec.ExecEdgeInfo{InternalAction: shared.Invoke,ActionName:"I_PrepareToSRH", Message: msg, ActionType: 1, ActionChannel: &actionChannel, Args: args}
 	i.Graph.AddEdge(10, 11, newEdgeInfo)
 	newEdgeInfo = exec.ExecEdgeInfo{ExternalAction: element.Element{}.TerP, ActionType: 2, ActionChannel: terP, Message: msg}
 	i.Graph.AddEdge(11, 0, newEdgeInfo)
 }
 
-func (Invoker) I_DeserialiseMIOP(msg *messages.SAMessage,){
+func (Calculatorinvoker) I_DeserialiseMIOP(msg *messages.SAMessage,){
 
 	argsTemp := make([]interface{}, 1)
 	argsTemp[0] = msg.Payload
@@ -70,14 +70,14 @@ func (Invoker) I_DeserialiseMIOP(msg *messages.SAMessage,){
 	*msg = messages.SAMessage{Payload:msgToMarhsaller}
 }
 
-func (Invoker) I_PrepareToObject(msg *messages.SAMessage){
+func (Calculatorinvoker) I_PrepareToObject(msg *messages.SAMessage){
 	miopPacket := msg.Payload.(miop.Packet)
 	argsTemp := miopPacket.Bd.ReqBody.Body
 	inv := shared.Request{Op:miopPacket.Bd.ReqHeader.Operation,Args:argsTemp}
 	*msg = messages.SAMessage{Payload:inv}
 }
 
-func (Invoker) I_SerialiseMIOP(msg *messages.SAMessage) {
+func (Calculatorinvoker) I_SerialiseMIOP(msg *messages.SAMessage) {
 	r := msg.Payload.(int)  // TODO
 
 	// assembly packet
@@ -97,7 +97,7 @@ func (Invoker) I_SerialiseMIOP(msg *messages.SAMessage) {
 	*msg = messages.SAMessage{Payload: msgToMarhsaller}
 }
 
-func (Invoker) I_PrepareToSRH(msg *messages.SAMessage) {
+func (Calculatorinvoker) I_PrepareToSRH(msg *messages.SAMessage) {
 	toSRH := make([]interface{},1)
 	toSRH[0] = msg.Payload.([]uint8)
 

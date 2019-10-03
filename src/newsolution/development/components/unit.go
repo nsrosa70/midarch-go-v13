@@ -36,6 +36,7 @@ func (u *Unit) ConfigureUnit(elem interface{}, invP *chan messages.SAMessage) {
 	args := make([] *interface{}, 2)
 	args[0] = new(interface{})
 	args[1] = new(interface{})
+	args[2] = new(interface{})
 	*args[0] = new(messages.SAMessage)
 	*args[1] = elem
 

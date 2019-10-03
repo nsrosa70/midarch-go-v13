@@ -15,7 +15,7 @@ type Calculatorserver struct {
 	Graph    exec.ExecGraph
 }
 
-func NewCalculatorServer() Calculatorserver {
+func Newcalculatorserver() Calculatorserver {
 
 	// create a new instance of Server
 	r := new(Calculatorserver)

@@ -33,12 +33,12 @@ func (r *Receiver) Configure(invP *chan messages.SAMessage) {
 	args := make([]*interface{}, 1)
 	args[0] = new(interface{})
 	*args[0] = msg
-	newEdgeInfo = exec.ExecEdgeInfo{InternalAction: shared.Invoke, ActionName: "I_PrintMessage", Message: msg, ActionType: 1, ActionChannel: &actionChannel, Args:args}
+	newEdgeInfo = exec.ExecEdgeInfo{InternalAction: shared.Invoke, ActionName: "I_Printmessage", Message: msg, ActionType: 1, ActionChannel: &actionChannel, Args:args}
 	r.Graph.AddEdge(1, 0, newEdgeInfo)
 
 	return
 }
 
-func (Receiver) I_PrintMessage(msg *messages.SAMessage) {
+func (Receiver) I_Printmessage(msg *messages.SAMessage) {
 	fmt.Printf("Receiver:: %v  \n",*msg)
 }

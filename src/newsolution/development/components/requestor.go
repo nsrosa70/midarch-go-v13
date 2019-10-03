@@ -54,7 +54,7 @@ func (r *Requestor) Configure(invP, terP, invR1, terR1, invR2, terR2, invR3, ter
 	args2HostPort[0] = "localhost"
 	args2HostPort[1] = 1313
 	*args2[1] = args2HostPort
-	newEdgeInfo = exec.ExecEdgeInfo{InternalAction: shared.Invoke, ActionName: "I_PrepareToCRH", Message: msg, ActionType: 1, ActionChannel: &actionChannel, Args: args2}
+	newEdgeInfo = exec.ExecEdgeInfo{InternalAction: shared.Invoke, ActionName: "I_PreparetoCRH", Message: msg, ActionType: 1, ActionChannel: &actionChannel, Args: args2}
 	r.Graph.AddEdge(4, 5, newEdgeInfo)
 
 	newEdgeInfo = exec.ExecEdgeInfo{ExternalAction: element.Element{}.InvR, ActionType: 2, ActionChannel: invR2, Message: msg}

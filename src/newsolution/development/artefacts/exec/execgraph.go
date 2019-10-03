@@ -16,6 +16,7 @@ type ExecEdge struct {
 }
 
 type TypeInternalAction func(any interface{}, name string, args [] *interface{})
+//type TypeInternalAction func(any interface{}, name string, args [] reflect.Value)
 type TypeExternalAction func(*chan messages.SAMessage, *messages.SAMessage)
 
 type ExecEdgeInfo struct {
@@ -26,6 +27,7 @@ type ExecEdgeInfo struct {
 	ExternalAction TypeExternalAction       // External action
 	InternalAction TypeInternalAction       // Internal action
 	Args           [] *interface{}
+	//Args           [] reflect.Value
 	Response       *bool
 }
 

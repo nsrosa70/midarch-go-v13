@@ -9,6 +9,7 @@ import (
 	"newsolution/development/element"
 	"newsolution/shared/shared"
 	"newsolution/development/artefacts/exec"
+	"fmt"
 )
 
 type CRH struct {
@@ -45,6 +46,8 @@ func (c *CRH) Configure (invP, terP *chan messages.SAMessage) {
 }
 
 func (CRH) I_Process(msg *messages.SAMessage) {
+
+	fmt.Println("CRH:: HERE")
 
 	// check message
 	argsTemp := msg.Payload.([]interface{})

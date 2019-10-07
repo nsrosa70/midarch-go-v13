@@ -22,7 +22,8 @@ func NewOneway() Oneway {
 func (o *Oneway) ConfigureOneWay(invP, invR *chan messages.SAMessage) {
 
 	// configure the state machine
-	msg := new(messages.SAMessage)
+	//msg := new(messages.SAMessage)
+	msg := new(interface{})
 	args := make([]*interface{}, 1)
 	args[0] = new(interface{})
 	*args[0] = msg

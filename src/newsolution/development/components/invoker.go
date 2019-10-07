@@ -1,11 +1,11 @@
 package components
 
 import (
-	"gmidarch/development/framework/messages"
-	"newsolution/development/element"
-	"newsolution/development/miop"
-	"newsolution/shared/shared"
 	"newsolution/development/artefacts/exec"
+	"newsolution/shared/shared"
+	"gmidarch/development/framework/messages"
+	"newsolution/development/miop"
+	"newsolution/development/element"
 )
 
 type Invoker struct {
@@ -26,7 +26,7 @@ func (i *Invoker) Configure(invP, terP, invR1, terR1, invR2, terR2, invR3, terR3
 	// configure the state machine
 	i.Graph = *exec.NewExecGraph(12)
 
-	msg := new(messages.SAMessage)
+	msg := new(interface{})
 	args := make([]*interface{}, 1)
 	args[0] = new(interface{})
 	*args[0] = msg

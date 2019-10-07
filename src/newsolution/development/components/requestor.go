@@ -1,11 +1,11 @@
 package components
 
 import (
-	"gmidarch/development/framework/messages"
-	"newsolution/development/element"
-	"newsolution/development/miop"
-	"newsolution/shared/shared"
 	"newsolution/development/artefacts/exec"
+	"gmidarch/development/framework/messages"
+	"newsolution/shared/shared"
+	"newsolution/development/miop"
+	"newsolution/development/element"
 )
 
 type Requestor struct {
@@ -26,7 +26,7 @@ func (r *Requestor) Configure(invP, terP, invR1, terR1, invR2, terR2, invR3, ter
 	// configure the state machine
 	r.Graph = *exec.NewExecGraph(12)
 
-	msg := new(messages.SAMessage)
+	msg := new(interface{})
 	newEdgeInfo := exec.ExecEdgeInfo{ExternalAction: element.Element{}.InvP, ActionType: 2, ActionChannel: invP, Message: msg}
 	r.Graph.AddEdge(0, 1, newEdgeInfo)
 

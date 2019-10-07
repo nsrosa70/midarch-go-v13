@@ -1,16 +1,15 @@
 package components
 
 import (
-	"log"
-	"encoding/binary"
 	"net"
-	"strconv"
-	"gmidarch/development/framework/messages"
-	"newsolution/development/element"
-	"newsolution/shared/shared"
 	"newsolution/development/artefacts/exec"
 	"fmt"
-	"reflect"
+	"strconv"
+	"log"
+	"encoding/binary"
+	"gmidarch/development/framework/messages"
+	"newsolution/shared/shared"
+	"newsolution/development/element"
 )
 
 type SRH struct {
@@ -41,7 +40,7 @@ func (s *SRH) Configure(invR, terR *chan messages.SAMessage) {
 	// configure the state machine
 	s.Graph = *exec.NewExecGraph(4)
 	actionChannel := make(chan messages.SAMessage)
-	msg := new(messages.SAMessage)
+	msg := new(interface{})
 
 	args1 := make([]*interface{}, 3) // host, port, msg
 	args1[0] = new(interface{})
@@ -68,14 +67,10 @@ func (s *SRH) Configure(invR, terR *chan messages.SAMessage) {
 	s.Graph.AddEdge(3, 0, newEdgeInfo)
 }
 
-//func (SRH) I_Receive(msg *messages.SAMessage, hostTemp interface{}, portTemp interface{}) {
-func (SRH) I_Receive(msg *messages.SAMessage, host string, port int) { // TODO
+func (SRH) I_Receive(msg *interface{}, hostTemp1 *interface{}, portTemp1 *interface{}) { // TODO
 
-	//hostX := *hostTemp
-	//portX := *portTemp
-	fmt.Printf("SRH:: %v\n",reflect.TypeOf(msg))
-	//host := hostTemp.(string)
-	//port := portTemp.(int)
+	host := "localhost"  // TODO
+	port := 1313  // TODO
 
 	// create listener
 	ln, err = net.Listen("tcp", host+":"+strconv.Itoa(port))
@@ -129,4 +124,14 @@ func (SRH) I_Send(msg *messages.SAMessage) {
 	// close connection
 	conn.Close()
 	ln.Close()
+}
+
+func (SRH) I_Test1(msg *interface{}, any *interface{}) {
+	*msg = messages.SAMessage{Payload: "Teste 1"}
+	fmt.Printf("SRH:: %v\n", *msg)
+}
+
+func (SRH) I_Test2(msg *interface{}, any *interface{}) {
+	*msg = messages.SAMessage{Payload: "Teste 2"}
+	fmt.Printf("SRH:: %v\n", *msg)
 }

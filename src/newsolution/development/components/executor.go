@@ -1,12 +1,12 @@
 package components
 
 import (
-	"gmidarch/development/framework/messages"
-	"newsolution/development/element"
-	"fmt"
-	"time"
-	"newsolution/shared/shared"
 	"newsolution/development/artefacts/exec"
+	"time"
+	"fmt"
+	"gmidarch/development/framework/messages"
+	"newsolution/shared/shared"
+	"newsolution/development/element"
 )
 
 type Executor struct {
@@ -22,13 +22,14 @@ func NewExecutor() Executor {
 	return *r
 }
 
+
 func (e *Executor) Configure(invR *chan messages.SAMessage) {
 
 	// configure the state machine
 	e.Graph = *exec.NewExecGraph(2)
 	actionChannel := make(chan messages.SAMessage)
 
-	msg := new(messages.SAMessage)
+	msg := new(interface{})
 	args := make([]*interface{}, 1)
 	args[0] = new(interface{})
 	*args[0] = msg

@@ -5,7 +5,6 @@ import (
 	"reflect"
 	"newsolution/shared/parameters"
 	"newsolution/development/artefacts/exec"
-	"fmt"
 )
 
 type Engine struct{}
@@ -15,26 +14,21 @@ func (Engine) Execute(elem interface{}, graph exec.ExecGraph, executionMode bool
 	// Execute graph
 	node := 0
 
-	//os.Exit(0)
-
 	for {
 		edges := graph.AdjacentEdges(node)
 		if len(edges) == 1 {
 			edge := edges[0]
 			switch edge.Info.ActionType {
 			case 1:
-				if edge.Info.ActionName == "I_Receive"{
-					fmt.Printf("Engine:: %v\n",len(edge.Info.Args))
-				}
 				edge.Info.InternalAction(elem, edge.Info.ActionName, edge.Info.Args)
 			case 2:
 				edge.Info.ExternalAction(edge.Info.ActionChannel, edge.Info.Message)
 			}
 			node = edge.To
 		} else {
-			msg := messages.SAMessage{}
+			msg := new(interface{})
 			chosen := 0
-			choice(elem, &msg, &chosen, edges)
+			choice(elem, msg, &chosen, edges)
 			node = edges[chosen].To
 		}
 		if node == 0 && executionMode != parameters.EXECUTE_FOREVER {
@@ -44,7 +38,7 @@ func (Engine) Execute(elem interface{}, graph exec.ExecGraph, executionMode bool
 	return
 }
 
-func choice(elem interface{}, msg *messages.SAMessage, chosen *int, edges []exec.ExecEdge) {
+func choice(elem interface{}, msg *interface{}, chosen *int, edges []exec.ExecEdge) {
 	casesExternal := make([]reflect.SelectCase, len(edges)+1)
 	casesInternal := make([]reflect.SelectCase, len(edges))
 
@@ -79,6 +73,7 @@ func choice(elem interface{}, msg *messages.SAMessage, chosen *int, edges []exec
 	}
 }
 
-func send(channel *chan messages.SAMessage, msg messages.SAMessage) {
-	*channel <- msg
+func send(channel *chan messages.SAMessage, msg interface{}) {
+	msgTemp := msg.(messages.SAMessage)
+	*channel <- msgTemp
 }

@@ -1,5 +1,6 @@
 Configuration MiddlewareCalculatorClient :=
    Components
+      client          : Calculatorproxy
       proxy1          : Calculatorproxy
       marshaller      : Marshaller
       requestor       : Requestor
@@ -9,8 +10,10 @@ Configuration MiddlewareCalculatorClient :=
       t1 : Requestreply
       t2 : Requestreply
       t3 : Requestreply
+      t4 : RequestReply
 
    Attachments
+      client, t1, proxy1
       proxy1,t1,requestor
       requestor,t2,marshaller
       requestor,t3,crh

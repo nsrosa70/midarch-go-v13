@@ -1,11 +1,9 @@
 package components
 
 import (
-	"gmidarch/development/framework/messages"
-	"newsolution/shared/shared"
-	"fmt"
-	"newsolution/development/element"
 	"newsolution/development/artefacts/exec"
+	"gmidarch/development/framework/messages"
+	"fmt"
 )
 
 type Sender struct {
@@ -22,6 +20,7 @@ func NewSender() Sender {
 
 }
 
+/*
 func (s *Sender) Configure(invR *chan messages.SAMessage) {
 
 	// Configure state machine
@@ -43,15 +42,21 @@ func (s *Sender) Configure(invR *chan messages.SAMessage) {
 	s.Graph.AddEdge(1, 0, newEdgeInfo)
 }
 
-func (Sender) I_Setmessage1(msg *messages.SAMessage) {
+*/
+
+//func (Sender) I_Setmessage1(msg *messages.SAMessage) {
+func (Sender) I_Setmessage1(msg *interface{}) {
 	*msg = messages.SAMessage{Payload: "Hello World (Type 1)"}
 }
-func (Sender) I_Setmessage2(msg *messages.SAMessage) {
+
+//func (Sender) I_Setmessage2(msg *messages.SAMessage) {
+func (Sender) I_Setmessage2(msg *interface{}) {
 	*msg = messages.SAMessage{Payload: "Hello World (Type 2)"}
 }
-func (Sender) I_Setmessage3(msg *messages.SAMessage) {
-	*msg = messages.SAMessage{Payload: "Hello World (Type 3)"}
+//func (Sender) I_Setmessage3(msg *messages.SAMessage) {
+	func (Sender) I_Setmessage3(msg *interface{}) {
+		*msg = messages.SAMessage{Payload: "Hello World (Type 3)"}
 }
-func (Sender) I_Debug(msg *messages.SAMessage) {
+func (Sender) I_Debug(msg *interface{}) {
 	fmt.Printf("Sender:: Debug:: %v \n", msg)
 }

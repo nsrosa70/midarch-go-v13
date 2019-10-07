@@ -14,14 +14,14 @@ import (
 
 type Exec struct{}
 
-func (Exec) Create(elem interface{}, id string, dot dot.DOTGraph, maps map[string]string, channels map[string]chan messages.SAMessage) (ExecGraph) {
+func (Exec) Create(id string, elem interface{}, typeName string, dot dot.DOTGraph, maps map[string]string, channels map[string]chan messages.SAMessage) (ExecGraph) {
 	r1 := NewExecGraph(dot.NumNodes)
 
-    // Check dot actions against elem's interface
-	checkInterface(elem,id, dot)
-	actionInParams := loadActionParams(elem)
+	// Check dot actions against elem's interface
+	checkInterface(elem, id, dot)
 
-	msg := new(messages.SAMessage)
+	//msg := new(messages.SAMessage)
+	msg := new(interface{})
 	for e1 := range dot.EdgesDot {
 		for e2 := range dot.EdgesDot [e1] {
 			eActions := ExecEdgeInfo{}
@@ -32,44 +32,41 @@ func (Exec) Create(elem interface{}, id string, dot dot.DOTGraph, maps map[strin
 				actionNameExec = actionNameFDR[:strings.Index(actionNameFDR, ".")]
 			}
 			if shared.IsExternal(actionNameExec) { // External action
-				actionNameTemp := strings.Split(actionNameFDR,".")
-				key1 := id+"."+actionNameTemp[1]
-				key2 := id+"."+ actionNameTemp[0]+"."+maps[key1]
+				actionNameTemp := strings.Split(actionNameFDR, ".")
+				key1 := id + "." + actionNameTemp[1]
+				key2 := id + "." + actionNameTemp[0] + "." + maps[key1]
 				channel, _ := channels[key2]
 				params := ExecEdgeInfo{}
 				switch actionNameExec {
 				case parameters.INVR:
 					invr := channel
-					params = ExecEdgeInfo{ExternalAction: element.Element{}.InvR, ActionName:"InvR", ActionType: 2, Message: msg, ActionChannel: &invr}
+					params = ExecEdgeInfo{ExternalAction: element.Element{}.InvR, ActionName: "InvR", ActionType: 2, Message: msg, ActionChannel: &invr}
 				case parameters.TERR:
 					terr := channel
-					params = ExecEdgeInfo{ExternalAction: element.Element{}.TerR, ActionName:"TerR", ActionType: 2, Message: msg, ActionChannel: &terr}
+					params = ExecEdgeInfo{ExternalAction: element.Element{}.TerR, ActionName: "TerR", ActionType: 2, Message: msg, ActionChannel: &terr}
 				case parameters.INVP:
 					invp := channel
-					params = ExecEdgeInfo{ExternalAction: element.Element{}.InvP,ActionName:"InvP", ActionType: 2, Message: msg, ActionChannel: &invp}
+					params = ExecEdgeInfo{ExternalAction: element.Element{}.InvP, ActionName: "InvP", ActionType: 2, Message: msg, ActionChannel: &invp}
 				case parameters.TERP:
 					terp := channel
-					params = ExecEdgeInfo{ExternalAction: element.Element{}.TerP, ActionName:"TerP", ActionType: 2, Message: msg, ActionChannel: &terp}
+					params = ExecEdgeInfo{ExternalAction: element.Element{}.TerP, ActionName: "TerP", ActionType: 2, Message: msg, ActionChannel: &terp}
 				}
 				mapType := ExecEdgeInfo{}
 				mapType = params
 				eActions = mapType
 			}
 
-			if shared.IsInternal(actionNameFDR) {  // Internal action
+			if shared.IsInternal(actionNameFDR) { // Internal action
 				channel := make(chan messages.SAMessage)
-				//args := make([]*interface{}, actionInParams[actionNameFDR])
-				args := make([]*interface{}, actionInParams[actionNameFDR])
-				for i:= 0; i < actionInParams[actionNameFDR]; i++ { // TODO
+
+				// assembly args
+				m := reflect.ValueOf(elem).MethodByName(actionNameFDR)
+				n := m.Type().NumIn()
+				args := make([]*interface{},n)
+				for i:= 0; i < n; i++{
 					args[i] = new(interface{})
-					*args[i] = nil
+					*args[i] = msg
 				}
-				if actionNameFDR == "I_Receive"{
-					fmt.Printf("Exec:: %v %v %v \n",*args[0],*args[1],*args[2])
-					*args[1] = "localhost"
-					*args[2] = 1313
-				}
-				*args[0] = msg  // parameter msg - common to all actions
 				params := ExecEdgeInfo{InternalAction: shared.Invoke, ActionName: actionNameFDR, ActionType: 1, ActionChannel: &channel, Message: msg, Args: args}
 				mapType := params
 				eActions = mapType
@@ -81,19 +78,7 @@ func (Exec) Create(elem interface{}, id string, dot dot.DOTGraph, maps map[strin
 	return *r1
 }
 
-func loadActionParams(elem interface{}) map[string]int {
-
-	// Identify interface actions
-	params := map[string]int{}
-	for i := 0; i < reflect.TypeOf(elem).NumMethod(); i++ {
-		name := reflect.TypeOf(elem).Method(i).Name
-		f := reflect.TypeOf(elem).Method(i).Type
-		params[name] = f.NumIn()-1
-	}
-	return params
-}
-
-func checkInterface(elem interface{},  id string, dot dot.DOTGraph){
+func checkInterface(elem interface{}, id string, dot dot.DOTGraph) {
 
 	// Identify dot actions
 	dotActions := []string{}
@@ -101,7 +86,7 @@ func checkInterface(elem interface{},  id string, dot dot.DOTGraph){
 		for e2 := range dot.EdgesDot [e1] {
 			edgeTemp := dot.EdgesDot[e1][e2]
 			actionNameFDR := edgeTemp.Action
-			if shared.IsInternal(actionNameFDR){
+			if shared.IsInternal(actionNameFDR) {
 				dotActions = append(dotActions, actionNameFDR)
 			}
 		}
@@ -114,16 +99,16 @@ func checkInterface(elem interface{},  id string, dot dot.DOTGraph){
 	}
 
 	// Check dot actions
-	for i:= range  dotActions{
+	for i := range dotActions {
 		found := false
-		for j := range interfaceActions{
-			if dotActions[i] == interfaceActions[j]{
+		for j := range interfaceActions {
+			if dotActions[i] == interfaceActions[j] {
 				found = true
 				break
 			}
 		}
 		if !found {
-			fmt.Println("Exec:: Action '"+dotActions[i]+"' not found in the interface of '"+reflect.TypeOf(elem).String()+"'")
+			fmt.Println("Exec:: Action '" + dotActions[i] + "' not found in the interface of '" + reflect.TypeOf(elem).String() + "'")
 			os.Exit(0)
 		}
 	}

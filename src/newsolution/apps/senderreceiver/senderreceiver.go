@@ -2,11 +2,6 @@ package main
 
 import (
 	"fmt"
-	"gmidarch/development/framework/messages"
-	"newsolution/development/components"
-	"newsolution/development/connectors"
-	"newsolution/execution/environment/engine"
-	"newsolution/shared/parameters"
 	"newsolution/execution/environment/frontend"
 )
 
@@ -16,7 +11,7 @@ func main() {
 	fmt.Scanln()
 }
 
-
+/*
 func oldmain() {
 	chn1 := make(chan messages.SAMessage)
 	chn2 := make(chan messages.SAMessage)
@@ -45,3 +40,4 @@ func oldmain() {
 
 	fmt.Scanln()
 }
+*/

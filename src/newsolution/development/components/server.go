@@ -1,11 +1,11 @@
 package components
 
 import (
-	"gmidarch/development/framework/messages"
+	"newsolution/development/artefacts/exec"
 	"strings"
+	"gmidarch/development/framework/messages"
 	"newsolution/development/element"
 	"newsolution/shared/shared"
-	"newsolution/development/artefacts/exec"
 )
 
 type Server struct {
@@ -24,7 +24,7 @@ func NewServer() Server {
 func (s *Server) Configure(invP, terP *chan messages.SAMessage) Server {
 
 	// configure the state machine
-	msg := new(messages.SAMessage)
+	msg := new(interface{})
 	s.Graph = *exec.NewExecGraph(3)
 
 	actionChannel := make(chan messages.SAMessage)
@@ -42,7 +42,8 @@ func (s *Server) Configure(invP, terP *chan messages.SAMessage) Server {
 	return *s
 }
 
-func (Server) I_Process(msg *messages.SAMessage) {
-	msgTemp := strings.ToUpper(msg.Payload.(string))
+func (Server) I_Process(msg *interface{}) {
+	temp := *msg
+	msgTemp := strings.ToUpper(temp.(messages.SAMessage).Payload.(string))
 	*msg = messages.SAMessage{Payload: msgTemp}
 }

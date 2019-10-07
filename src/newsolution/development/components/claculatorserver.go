@@ -1,13 +1,13 @@
 package components
 
 import (
+	"newsolution/development/artefacts/exec"
 	"gmidarch/development/framework/messages"
+	"newsolution/shared/shared"
+	"newsolution/development/impl"
 	"fmt"
 	"os"
 	"newsolution/development/element"
-	"newsolution/development/impl"
-	"newsolution/shared/shared"
-	"newsolution/development/artefacts/exec"
 )
 
 type Calculatorserver struct {
@@ -28,7 +28,7 @@ func (c *Calculatorserver) Configure(invP *chan messages.SAMessage, terP *chan m
 	// configure the state machine
 	c.Graph = *exec.NewExecGraph(3)
 
-	msg := new(messages.SAMessage)
+	msg := new(interface{})
 	args := make([]*interface{}, 1)
 	args[0] = new(interface{})
 	*args[0] = msg

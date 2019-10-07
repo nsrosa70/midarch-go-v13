@@ -1,10 +1,10 @@
 package components
 
 import (
-	"gmidarch/development/framework/messages"
-	"newsolution/development/element"
-	"newsolution/shared/shared"
 	"newsolution/development/artefacts/exec"
+	"gmidarch/development/framework/messages"
+	"newsolution/shared/shared"
+	"newsolution/development/element"
 )
 
 type CalculatorProxy struct {
@@ -25,7 +25,7 @@ func (c *CalculatorProxy) Configure(invP, terP, invR, terR *chan messages.SAMess
 	// configure the state machine
 	c.Graph = *exec.NewExecGraph(6)
 	actionChannel := make(chan messages.SAMessage)
-	msg := new(messages.SAMessage)
+	msg := new(interface{})
 	args := make([]*interface{}, 1)
 	args[0] = new(interface{})
 	*args[0] = msg

@@ -1,8 +1,8 @@
 package architectural
 
 import (
-	"newsolution/development/connectors"
 	"newsolution/development/components"
+	"newsolution/development/connectors"
 )
 
 type Record struct {

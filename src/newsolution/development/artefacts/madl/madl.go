@@ -161,11 +161,8 @@ func (m *MADL) configureComponents() {
 			os.Exit(0)
 		}
 		m.Components[i].Type = record.Type
-
-		// Load action input parameter's type
-		m.loadParameters(m.Components[i].Type)
 		dotgraph := dot.DOT{}.Read(m.Components[i].TypeName + parameters.DOT_EXTENSION)
-		execgraph := exec.Exec{}.Create(m.Components[i].Type,m.Components[i].Id, dotgraph, m.Maps, m.Channels)
+		execgraph := exec.Exec{}.Create(m.Components[i].Id, m.Components[i].Type, m.Components[i].TypeName, dotgraph, m.Maps, m.Channels)
 
 		m.Components[i].Graph = execgraph
 	}
@@ -174,6 +171,7 @@ func (m *MADL) configureComponents() {
 func (m *MADL) configureConnectors() {
 	lib := new(architectural.ArchitecturalRepository)
 	lib.Load()
+
 	for i := range m.Connectors {
 		record, ok := lib.Library[m.Connectors[i].TypeName]
 		if !ok {
@@ -182,7 +180,7 @@ func (m *MADL) configureConnectors() {
 		}
 		m.Connectors[i].Type = record.Type
 		dotgraph := dot.DOT{}.Read(m.Connectors[i].TypeName + parameters.DOT_EXTENSION)
-		execgraph := exec.Exec{}.Create(m.Connectors[i].Type,m.Connectors[i].Id, dotgraph, m.Maps, m.Channels)
+		execgraph := exec.Exec{}.Create(m.Connectors[i].Id, m.Connectors[i].Type,  m.Connectors[i].TypeName,dotgraph, m.Maps, m.Channels)
 
 		m.Connectors[i].Graph = execgraph
 	}
@@ -321,7 +319,7 @@ func (MADL) identifyConnectors(content []string) ([]Element, error) {
 				connId := strings.TrimSpace(temp[0])
 				connType := strings.TrimSpace(temp[1])
 				connTypeName := connType
-				r1 = append(r1, Element{Id: connId, Type: connType, TypeName:connTypeName})
+				r1 = append(r1, Element{Id: connId, Type: connType, TypeName: connTypeName})
 			} else {
 				if foundConnectors && tempLine != "" && !strings.Contains(tempLine, ":") {
 					break
@@ -578,8 +576,7 @@ func (madl *MADL) configureChannelsAndMaps() {
 	madl.Maps = elemMaps
 }
 
-func (MADL) loadParameters(elem interface{}){
-
+func (MADL) loadParameters(elem interface{}) {
 
 	//type Args struct{
 	//	ArgsX []interface{}
@@ -590,8 +587,8 @@ func (MADL) loadParameters(elem interface{}){
 	for i := 0; i < reflect.TypeOf(elem).NumMethod(); i++ {
 		//name := reflect.TypeOf(elem).Method(i).Name
 		//f := reflect.TypeOf(elem).Method(i).Type
-		m := reflect.TypeOf(elem).Method(i)
-		fmt.Printf("MADL::: %v\n",m.Type)
+		//m := reflect.TypeOf(elem).Method(i)
+		//fmt.Printf("MADL::: %v\n", m.Type)
 		//args := make([]interface{},f.NumIn()-1)
 		//params[name].ArgsX = args
 	}

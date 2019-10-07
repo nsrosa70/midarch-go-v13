@@ -4,13 +4,13 @@ import (
 	"gmidarch/development/framework/messages"
 	"reflect"
 	"os"
-	"newsolution/development/element"
 	"fmt"
 	"newsolution/development/connectors"
 	"newsolution/execution/environment/engine"
 	"newsolution/shared/parameters"
-	"newsolution/shared/shared"
 	"newsolution/development/artefacts/exec"
+	"newsolution/shared/shared"
+	"newsolution/development/element"
 )
 
 type Unit struct {
@@ -30,7 +30,7 @@ func (u *Unit) ConfigureUnit(elem interface{}, invP *chan messages.SAMessage) {
 
 	// configure the state machine
 	u.Graph = *exec.NewExecGraph(2)
-	msg := new(messages.SAMessage)
+	msg := new(interface{})
 	actionChannel := make(chan messages.SAMessage)
 
 	args := make([] *interface{}, 2)
@@ -65,7 +65,7 @@ func (Unit) I_Execute(msg *messages.SAMessage, elem interface{}) {
 	case "components.Receiver":
 		elemTemp := elemTemp.(Receiver)
 		engine.Engine{}.Execute(elemTemp, elemTemp.Graph, !parameters.EXECUTE_FOREVER)
-	case "components.Client":
+/*	case "components.Client":
 		elemTemp := elemTemp.(Client)
 		engine.Engine{}.Execute(elemTemp, elemTemp.Graph, !parameters.EXECUTE_FOREVER)
 	case "components.Server":
@@ -95,14 +95,14 @@ func (Unit) I_Execute(msg *messages.SAMessage, elem interface{}) {
 	case "components.Invoker":
 		elemTemp := elemTemp.(Invoker)
 		engine.Engine{}.Execute(elemTemp, elemTemp.Graph, !parameters.EXECUTE_FOREVER)
-
+*/
 	case "connectors.Oneway":
 		elemTemp := elemTemp.(connectors.Oneway)
 		engine.Engine{}.Execute(elemTemp, elemTemp.Graph, !parameters.EXECUTE_FOREVER)
-	case "connectors.Requestreply":
+/*	case "connectors.Requestreply":
 		elemTemp := elemTemp.(connectors.Requestreply)
 		engine.Engine{}.Execute(elemTemp, elemTemp.Graph, !parameters.EXECUTE_FOREVER)
-	default:
+*/	default:
 		fmt.Println("Unit:: Architectural element '" + reflect.TypeOf(elemTemp).String() + "' not supported")
 		os.Exit(0)
 	}

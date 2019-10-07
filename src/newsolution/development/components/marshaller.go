@@ -1,14 +1,14 @@
 package components
 
 import (
+	"newsolution/development/artefacts/exec"
+	"newsolution/shared/shared"
+	"newsolution/development/miop"
+	"newsolution/development/impl"
 	"gmidarch/development/framework/messages"
 	"fmt"
 	"os"
 	"newsolution/development/element"
-	"newsolution/development/miop"
-	"newsolution/development/impl"
-	"newsolution/shared/shared"
-	"newsolution/development/artefacts/exec"
 )
 
 type Marshaller struct {
@@ -29,7 +29,7 @@ func (m *Marshaller) Configure(invP, terP *chan messages.SAMessage) {
 	// configure the state machine
 	m.Graph = *exec.NewExecGraph(3)
 
-	msg := new(messages.SAMessage)
+	msg := new(interface{})
 	args := make([]*interface{}, 1)
 	args[0] = new(interface{})
 	*args[0] = msg

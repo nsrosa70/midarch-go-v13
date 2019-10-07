@@ -1,11 +1,10 @@
 package components
 
 import (
-	"gmidarch/development/framework/messages"
-	"newsolution/development/element"
-	"newsolution/development/miop"
-	"newsolution/shared/shared"
 	"newsolution/development/artefacts/exec"
+	"gmidarch/development/framework/messages"
+	"newsolution/shared/shared"
+	"newsolution/development/miop"
 )
 
 type Calculatorinvoker struct {
@@ -21,6 +20,7 @@ func NewCalculatorinvoker() Invoker {
 		return *r
 }
 
+/*
 func (i *Calculatorinvoker) Configure(invP, terP, invR1, terR1, invR2, terR2, invR3, terR3 *chan messages.SAMessage) {
 
 	// configure the state machine
@@ -60,7 +60,7 @@ func (i *Calculatorinvoker) Configure(invP, terP, invR1, terR1, invR2, terR2, in
 	newEdgeInfo = exec.ExecEdgeInfo{ExternalAction: element.Element{}.TerP, ActionType: 2, ActionChannel: terP, Message: msg}
 	i.Graph.AddEdge(11, 0, newEdgeInfo)
 }
-
+*/
 func (Calculatorinvoker) I_DeserialiseMIOP(msg *messages.SAMessage,){
 
 	argsTemp := make([]interface{}, 1)

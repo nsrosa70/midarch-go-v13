@@ -1,15 +1,15 @@
 package components
 
 import (
+	"newsolution/development/artefacts/exec"
 	"gmidarch/development/framework/messages"
-	"strconv"
+	"fmt"
 	"net"
+	"strconv"
 	"encoding/binary"
 	"log"
 	"newsolution/development/element"
 	"newsolution/shared/shared"
-	"newsolution/development/artefacts/exec"
-	"fmt"
 )
 
 type CRH struct {
@@ -31,7 +31,7 @@ func (c *CRH) Configure (invP, terP *chan messages.SAMessage) {
 	c.Graph = *exec.NewExecGraph(3)
 	actionChannel := make(chan messages.SAMessage)
 
-	msg := new(messages.SAMessage)
+	msg := new(interface{})
 	args := make([]*interface{}, 1)
 	args[0] = new(interface{})
 	*args[0] = msg

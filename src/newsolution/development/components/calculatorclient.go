@@ -1,11 +1,11 @@
 package components
 
 import (
-	"gmidarch/development/framework/messages"
-	"newsolution/development/element"
-	"fmt"
-	"newsolution/shared/shared"
 	"newsolution/development/artefacts/exec"
+	"gmidarch/development/framework/messages"
+	"newsolution/shared/shared"
+	"fmt"
+	"newsolution/development/element"
 )
 
 //var t1 time.Time
@@ -30,7 +30,7 @@ func (c *Calculatorclient) Configure(invR, terR *chan messages.SAMessage) {
 	c.Graph = *exec.NewExecGraph(4)
 	actionChannel := make(chan messages.SAMessage)
 
-	msg := new(messages.SAMessage)
+	msg := new(interface{})
 	args := make([]*interface{}, 1)
 	args[0] = new(interface{})
 	*args[0] = msg

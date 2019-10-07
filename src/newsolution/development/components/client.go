@@ -1,11 +1,11 @@
 package components
 
 import (
-	"gmidarch/development/framework/messages"
-	"fmt"
-	"newsolution/development/element"
-	"newsolution/shared/shared"
 	"newsolution/development/artefacts/exec"
+	"gmidarch/development/framework/messages"
+	"newsolution/shared/shared"
+	"newsolution/development/element"
+	"fmt"
 )
 
 type Client struct {
@@ -27,7 +27,7 @@ func (c *Client) Configure(invR, terR *chan messages.SAMessage) {
 	c.Graph = *exec.NewExecGraph(4)
 	actionChannel := make(chan messages.SAMessage)
 
-	msg := new(messages.SAMessage)
+	msg := new(interface{})
 	args := make([]*interface{}, 1)
 	args[0] = new(interface{})
 	*args[0] = msg
@@ -42,9 +42,11 @@ func (c *Client) Configure(invR, terR *chan messages.SAMessage) {
 	c.Graph.AddEdge(3, 0, newEdgeInfo)
 }
 
-func (Client) I_Setmessage(msg *messages.SAMessage) {
+func (Client) I_Setmessage(msg *interface{}) {
 	*msg = messages.SAMessage{Payload: "Hello World from Client"}
 }
-func (Client) I_Printmessage(msg *messages.SAMessage) {
-	fmt.Println(msg.Payload)
+func (Client) I_Printmessage(msg *interface{}) {
+	temp := *msg
+
+	fmt.Println(temp.(messages.SAMessage).Payload)
 }

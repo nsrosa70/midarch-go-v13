@@ -1,11 +1,8 @@
 package components
 
 import (
-	"gmidarch/development/framework/messages"
-	"newsolution/development/element"
-	"newsolution/shared/shared"
-	"fmt"
 	"newsolution/development/artefacts/exec"
+	"fmt"
 )
 
 type Receiver struct {
@@ -21,6 +18,7 @@ func NewReceiver() Receiver {
 	return *r
 }
 
+/*
 func (r *Receiver) Configure(invP *chan messages.SAMessage) {
 
 	// configure the state machine
@@ -38,7 +36,8 @@ func (r *Receiver) Configure(invP *chan messages.SAMessage) {
 
 	return
 }
-
-func (Receiver) I_Printmessage(msg *messages.SAMessage) {
+*/
+//func (Receiver) I_Printmessage(msg *messages.SAMessage) {
+func (Receiver) I_Printmessage(msg *interface{}) {
 	fmt.Printf("Receiver:: %v  \n",*msg)
 }

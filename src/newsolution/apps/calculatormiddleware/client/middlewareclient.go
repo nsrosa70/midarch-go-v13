@@ -24,7 +24,7 @@ func oldmain() {
 	}
 
 	// application
-	clientCalculator := components.NewClientCalculator()
+	clientCalculator := components.NewCalculatorclient()
 	clientCalculator.Configure(&chn[0], &chn[1])
 
 	t1 := connectors.NewRequestReply()

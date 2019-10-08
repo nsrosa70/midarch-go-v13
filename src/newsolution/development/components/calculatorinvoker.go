@@ -61,7 +61,7 @@ func (i *Calculatorinvoker) Configure(invP, terP, invR1, terR1, invR2, terR2, in
 	i.Graph.AddEdge(11, 0, newEdgeInfo)
 }
 */
-func (Calculatorinvoker) I_DeserialiseMIOP(msg *messages.SAMessage,){
+func (Calculatorinvoker) I_DeserialiseMIOP(msg *messages.SAMessage,info [] *interface{}){
 
 	argsTemp := make([]interface{}, 1)
 	argsTemp[0] = msg.Payload
@@ -77,7 +77,7 @@ func (Calculatorinvoker) I_PrepareToObject(msg *messages.SAMessage){
 	*msg = messages.SAMessage{Payload:inv}
 }
 
-func (Calculatorinvoker) I_SerialiseMIOP(msg *messages.SAMessage) {
+func (Calculatorinvoker) I_SerialiseMIOP(msg *messages.SAMessage, info [] *interface{}) {
 	r := msg.Payload.(int)  // TODO
 
 	// assembly packet
@@ -97,7 +97,7 @@ func (Calculatorinvoker) I_SerialiseMIOP(msg *messages.SAMessage) {
 	*msg = messages.SAMessage{Payload: msgToMarhsaller}
 }
 
-func (Calculatorinvoker) I_PrepareToSRH(msg *messages.SAMessage) {
+func (Calculatorinvoker) I_PrepareToSRH(msg *messages.SAMessage, info [] *interface{}) {
 	toSRH := make([]interface{},1)
 	toSRH[0] = msg.Payload.([]uint8)
 

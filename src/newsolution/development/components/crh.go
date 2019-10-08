@@ -3,7 +3,6 @@ package components
 import (
 	"newsolution/development/artefacts/exec"
 	"gmidarch/development/framework/messages"
-	"fmt"
 	"net"
 	"strconv"
 	"encoding/binary"
@@ -31,23 +30,21 @@ func (c *CRH) Configure (invP, terP *chan messages.SAMessage) {
 	c.Graph = *exec.NewExecGraph(3)
 	actionChannel := make(chan messages.SAMessage)
 
-	msg := new(interface{})
-	args := make([]*interface{}, 1)
-	args[0] = new(interface{})
-	*args[0] = msg
+	msg := new(messages.SAMessage)
+	info := make([]*interface{}, 1)
+	info[0] = new(interface{})
+	*info[0] = msg
 
 	newEdgeInfo := exec.ExecEdgeInfo{ExternalAction: element.Element{}.InvP, ActionType: 2, ActionChannel: invP, Message: msg}
 	c.Graph.AddEdge(0, 1, newEdgeInfo)
-	newEdgeInfo = exec.ExecEdgeInfo{InternalAction: shared.Invoke,ActionName:"I_Process", ActionType: 1, ActionChannel: &actionChannel, Message: msg, Args: args}
+	newEdgeInfo = exec.ExecEdgeInfo{InternalAction: shared.Invoke,ActionName:"I_Process", ActionType: 1, ActionChannel: &actionChannel, Message: msg, Info: info}
 	c.Graph.AddEdge(1, 2, newEdgeInfo)
 	newEdgeInfo = exec.ExecEdgeInfo{ExternalAction: element.Element{}.TerP, ActionType: 2, ActionChannel: terP, Message: msg}
 	c.Graph.AddEdge(2, 0, newEdgeInfo)
 
 }
 
-func (CRH) I_Process(msg *messages.SAMessage) {
-
-	fmt.Println("CRH:: HERE")
+func (CRH) I_Process(msg *messages.SAMessage, info [] *interface{}) {
 
 	// check message
 	argsTemp := msg.Payload.([]interface{})

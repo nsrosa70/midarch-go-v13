@@ -1,10 +1,10 @@
 package engine
 
 import (
-	"gmidarch/development/framework/messages"
 	"reflect"
 	"newsolution/shared/parameters"
 	"newsolution/development/artefacts/exec"
+	"gmidarch/development/framework/messages"
 )
 
 type Engine struct{}
@@ -20,7 +20,7 @@ func (Engine) Execute(elem interface{}, graph exec.ExecGraph, executionMode bool
 			edge := edges[0]
 			switch edge.Info.ActionType {
 			case 1:
-				edge.Info.InternalAction(elem, edge.Info.ActionName, edge.Info.Args)
+				edge.Info.InternalAction(elem, edge.Info.ActionName, edge.Info.Message, edge.Info.Info)
 			case 2:
 				edge.Info.ExternalAction(edge.Info.ActionChannel, edge.Info.Message)
 			}
@@ -48,7 +48,7 @@ func choice(elem interface{}, msg *interface{}, chosen *int, edges []exec.ExecEd
 		case 1: // Internal
 			casesInternal[i] = reflect.SelectCase{Dir: reflect.SelectRecv, Chan: reflect.ValueOf(*edges[i].Info.ActionChannel)}
 			casesExternal[i] = reflect.SelectCase{Dir: reflect.SelectRecv}
-			edges[i].Info.InternalAction(elem, edges[i].Info.ActionName, edges[i].Info.Args)
+			edges[i].Info.InternalAction(elem, edges[i].Info.ActionName, edges[i].Info.Message, edges[i].Info.Info)
 			go send(edges[i].Info.ActionChannel, *edges[i].Info.Message)
 
 		case 2: // External
@@ -56,7 +56,6 @@ func choice(elem interface{}, msg *interface{}, chosen *int, edges []exec.ExecEd
 			casesInternal[i] = reflect.SelectCase{Dir: reflect.SelectRecv}
 		}
 	}
-
 	// default case
 	casesExternal[len(edges)] = reflect.SelectCase{Dir: reflect.SelectDefault}
 
@@ -73,7 +72,6 @@ func choice(elem interface{}, msg *interface{}, chosen *int, edges []exec.ExecEd
 	}
 }
 
-func send(channel *chan messages.SAMessage, msg interface{}) {
-	msgTemp := msg.(messages.SAMessage)
-	*channel <- msgTemp
+func send(channel *chan messages.SAMessage, msg messages.SAMessage) {
+	*channel <- msg
 }

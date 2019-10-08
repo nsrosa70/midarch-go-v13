@@ -5,6 +5,7 @@ import (
 	"gmidarch/development/framework/messages"
 	"newsolution/shared/shared"
 	"newsolution/development/element"
+	"newsolution/shared/parameters"
 )
 
 type CalculatorProxy struct {
@@ -25,20 +26,20 @@ func (c *CalculatorProxy) Configure(invP, terP, invR, terR *chan messages.SAMess
 	// configure the state machine
 	c.Graph = *exec.NewExecGraph(6)
 	actionChannel := make(chan messages.SAMessage)
-	msg := new(interface{})
-	args := make([]*interface{}, 1)
-	args[0] = new(interface{})
-	*args[0] = msg
+	msg := new(messages.SAMessage)
+	info := make([]*interface{}, 1)
+	info[0] = new(interface{})
+	*info[0] = msg
 
 	newEdgeInfo := exec.ExecEdgeInfo{ExternalAction: element.Element{}.InvP, ActionType: 2, ActionChannel: invP, Message: msg}
 	c.Graph.AddEdge(0, 1, newEdgeInfo)
-	newEdgeInfo = exec.ExecEdgeInfo{InternalAction: shared.Invoke, ActionName:"I_Processin",ActionType: 1, ActionChannel: &actionChannel, Message: msg, Args: args}
+	newEdgeInfo = exec.ExecEdgeInfo{InternalAction: shared.Invoke, ActionName: "I_Processin", ActionType: 1, ActionChannel: &actionChannel, Message: msg, Info: info}
 	c.Graph.AddEdge(1, 2, newEdgeInfo)
 	newEdgeInfo = exec.ExecEdgeInfo{ExternalAction: element.Element{}.InvR, ActionType: 2, ActionChannel: invR, Message: msg}
 	c.Graph.AddEdge(2, 3, newEdgeInfo)
 	newEdgeInfo = exec.ExecEdgeInfo{ExternalAction: element.Element{}.TerR, ActionType: 2, ActionChannel: terR, Message: msg}
 	c.Graph.AddEdge(3, 4, newEdgeInfo)
-	newEdgeInfo = exec.ExecEdgeInfo{InternalAction: shared.Invoke, ActionName:"I_Processout",ActionType: 1, ActionChannel: &actionChannel, Message: msg, Args: args}
+	newEdgeInfo = exec.ExecEdgeInfo{InternalAction: shared.Invoke, ActionName: "I_Processout", ActionType: 1, ActionChannel: &actionChannel, Message: msg, Info: info}
 	c.Graph.AddEdge(4, 5, newEdgeInfo)
 	newEdgeInfo = exec.ExecEdgeInfo{ExternalAction: element.Element{}.TerP, ActionType: 2, ActionChannel: terP, Message: msg}
 	c.Graph.AddEdge(5, 0, newEdgeInfo)
@@ -46,16 +47,16 @@ func (c *CalculatorProxy) Configure(invP, terP, invR, terR *chan messages.SAMess
 	return *c
 }
 
-func (CalculatorProxy) I_Processin(msg *messages.SAMessage) {
+func (CalculatorProxy) I_Processin(msg *messages.SAMessage, info [] *interface{}) {
 	inv := shared.Invocation{}
-	inv.Host = "localhost"  // TODO
-	inv.Port = 1313
+	inv.Host = "localhost" // TODO
+	inv.Port = parameters.CALCULATOR_PORT        // TODO
 	inv.Req = msg.Payload.(shared.Request)
 
 	*msg = messages.SAMessage{Payload: inv}
 }
 
-func (CalculatorProxy) I_Processout(msg *messages.SAMessage) {
+func (CalculatorProxy) I_Processout(msg *messages.SAMessage, info [] *interface{}) {
 
 	result := msg.Payload.([]interface{})
 	*msg = messages.SAMessage{Payload: int(result[0].(float64))}

@@ -44,19 +44,17 @@ func (s *Sender) Configure(invR *chan messages.SAMessage) {
 
 */
 
-//func (Sender) I_Setmessage1(msg *messages.SAMessage) {
-func (Sender) I_Setmessage1(msg *interface{}) {
+func (Sender) I_Setmessage1(msg *messages.SAMessage, info [] *interface{}) {
 	*msg = messages.SAMessage{Payload: "Hello World (Type 1)"}
 }
 
-//func (Sender) I_Setmessage2(msg *messages.SAMessage) {
-func (Sender) I_Setmessage2(msg *interface{}) {
+func (Sender) I_Setmessage2(msg *messages.SAMessage, info [] *interface{}) {
 	*msg = messages.SAMessage{Payload: "Hello World (Type 2)"}
 }
-//func (Sender) I_Setmessage3(msg *messages.SAMessage) {
-	func (Sender) I_Setmessage3(msg *interface{}) {
-		*msg = messages.SAMessage{Payload: "Hello World (Type 3)"}
+
+func (Sender) I_Setmessage3(msg *messages.SAMessage, info [] *interface{}) {
+	*msg = messages.SAMessage{Payload: "Hello World (Type 3)"}
 }
-func (Sender) I_Debug(msg *interface{}) {
+func (Sender) I_Debug(msg *messages.SAMessage, info [] *interface{}) {
 	fmt.Printf("Sender:: Debug:: %v \n", msg)
 }

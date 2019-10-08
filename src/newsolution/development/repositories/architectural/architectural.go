@@ -34,6 +34,7 @@ func (al *ArchitecturalRepository) Load() error {
 	al.Library["SRH"] = Record{Type:components.NewSRH(),CSP:""}
 	al.Library["Calculatorserver"] = Record{Type:components.Newcalculatorserver(),CSP:""}
 	al.Library["Calculatorinvoker"] = Record{Type:components.NewCalculatorinvoker(),CSP:""}
+	al.Library["Calculatorclient"] = Record{Type:components.NewCalculatorclient(),CSP:""}
 
 	return r1
 }

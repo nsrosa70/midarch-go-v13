@@ -10,6 +10,7 @@ import (
 	"gmidarch/development/framework/messages"
 	"newsolution/shared/shared"
 	"newsolution/development/element"
+	"newsolution/shared/parameters"
 )
 
 type SRH struct {
@@ -40,37 +41,37 @@ func (s *SRH) Configure(invR, terR *chan messages.SAMessage) {
 	// configure the state machine
 	s.Graph = *exec.NewExecGraph(4)
 	actionChannel := make(chan messages.SAMessage)
-	msg := new(interface{})
+	msg := new(messages.SAMessage)
 
-	args1 := make([]*interface{}, 3) // host, port, msg
-	args1[0] = new(interface{})
-	args1[1] = new(interface{})
+	info1 := make([]*interface{}, 3) // host, port, msg
+	info1[0] = new(interface{})
+	info1[1] = new(interface{})
 
-	*args1[0] = msg
-	*args1[1] = make([] interface{}, 3)
+	*info1[0] = msg
+	*info1[1] = make([] interface{}, 3)
 	args1HostPort := make([]interface{}, 2)
 	args1HostPort[0] = "localhost"
 	args1HostPort[1] = 1313
-	*args1[1] = args1HostPort
+	*info1[1] = args1HostPort
 
-	newEdgeInfo := exec.ExecEdgeInfo{InternalAction: shared.Invoke, ActionName: "I_Receive", ActionType: 1, ActionChannel: &actionChannel, Message: msg, Args: args1}
+	newEdgeInfo := exec.ExecEdgeInfo{InternalAction: shared.Invoke, ActionName: "I_Receive", ActionType: 1, ActionChannel: &actionChannel, Message: msg, Info: info1}
 	s.Graph.AddEdge(0, 1, newEdgeInfo)
 	newEdgeInfo = exec.ExecEdgeInfo{ExternalAction: element.Element{}.InvR, ActionType: 2, ActionChannel: invR, Message: msg}
 	s.Graph.AddEdge(1, 2, newEdgeInfo)
 	newEdgeInfo = exec.ExecEdgeInfo{ExternalAction: element.Element{}.TerR, ActionType: 2, ActionChannel: terR, Message: msg}
 	s.Graph.AddEdge(2, 3, newEdgeInfo)
 
-	args2 := make([]*interface{}, 1)
-	args2[0] = new(interface{})
-	*args2[0] = msg
-	newEdgeInfo = exec.ExecEdgeInfo{InternalAction: shared.Invoke, ActionName: "I_Send", ActionType: 1, ActionChannel: &actionChannel, Message: msg, Args: args2}
+	info2 := make([]*interface{}, 1)
+	info2[0] = new(interface{})
+	*info2[0] = msg
+	newEdgeInfo = exec.ExecEdgeInfo{InternalAction: shared.Invoke, ActionName: "I_Send", ActionType: 1, ActionChannel: &actionChannel, Message: msg, Info: info2}
 	s.Graph.AddEdge(3, 0, newEdgeInfo)
 }
 
-func (SRH) I_Receive(msg *interface{}, hostTemp1 *interface{}, portTemp1 *interface{}) { // TODO
+func (SRH) I_Receive(msg *messages.SAMessage, info [] *interface{}) { // TODO
 
 	host := "localhost"  // TODO
-	port := 1313  // TODO
+	port := parameters.CALCULATOR_PORT  // TODO
 
 	// create listener
 	ln, err = net.Listen("tcp", host+":"+strconv.Itoa(port))
@@ -99,11 +100,11 @@ func (SRH) I_Receive(msg *interface{}, hostTemp1 *interface{}, portTemp1 *interf
 		log.Fatalf("SRH:: %s", err)
 	}
 
-	//*msg = messages.SAMessage{Payload: msgTemp} // TODO
+	*msg = messages.SAMessage{Payload: msgTemp} // TODO
 
 }
 
-func (SRH) I_Send(msg *messages.SAMessage) {
+func (SRH) I_Send(msg *messages.SAMessage, info [] *interface{}) {
 	msgTemp := msg.Payload.([]interface{})[0].([]byte)
 
 	// send message's size
@@ -126,12 +127,14 @@ func (SRH) I_Send(msg *messages.SAMessage) {
 	ln.Close()
 }
 
-func (SRH) I_Test1(msg *interface{}, any *interface{}) {
+func (SRH) I_Test1(msg *messages.SAMessage, info [] *interface{}) {
 	*msg = messages.SAMessage{Payload: "Teste 1"}
+	*info[0] = 3
 	fmt.Printf("SRH:: %v\n", *msg)
 }
 
-func (SRH) I_Test2(msg *interface{}, any *interface{}) {
+func (SRH) I_Test2(msg *messages.SAMessage, info [] *interface{}) {
 	*msg = messages.SAMessage{Payload: "Teste 2"}
+	*info[0] = 13
 	fmt.Printf("SRH:: %v\n", *msg)
 }

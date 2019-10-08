@@ -29,12 +29,12 @@ func (e *Executor) Configure(invR *chan messages.SAMessage) {
 	e.Graph = *exec.NewExecGraph(2)
 	actionChannel := make(chan messages.SAMessage)
 
-	msg := new(interface{})
-	args := make([]*interface{}, 1)
-	args[0] = new(interface{})
-	*args[0] = msg
+	msg := new(messages.SAMessage)
+	info := make([]*interface{}, 1)
+	info[0] = new(interface{})
+	*info[0] = msg
 
-	newEdgeInfo := exec.ExecEdgeInfo{InternalAction: shared.Invoke, ActionName: "I_Newadaptation", Message: msg, ActionType: 1, ActionChannel: &actionChannel, Args:args}
+	newEdgeInfo := exec.ExecEdgeInfo{InternalAction: shared.Invoke, ActionName: "I_Newadaptation", Message: msg, ActionType: 1, ActionChannel: &actionChannel, Info:info}
 	e.Graph.AddEdge(0, 1, newEdgeInfo)
 	newEdgeInfo = exec.ExecEdgeInfo{ExternalAction: element.Element{}.InvR, ActionType: 2, ActionChannel: invR, Message: msg}
 	e.Graph.AddEdge(1, 0, newEdgeInfo)

@@ -3,6 +3,7 @@ package components
 import (
 	"newsolution/development/artefacts/exec"
 	"fmt"
+	"gmidarch/development/framework/messages"
 )
 
 type Receiver struct {
@@ -37,7 +38,7 @@ func (r *Receiver) Configure(invP *chan messages.SAMessage) {
 	return
 }
 */
-//func (Receiver) I_Printmessage(msg *messages.SAMessage) {
-func (Receiver) I_Printmessage(msg *interface{}) {
+
+func (Receiver) I_Printmessage(msg *messages.SAMessage, info [] *interface{}) {
 	fmt.Printf("Receiver:: %v  \n",*msg)
 }

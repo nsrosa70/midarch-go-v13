@@ -20,8 +20,15 @@ func (Exec) Create(id string, elem interface{}, typeName string, dot dot.DOTGrap
 	// Check dot actions against elem's interface
 	checkInterface(elem, id, dot)
 
-	//msg := new(messages.SAMessage)
-	msg := new(interface{})
+	// initialisation of message and info
+	msg := new(messages.SAMessage)
+	*msg = messages.SAMessage{Payload:""}  // TODO
+	info := make([]*interface{},3) // 3 can be set any value
+	for i:= 0; i < 3; i++{
+		info[i] = new(interface{})
+		*info[i] = new(interface{})
+	}
+
 	for e1 := range dot.EdgesDot {
 		for e2 := range dot.EdgesDot [e1] {
 			eActions := ExecEdgeInfo{}
@@ -58,16 +65,7 @@ func (Exec) Create(id string, elem interface{}, typeName string, dot dot.DOTGrap
 
 			if shared.IsInternal(actionNameFDR) { // Internal action
 				channel := make(chan messages.SAMessage)
-
-				// assembly args
-				m := reflect.ValueOf(elem).MethodByName(actionNameFDR)
-				n := m.Type().NumIn()
-				args := make([]*interface{},n)
-				for i:= 0; i < n; i++{
-					args[i] = new(interface{})
-					*args[i] = msg
-				}
-				params := ExecEdgeInfo{InternalAction: shared.Invoke, ActionName: actionNameFDR, ActionType: 1, ActionChannel: &channel, Message: msg, Args: args}
+				params := ExecEdgeInfo{InternalAction: shared.Invoke, ActionName: actionNameFDR, ActionType: 1, ActionChannel: &channel, Message: msg, Info: info}
 				mapType := params
 				eActions = mapType
 			}

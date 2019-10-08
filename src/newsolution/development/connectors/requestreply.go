@@ -23,7 +23,7 @@ func (r *Requestreply) Configure (invP, terP, invR, terR *chan messages.SAMessag
 
 	// configure the new instance
 	//msg := messages.SAMessage{}
-	msg := new(interface{})
+	msg := new(messages.SAMessage)
 
 	// configure the state machine
 	r.Graph = *exec.NewExecGraph(4)

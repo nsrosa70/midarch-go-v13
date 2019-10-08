@@ -5,7 +5,6 @@ import (
 	"reflect"
 	"fmt"
 	"newsolution/shared/shared"
-	"gmidarch/development/framework/messages"
 )
 
 type X struct{}
@@ -21,22 +20,28 @@ func main() {
 
 	obj := lib.Library["SRH"].Type
 
-	in := make([]*interface{},2)
-	in[0] = new(interface{})
-	*in[0] = new(interface{})
-	in[1] = new(interface{})
-	*in[1] = new(interface{})
+	msg := new(interface{})
+	*msg = new(interface{})
 
-	fmt.Println(*in[0])
-	shared.Invoke(obj,reflect.TypeOf(obj).Method(2).Name,in)
-	temp := *in[0]
-	temp2 := temp.(*interface{})
-	fmt.Println(*temp2)
-	shared.Invoke(obj,reflect.TypeOf(obj).Method(3).Name,in)
-	temp = *in[0]
-	temp2 = temp.(*interface{})
-	temp3 := *temp2
-	fmt.Println(temp3.(messages.SAMessage).Payload)
+
+	info := make([]*interface{}, 3)
+	info[0] = new(interface{})
+	*info[0] = new(interface{})
+	info[1] = new(interface{})
+	*info[1] = new(interface{})
+	info[2] = new(interface{})
+	*info[2] = new(interface{})
+
+	fmt.Println(*info[0])
+	shared.InvokeNewNew(obj, reflect.TypeOf(obj).Method(2).Name, msg, info) // I_Test1
+	temp := *info[0]
+	temp2 := temp.(int)
+	fmt.Println(temp2)
+
+	shared.InvokeNewNew(obj, reflect.TypeOf(obj).Method(3).Name, msg, info) // I_Test2
+	temp = *info[0]
+	temp2 = temp.(int)
+	fmt.Println(temp2)
 }
 
 func oldmain() {

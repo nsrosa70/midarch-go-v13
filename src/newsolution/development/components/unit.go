@@ -30,27 +30,27 @@ func (u *Unit) ConfigureUnit(elem interface{}, invP *chan messages.SAMessage) {
 
 	// configure the state machine
 	u.Graph = *exec.NewExecGraph(2)
-	msg := new(interface{})
+	msg := new(messages.SAMessage)
 	actionChannel := make(chan messages.SAMessage)
 
-	args := make([] *interface{}, 2)
-	args[0] = new(interface{})
-	args[1] = new(interface{})
-	args[2] = new(interface{})
-	*args[0] = new(messages.SAMessage)
-	*args[1] = elem
+	info := make([] *interface{}, 2)
+	info[0] = new(interface{})
+	info[1] = new(interface{})
+	info[2] = new(interface{})
+	*info[0] = new(messages.SAMessage)
+	*info[1] = elem
 
-	newEdgeInfo := exec.ExecEdgeInfo{InternalAction: shared.Invoke, ActionName: "I_Execute", ActionType: 1, ActionChannel: &actionChannel, Message: msg, Args: args}
+	newEdgeInfo := exec.ExecEdgeInfo{InternalAction: shared.Invoke, ActionName: "I_Execute", ActionType: 1, ActionChannel: &actionChannel, Message: msg, Info: info}
 	u.Graph.AddEdge(0, 0, newEdgeInfo)
 
 	newEdgeInfo = exec.ExecEdgeInfo{ExternalAction: element.Element{}.InvP, ActionName: "InvP", ActionType: 2, ActionChannel: invP, Message: msg}
 	u.Graph.AddEdge(0, 1, newEdgeInfo)
 
 	actionChannel = make(chan messages.SAMessage)
-	args1 := make([]*interface{}, 1)
-	args1[0] = new(interface{})
-	*args1[0] = new(messages.SAMessage)
-	newEdgeInfo = exec.ExecEdgeInfo{InternalAction: shared.Invoke, ActionName: "I_PerformAdaptation", ActionType: 1, ActionChannel: &actionChannel, Message: msg, Args: args1}
+	info1 := make([]*interface{}, 1)
+	info1[0] = new(interface{})
+	*info1[0] = new(messages.SAMessage)
+	newEdgeInfo = exec.ExecEdgeInfo{InternalAction: shared.Invoke, ActionName: "I_PerformAdaptation", ActionType: 1, ActionChannel: &actionChannel, Message: msg, Info: info1}
 	u.Graph.AddEdge(1, 0, newEdgeInfo)
 }
 

@@ -186,7 +186,7 @@ func Invoke(any interface{}, name string, args ... interface{}) {
 }
 */
 
-func Invoke(any interface{}, name string, args [] *interface{}) {
+func InvokeOld1(any interface{}, name string, args [] *interface{}) {
 	inputs := make([]reflect.Value, len(args))
 
 	for i, _ := range args {
@@ -194,6 +194,19 @@ func Invoke(any interface{}, name string, args [] *interface{}) {
 	}
 
 	fmt.Printf("Shared:: %v %v %v\n",reflect.TypeOf(any),name, inputs)
+
+	reflect.ValueOf(any).MethodByName(name).Call(inputs)
+
+	inputs = nil
+	return
+}
+
+func Invoke(any interface{}, name string, msg *messages.SAMessage, info [] *interface{}) {
+	inputs := make([]reflect.Value, 2)
+	inputs[0] = reflect.ValueOf(msg)
+	inputs[1] = reflect.ValueOf(info)
+
+	//fmt.Printf("Shared:: %v %v %v %v\n",reflect.TypeOf(any),name, msg, info)
 
 	reflect.ValueOf(any).MethodByName(name).Call(inputs)
 

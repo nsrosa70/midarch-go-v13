@@ -24,17 +24,17 @@ func NewServer() Server {
 func (s *Server) Configure(invP, terP *chan messages.SAMessage) Server {
 
 	// configure the state machine
-	msg := new(interface{})
+	msg := new(messages.SAMessage)
 	s.Graph = *exec.NewExecGraph(3)
 
 	actionChannel := make(chan messages.SAMessage)
-	args := make([]*interface{}, 1)
-	args[0] = new(interface{})
-	*args[0] = msg
+	info := make([]*interface{}, 1)
+	info[0] = new(interface{})
+	*info[0] = msg
 
 	newEdgeInfo := exec.ExecEdgeInfo{ExternalAction: element.Element{}.InvP, Message: msg, ActionChannel: invP, ActionType: 2}
 	s.Graph.AddEdge(0, 1, newEdgeInfo)
-	newEdgeInfo = exec.ExecEdgeInfo{InternalAction: shared.Invoke, ActionName: "I_Process", Message: msg, ActionType: 1, ActionChannel: &actionChannel, Args: args}
+	newEdgeInfo = exec.ExecEdgeInfo{InternalAction: shared.Invoke, ActionName: "I_Process", Message: msg, ActionType: 1, ActionChannel: &actionChannel, Info: info}
 	s.Graph.AddEdge(1, 2, newEdgeInfo)
 	newEdgeInfo = exec.ExecEdgeInfo{ExternalAction: element.Element{}.TerP, Message: msg, ActionChannel: terP, ActionType: 2}
 	s.Graph.AddEdge(2, 0, newEdgeInfo)
@@ -42,8 +42,7 @@ func (s *Server) Configure(invP, terP *chan messages.SAMessage) Server {
 	return *s
 }
 
-func (Server) I_Process(msg *interface{}) {
-	temp := *msg
-	msgTemp := strings.ToUpper(temp.(messages.SAMessage).Payload.(string))
+func (Server) I_Process(msg *messages.SAMessage,info [] *interface{}) {
+	msgTemp := strings.ToUpper(msg.Payload.(string))
 	*msg = messages.SAMessage{Payload: msgTemp}
 }

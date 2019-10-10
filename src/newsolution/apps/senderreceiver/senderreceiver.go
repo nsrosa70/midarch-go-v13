@@ -2,11 +2,13 @@ package main
 
 import (
 	"fmt"
-	"newsolution/execution/environment/frontend"
+	"newsolution/gmidarch/execution/frontend"
 )
 
 func main() {
-	frontend.FrontEnd{}.Deploy("senderreceiver.madl")
+
+	fe := frontend.FrontEnd{}
+	fe.Deploy("senderreceiver.madl")
 
 	fmt.Scanln()
 }

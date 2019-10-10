@@ -12,6 +12,7 @@ import (
 	"plugin"
 	"log"
 	"reflect"
+	"errors"
 )
 
 //type Invocation struct {
@@ -403,4 +404,21 @@ type Invocation struct {
 	Host string
 	Port int
 	Req  Request
+}
+
+func CheckFileName(fileName string) error {
+	r := *new(error)
+	r = nil
+
+	len := len(fileName)
+
+	if len <= 5 {
+		r = errors.New("File Name Invalid")
+	} else {
+		if fileName[len-5:] != parameters.MADL_EXTENSION {
+			r = errors.New("Invalid extension of '" + fileName + "'")
+		}
+	}
+
+	return r
 }

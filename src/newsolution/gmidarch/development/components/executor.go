@@ -1,12 +1,12 @@
 package components
 
 import (
-	"newsolution/gmidarch/development/artefacts/graphs"
-	"time"
 	"fmt"
-	"gmidarch/development/framework/messages"
-	"newsolution/shared/shared"
+	"newsolution/gmidarch/development/artefacts/graphs"
 	"newsolution/gmidarch/development/element"
+	"newsolution/gmidarch/development/messages"
+	"newsolution/shared/shared"
+	"time"
 )
 
 type Executor struct {

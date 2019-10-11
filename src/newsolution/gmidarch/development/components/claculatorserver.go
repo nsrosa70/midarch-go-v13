@@ -2,7 +2,7 @@ package components
 
 import (
 	"newsolution/gmidarch/development/artefacts/graphs"
-	"gmidarch/development/framework/messages"
+	"newsolution/gmidarch/development/messages"
 	"newsolution/shared/shared"
 	"newsolution/gmidarch/development/impl"
 	"fmt"

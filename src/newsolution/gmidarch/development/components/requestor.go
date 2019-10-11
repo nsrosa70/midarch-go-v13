@@ -2,10 +2,10 @@ package components
 
 import (
 	"newsolution/gmidarch/development/artefacts/graphs"
-	"gmidarch/development/framework/messages"
-	"newsolution/shared/shared"
-	"newsolution/gmidarch/development/miop"
 	"newsolution/gmidarch/development/element"
+	"newsolution/gmidarch/development/messages"
+	"newsolution/gmidarch/development/miop"
+	"newsolution/shared/shared"
 )
 
 type Requestor struct {

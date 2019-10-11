@@ -1,7 +1,7 @@
 package graphs
 
 import (
-	"gmidarch/development/framework/messages"
+	"newsolution/gmidarch/development/messages"
 )
 
 type ExecGraph struct {

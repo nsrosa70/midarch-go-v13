@@ -2,14 +2,14 @@ package components
 
 import (
 	"newsolution/gmidarch/development/artefacts/graphs"
-	"strings"
-	"gmidarch/development/framework/messages"
 	"newsolution/gmidarch/development/element"
+	"newsolution/gmidarch/development/messages"
 	"newsolution/shared/shared"
+	"strings"
 )
 
 type Server struct {
-	CSP   string
+	Behaviour   string
 	Graph graphs.ExecGraph
 }
 
@@ -17,6 +17,7 @@ func NewServer() Server {
 
 	// create a new instance of Server
 	r := new(Server)
+	r.Behaviour = "B = InvP.e1 -> I_Process -> TerP.e1 -> B"
 
 	return *r
 }

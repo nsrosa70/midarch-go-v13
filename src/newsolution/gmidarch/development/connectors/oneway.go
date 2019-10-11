@@ -1,9 +1,9 @@
 package connectors
 
 import (
-	"gmidarch/development/framework/messages"
 	"newsolution/gmidarch/development/element"
 	"newsolution/gmidarch/development/artefacts/graphs"
+	"newsolution/gmidarch/development/messages"
 )
 
 type Oneway struct {
@@ -15,7 +15,7 @@ func NewOneway() Oneway {
 
 	// create a new instance of client
 	r := new(Oneway)
-	r.Behaviour = "Oneway = InvP.e1 -> InvR.e2 -> Oneway"
+	r.Behaviour = "B = InvP.e1 -> InvR.e2 -> B"
 
 	return *r
 }

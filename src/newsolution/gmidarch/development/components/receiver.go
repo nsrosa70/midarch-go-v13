@@ -1,9 +1,9 @@
 package components
 
 import (
-	"newsolution/gmidarch/development/artefacts/graphs"
 	"fmt"
-	"gmidarch/development/framework/messages"
+	"newsolution/gmidarch/development/artefacts/graphs"
+	"newsolution/gmidarch/development/messages"
 )
 
 type Receiver struct {
@@ -15,7 +15,7 @@ func NewReceiver() Receiver {
 
 	// create a new instance of client
 	r := new(Receiver)
-	r.Behaviour = "Receiver = InvP.e1 -> I_PrintMessage -> Receiver"
+	r.Behaviour = "B = InvP.e1 -> I_PrintMessage -> B"
 
 	return *r
 }

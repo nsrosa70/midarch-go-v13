@@ -1,18 +1,18 @@
 package shared
 
 import (
-	"strings"
-	"strconv"
-	"time"
-	"fmt"
-	"os"
-	"newsolution/shared/parameters"
-	"gmidarch/development/framework/messages"
-	"io/ioutil"
-	"plugin"
-	"log"
-	"reflect"
 	"errors"
+	"fmt"
+	"io/ioutil"
+	"log"
+	"newsolution/gmidarch/development/messages"
+	"newsolution/shared/parameters"
+	"os"
+	"plugin"
+	"reflect"
+	"strconv"
+	"strings"
+	"time"
 )
 
 //type Invocation struct {
@@ -51,8 +51,8 @@ type QueueingTermination struct {
 }
 
 type ParMapActions struct {
-	F1 func(*chan messages.SAMessage, *messages.SAMessage)      // External action
-	F2 func(any interface{}, name string, args ... interface{}) // Internal action
+	F1 func(*chan messages.SAMessage, *messages.SAMessage)     // External action
+	F2 func(any interface{}, name string, args ...interface{}) // Internal action
 	P1 *messages.SAMessage
 	P2 *chan messages.SAMessage
 	P3 interface{}
@@ -194,7 +194,7 @@ func InvokeOld1(any interface{}, name string, args [] *interface{}) {
 		inputs[i] = reflect.ValueOf(*args[i])
 	}
 
-	fmt.Printf("Shared:: %v %v %v\n",reflect.TypeOf(any),name, inputs)
+	fmt.Printf("Shared:: %v %v %v\n", reflect.TypeOf(any), name, inputs)
 
 	reflect.ValueOf(any).MethodByName(name).Call(inputs)
 
@@ -222,7 +222,7 @@ func InvokeNew(any interface{}, name string, args [] reflect.Value) {
 		inputs[i] = reflect.ValueOf(args[i])
 	}
 
-	fmt.Printf("Shared:: %v %v %v\n",reflect.TypeOf(any),name, inputs)
+	fmt.Printf("Shared:: %v %v %v\n", reflect.TypeOf(any), name, inputs)
 
 	reflect.ValueOf(any).MethodByName(name).Call(inputs)
 
@@ -421,4 +421,37 @@ func CheckFileName(fileName string) error {
 	}
 
 	return r
+}
+
+func SaveFile(path, name, ext string, content []string) {
+
+	// create diretcory if it does not exist
+	confDir := path
+	_, err := os.Stat(confDir);
+	if os.IsNotExist(err) {
+		os.MkdirAll(confDir, os.ModePerm);
+	}
+
+	// create file if it does not exist && truncate otherwise
+	file, err := os.Create(confDir + "/" + name + ext)
+	if err != nil {
+		fmt.Println("Shared:: File " + path + "/" + name + "." + ext + "not created!!")
+		os.Exit(0)
+	}
+	defer file.Close()
+
+	// save data
+	for i := range content {
+		_, err = file.WriteString(content[i])
+		if err != nil {
+			fmt.Println("Shared:: File " + path + "/" + name + "." + ext + "not saved!!")
+			os.Exit(0)
+		}
+	}
+	err = file.Sync()
+	if err != nil {
+		fmt.Println("Shared:: File " + path + "/" + name + "." + ext + "not synced!!")
+		os.Exit(0)
+	}
+	defer file.Close()
 }

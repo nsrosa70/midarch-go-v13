@@ -2,14 +2,14 @@ package components
 
 import (
 	"newsolution/gmidarch/development/artefacts/graphs"
-	"gmidarch/development/framework/messages"
+	"newsolution/gmidarch/development/messages"
 	"newsolution/shared/shared"
 	"newsolution/gmidarch/development/element"
 	"fmt"
 )
 
 type Client struct {
-	CSP   string
+	Behaviour   string
 	Graph graphs.ExecGraph
 }
 
@@ -17,6 +17,7 @@ func NewClient() Client {
 
 	// create a new instance of client
 	r := new(Client)
+	r.Behaviour = "B = I_Setmessage -> InvR.e1 -> TerR.e1 -> I_Printmessage -> B"
 
 	return *r
 }

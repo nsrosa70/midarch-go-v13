@@ -1,7 +1,7 @@
 package element
 
 import (
-	"gmidarch/development/framework/messages"
+	"newsolution/gmidarch/development/messages"
 )
 
 type Element struct{}

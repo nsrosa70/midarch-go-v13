@@ -13,7 +13,7 @@ type Loader struct{}
 
 func (l Loader) Load(file string) madl.MADL{
 
-	// load file
+	// read file
 	m := l.read(file)
 
 	// Check configuration

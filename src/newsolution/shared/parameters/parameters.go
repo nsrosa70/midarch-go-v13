@@ -6,17 +6,17 @@ import "time"
 //const BASE_DIR  = "/go/midarch-go"  // docker
 const BASE_DIR = "/Users/nsr/Dropbox/go/midarch-go-v13"
 const DIR_PLUGINS = BASE_DIR + "/src/plugins"
-const DIR_CSP = BASE_DIR + "/src/cspspecs"
+const DIR_CSP = BASE_DIR + "/src/newsolution/apps/csps"
 const DIR_MADL = BASE_DIR + "/src/newsolution/apps/madls"
 const DIR_GO = "/usr/local/go/bin"
 const DIR_FDR = "/Volumes/Macintosh HD/Applications/FDR4-2.app/Contents/MacOS"
 const DIR_CSPARSER = BASE_DIR + "/src/verificationtools/cspdot/csparser"
-const DIR_DOT = BASE_DIR+"/src/newsolution/gmidarch/development/repositories/dot"
+const DIR_DOT = BASE_DIR + "/src/newsolution/gmidarch/development/repositories/dot"
 const COMPONENTS_PATH = "components"
 const CONNECTORS_PATH = "connectors"
 const NAMINGCLIENTPROXY_PATH = "namingclientproxy"
 const MADL_EXTENSION = ".madl"
-const CSP_EXTENSION = ".artefacts"
+const CSP_EXTENSION = ".csp"
 const DOT_EXTENSION = ".dot"
 const RUNTIME_BEHAVIOUR = "RUNTIME"
 
@@ -87,3 +87,7 @@ const MADL_EE = 0
 const MADL_MID = 1
 
 const EXECUTE_FOREVER = true
+
+const REPLACE_COMPONENT = "REPLACE_COMPONENT"
+const STOP              = "STOP"
+const FDR_COMMAND       = "refines"

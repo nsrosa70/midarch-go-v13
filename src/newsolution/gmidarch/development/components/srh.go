@@ -1,20 +1,20 @@
 package components
 
 import (
+	"encoding/binary"
+	"fmt"
+	"log"
 	"net"
 	"newsolution/gmidarch/development/artefacts/graphs"
-	"fmt"
-	"strconv"
-	"log"
-	"encoding/binary"
-	"gmidarch/development/framework/messages"
-	"newsolution/shared/shared"
 	"newsolution/gmidarch/development/element"
+	"newsolution/gmidarch/development/messages"
 	"newsolution/shared/parameters"
+	"newsolution/shared/shared"
+	"strconv"
 )
 
 type SRH struct {
-	CSP   string
+	Behaviour   string
 	Graph graphs.ExecGraph
 	Host  string
 	Port  int
@@ -32,6 +32,7 @@ func NewSRH() SRH {
 	// configure the new instance
 	r.Host = "localhost" // TODO
 	r.Port = 1313        // TODO
+	r.Behaviour = "B = I_Receive -> InvR.e1 -> TerR.e1 -> I_Send -> B"
 
 	return *r
 }
@@ -70,8 +71,8 @@ func (s *SRH) Configure(invR, terR *chan messages.SAMessage) {
 
 func (SRH) I_Receive(msg *messages.SAMessage, info [] *interface{}) { // TODO
 
-	host := "localhost"  // TODO
-	port := parameters.CALCULATOR_PORT  // TODO
+	host := "localhost"                // TODO
+	port := parameters.CALCULATOR_PORT // TODO
 
 	// create listener
 	ln, err = net.Listen("tcp", host+":"+strconv.Itoa(port))

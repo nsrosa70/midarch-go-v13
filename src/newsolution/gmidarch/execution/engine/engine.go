@@ -1,10 +1,10 @@
 package engine
 
 import (
-	"reflect"
-	"newsolution/shared/parameters"
 	"newsolution/gmidarch/development/artefacts/graphs"
-	"gmidarch/development/framework/messages"
+	"newsolution/gmidarch/development/messages"
+	"newsolution/shared/parameters"
+	"reflect"
 )
 
 type Engine struct{}

@@ -2,22 +2,23 @@ package components
 
 import (
 	"newsolution/gmidarch/development/artefacts/graphs"
-	"gmidarch/development/framework/messages"
-	"newsolution/shared/shared"
+	"newsolution/gmidarch/development/messages"
 	"newsolution/gmidarch/development/miop"
+	"newsolution/shared/shared"
 )
 
 type Calculatorinvoker struct {
-	CSP   string
-	Graph graphs.ExecGraph
+	Behaviour string
+	Graph     graphs.ExecGraph
 }
 
 func NewCalculatorinvoker() Invoker {
 
 	// create a new instance of Invoker
 	r := new(Invoker)
+	r.Behaviour = NewInvoker().Behaviour  // Reuse the generic behaviour
 
-		return *r
+	return *r
 }
 
 /*
@@ -61,30 +62,30 @@ func (i *Calculatorinvoker) Configure(invP, terP, invR1, terR1, invR2, terR2, in
 	i.Graph.AddEdge(11, 0, newEdgeInfo)
 }
 */
-func (Calculatorinvoker) I_DeserialiseMIOP(msg *messages.SAMessage,info [] *interface{}){
+func (Calculatorinvoker) I_DeserialiseMIOP(msg *messages.SAMessage, info [] *interface{}) {
 
 	argsTemp := make([]interface{}, 1)
 	argsTemp[0] = msg.Payload
 	msgToMarhsaller := shared.Request{Op: "unmarshall", Args: argsTemp}
 
-	*msg = messages.SAMessage{Payload:msgToMarhsaller}
+	*msg = messages.SAMessage{Payload: msgToMarhsaller}
 }
 
-func (Calculatorinvoker) I_PrepareToObject(msg *messages.SAMessage){
+func (Calculatorinvoker) I_PrepareToObject(msg *messages.SAMessage) {
 	miopPacket := msg.Payload.(miop.Packet)
 	argsTemp := miopPacket.Bd.ReqBody.Body
-	inv := shared.Request{Op:miopPacket.Bd.ReqHeader.Operation,Args:argsTemp}
-	*msg = messages.SAMessage{Payload:inv}
+	inv := shared.Request{Op: miopPacket.Bd.ReqHeader.Operation, Args: argsTemp}
+	*msg = messages.SAMessage{Payload: inv}
 }
 
 func (Calculatorinvoker) I_SerialiseMIOP(msg *messages.SAMessage, info [] *interface{}) {
-	r := msg.Payload.(int)  // TODO
+	r := msg.Payload.(int) // TODO
 
 	// assembly packet
 	repHeader := miop.ReplyHeader{Context: "TODO", RequestId: 13, Status: 131313}
-	result := make([]interface{},1)
+	result := make([]interface{}, 1)
 	result[0] = r
-	repBody := miop.ReplyBody{OperationResult:result}
+	repBody := miop.ReplyBody{OperationResult: result}
 	miopHeader := miop.Header{Magic: "M.I.O.P.", Version: "version", MessageType: 2, Size: 131313, ByteOrder: true}
 	miopBody := miop.Body{RepHeader: repHeader, RepBody: repBody}
 	miopPacket := miop.Packet{Hdr: miopHeader, Bd: miopBody}
@@ -98,7 +99,7 @@ func (Calculatorinvoker) I_SerialiseMIOP(msg *messages.SAMessage, info [] *inter
 }
 
 func (Calculatorinvoker) I_PrepareToSRH(msg *messages.SAMessage, info [] *interface{}) {
-	toSRH := make([]interface{},1)
+	toSRH := make([]interface{}, 1)
 	toSRH[0] = msg.Payload.([]uint8)
 
 	*msg = messages.SAMessage{Payload: toSRH}

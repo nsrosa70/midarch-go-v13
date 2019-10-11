@@ -1,18 +1,18 @@
 package madl
 
 import (
-	"newsolution/shared/shared"
-	"newsolution/shared/parameters"
 	"errors"
-	"strings"
-	"os"
 	"fmt"
-	"reflect"
-	"gmidarch/development/framework/messages"
-	"newsolution/gmidarch/development/repositories/architectural"
 	"newsolution/gmidarch/development/artefacts/dot"
-	"strconv"
 	"newsolution/gmidarch/development/artefacts/graphs"
+	"newsolution/gmidarch/development/messages"
+	"newsolution/gmidarch/development/repositories/architectural"
+	"newsolution/shared/parameters"
+	"newsolution/shared/shared"
+	"os"
+	"reflect"
+	"strconv"
+	"strings"
 )
 
 type MADL struct {
@@ -124,6 +124,7 @@ func (m *MADL) ConfigureComponents() {
 			os.Exit(0)
 		}
 		m.Components[i].Type = record.Type
+		m.Components[i].Behaviour = record.Behaviour
 		dotgraph := dot.DOT{}.Read(m.Components[i].TypeName + parameters.DOT_EXTENSION)
 		execgraph := graphs.Exec{}.Create(m.Components[i].ElemId, m.Components[i].Type, m.Components[i].TypeName, dotgraph, m.Maps, m.Channels)
 
@@ -143,6 +144,7 @@ func (m *MADL) ConfigureConnectors() {
 			os.Exit(0)
 		}
 		m.Connectors[i].Type = record.Type
+		m.Connectors[i].Behaviour = record.Behaviour
 		dotgraph := dot.DOT{}.Read(m.Connectors[i].TypeName + parameters.DOT_EXTENSION)
 		execgraph := graphs.Exec{}.Create(m.Connectors[i].ElemId, m.Connectors[i].Type, m.Connectors[i].TypeName, dotgraph, m.Maps, m.Channels)
 

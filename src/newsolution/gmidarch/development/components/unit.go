@@ -1,16 +1,16 @@
 package components
 
 import (
-	"gmidarch/development/framework/messages"
-	"reflect"
-	"os"
 	"fmt"
+	"newsolution/gmidarch/development/artefacts/graphs"
 	"newsolution/gmidarch/development/connectors"
+	"newsolution/gmidarch/development/element"
+	"newsolution/gmidarch/development/messages"
 	"newsolution/gmidarch/execution/engine"
 	"newsolution/shared/parameters"
-	"newsolution/gmidarch/development/artefacts/graphs"
 	"newsolution/shared/shared"
-	"newsolution/gmidarch/development/element"
+	"os"
+	"reflect"
 )
 
 type Unit struct {

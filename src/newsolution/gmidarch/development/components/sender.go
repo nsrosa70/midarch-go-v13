@@ -1,9 +1,9 @@
 package components
 
 import (
-	"newsolution/gmidarch/development/artefacts/graphs"
-	"gmidarch/development/framework/messages"
 	"fmt"
+	"newsolution/gmidarch/development/artefacts/graphs"
+	"newsolution/gmidarch/development/messages"
 )
 
 type Sender struct {
@@ -15,7 +15,7 @@ func NewSender() Sender {
 
 	// create a new instance of client
 	r := new(Sender)
-	r.Behaviour = "Sender = I_Setmessage1 -> InvR.e1 -> sender [] I_Setmessage2 -> InvR.e1 -> sender [] I_Setmessage3 -> InvR.e1 -> Sender"
+	r.Behaviour = "B = I_Setmessage1 -> InvR.e1 -> B [] I_Setmessage2 -> InvR.e1 -> B [] I_Setmessage3 -> InvR.e1 -> B"
 
 	return *r
 

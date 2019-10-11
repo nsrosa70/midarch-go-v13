@@ -1,15 +1,15 @@
 package graphs
 
 import (
+	"fmt"
 	"newsolution/gmidarch/development/artefacts/dot"
-	"gmidarch/development/framework/messages"
-	"strings"
+	"newsolution/gmidarch/development/element"
+	"newsolution/gmidarch/development/messages"
 	"newsolution/shared/parameters"
 	"newsolution/shared/shared"
-	"newsolution/gmidarch/development/element"
-	"reflect"
-	"fmt"
 	"os"
+	"reflect"
+	"strings"
 )
 
 type Exec struct{}

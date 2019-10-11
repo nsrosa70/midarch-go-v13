@@ -2,7 +2,7 @@ package components
 
 import (
 	"newsolution/gmidarch/development/artefacts/graphs"
-	"gmidarch/development/framework/messages"
+	"newsolution/gmidarch/development/messages"
 	"net"
 	"strconv"
 	"encoding/binary"
@@ -12,7 +12,7 @@ import (
 )
 
 type CRH struct {
-	CSP   string
+	Behaviour   string
 	Graph graphs.ExecGraph
 }
 
@@ -20,6 +20,7 @@ func NewCRH() CRH {
 
 	// create a new instance of Server
 	r := new(CRH)
+	r.Behaviour = "B = InvP.e1 -> I_Process -> TerP.e1 -> B"
 
 	return *r
 }

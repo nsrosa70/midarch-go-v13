@@ -1,14 +1,14 @@
 package components
 
 import (
-	"newsolution/gmidarch/development/artefacts/graphs"
-	"newsolution/shared/shared"
-	"newsolution/gmidarch/development/miop"
-	"newsolution/gmidarch/development/impl"
-	"gmidarch/development/framework/messages"
 	"fmt"
-	"os"
+	"newsolution/gmidarch/development/artefacts/graphs"
 	"newsolution/gmidarch/development/element"
+	"newsolution/gmidarch/development/impl"
+	"newsolution/gmidarch/development/messages"
+	"newsolution/gmidarch/development/miop"
+	"newsolution/shared/shared"
+	"os"
 )
 
 type Marshaller struct {
